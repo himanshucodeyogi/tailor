@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('../partials/head') %>
+<body class="bg-gray-50 dark:bg-gray-900">
+  <%- include('../partials/nav-admin') %>
+
+  <div class="max-w-7xl mx-auto px-3 sm:px-4 py-6 sm:py-8">
+    <%- include('../partials/flash') %>
+
+    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-4 mb-4 sm:mb-8">
+      <h1 class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white">Orders</h1>
+      <a href="/admin/orders/new" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded text-sm sm:text-base w-full sm:w-auto text-center">
+        + Create Order
+      </a>
+    </div>
+
+    <!-- Status Filter Tabs -->
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow mb-4 sm:mb-8 p-2 sm:p-4 overflow-x-auto">
+      <div class="flex gap-1 sm:gap-2 flex-nowrap">
+        <a href="/admin/orders?status=all" class="px-2 sm:px-4 py-2 rounded text-xs sm:text-sm font-medium whitespace-nowrap <%= currentStatus === 'all' ? 'bg-blue-600 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600' %>">
+          All
+        </a>
+        <a href="/admin/orders?status=Order%20Placed" class="px-2 sm:px-4 py-2 rounded text-xs sm:text-sm font-medium whitespace-nowrap <%= currentStatus === 'Order Placed' ? 'bg-gray-600 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600' %>">
+          Placed
+        </a>
+        <a href="/admin/orders?status=Cutting" class="px-2 sm:px-4 py-2 rounded text-xs sm:text-sm font-medium whitespace-nowrap <%= currentStatus === 'Cutting' ? 'bg-yellow-600 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600' %>">
+          Cutting
+        </a>
+        <a href="/admin/orders?status=In%20Stitching" class="px-2 sm:px-4 py-2 rounded text-xs sm:text-sm font-medium whitespace-nowrap <%= currentStatus === 'In Stitching' ? 'bg-blue-600 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600' %>">
+          Stitching
+        </a>
+        <a href="/admin/orders?status=Final%20Touches" class="px-2 sm:px-4 py-2 rounded text-xs sm:text-sm font-medium whitespace-nowrap <%= currentStatus === 'Final Touches' ? 'bg-orange-600 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600' %>">
+          Final
+        </a>
+        <a href="/admin/orders?status=Ready%20for%20Pickup" class="px-2 sm:px-4 py-2 rounded text-xs sm:text-sm font-medium whitespace-nowrap <%= currentStatus === 'Ready for Pickup' ? 'bg-green-600 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600' %>">
+          Ready
+        </a>
+      </div>
+    </div>
+
+    <!-- Orders Table/Cards -->
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden hidden sm:block">
+      <table class="w-full">
+        <thead>
+          <tr class="bg-gray-100 border-b-2 border-gray-200">
+            <th class="text-left py-4 px-6 font-semibold text-gray-700">Order #</th>
+            <th class="text-left py-4 px-6 font-semibold text-gray-700">Customer</th>
+            <th class="text-left py-4 px-6 font-semibold text-gray-700">Garment</th>
+            <th class="text-left py-4 px-6 font-semibold text-gray-700">Status</th>
+            <th class="text-left py-4 px-6 font-semibold text-gray-700">Price</th>
+            <th class="text-left py-4 px-6 font-semibold text-gray-700">Due Date</th>
+            <th class="text-left py-4 px-6 font-semibold text-gray-700">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (orders && orders.length > 0) { %>
+            <% orders.forEach((order) => { %>
+              <tr class="border-b hover:bg-gray-50">
+                <td class="py-4 px-6 font-mono text-sm"><%= order.orderNumber %></td>
+                <td class="py-4 px-6">
+                  <% if (order.customer) { %>
+                    <a href="/admin/customers/<%= order.customer._id %>" class="text-blue-600 hover:text-blue-800">
+                      <%= order.customer.name %>
+                    </a>
+                  <% } else { %>
+                    <span class="text-gray-500">N/A</span>
+                  <% } %>
+                </td>
+                <td class="py-4 px-6"><%= order.garmentType %></td>
+                <td class="py-4 px-6">
+                  <span class="px-3 py-1 rounded-full text-xs font-semibold
+                    <%= order.status === 'Ready for Pickup' ? 'bg-green-100 text-green-800' : '' %>
+                    <%= order.status === 'In Stitching' ? 'bg-blue-100 text-blue-800' : '' %>
+                    <%= order.status === 'Cutting' ? 'bg-yellow-100 text-yellow-800' : '' %>
+                    <%= order.status === 'Order Placed' ? 'bg-gray-100 text-gray-800' : '' %>
+                    <%= order.status === 'Final Touches' ? 'bg-orange-100 text-orange-800' : '' %>
+                  ">
+                    <%= order.status %>
+                  </span>
+                </td>
+                <td class="py-4 px-6 font-semibold">₹<%= order.price %></td>
+                <td class="py-4 px-6 text-sm">
+                  <%= order.dueDate ? new Date(order.dueDate).toLocaleDateString() : '-' %>
+                </td>
+                <td class="py-4 px-6 space-x-2 text-sm">
+                  <a href="/admin/orders/<%= order._id %>" class="text-blue-600 hover:text-blue-800 font-semibold">View</a>
+                  <a href="/admin/orders/<%= order._id %>/edit" class="text-orange-600 hover:text-orange-800 font-semibold">Edit</a>
+                  <% const statuses = ['Order Placed', 'Cutting', 'In Stitching', 'Final Touches', 'Ready for Pickup'];
+                     const currentIdx = statuses.indexOf(order.status);
+                     const nextStatus = currentIdx < statuses.length - 1 ? statuses[currentIdx + 1] : null;
+                  %>
+                  <% if (nextStatus) { %>
+                    <button onclick="quickUpdateStatus('<%= order._id %>', '<%= nextStatus %>')" class="text-green-600 hover:text-green-800 font-semibold">▶ Next</button>
+                  <% } %>
+                  <form action="/admin/orders/<%= order._id %>?_method=DELETE" method="POST" style="display: inline;"
+                        onsubmit="return confirm('Are you sure?');">
+                    <button type="submit" class="text-red-600 hover:text-red-800 font-semibold">Delete</button>
+                  </form>
+                </td>
+              </tr>
+            <% }) %>
+          <% } else { %>
+            <tr>
+              <td colspan="7" class="py-8 text-center text-gray-500">
+                No orders found. <a href="/admin/orders/new" class="text-blue-600 hover:text-blue-800 font-semibold">Create one</a>
+              </td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Mobile Cards View -->
+    <div class="sm:hidden space-y-3">
+      <% if (orders && orders.length > 0) { %>
+        <% orders.forEach((order) => { %>
+          <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 space-y-3">
+            <div class="flex justify-between items-start gap-2">
+              <div>
+                <p class="text-xs text-gray-500 dark:text-gray-400">Order #</p>
+                <p class="font-mono font-semibold text-gray-900 dark:text-white"><%= order.orderNumber %></p>
+              </div>
+              <span class="px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap
+                <%= order.status === 'Ready for Pickup' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : '' %>
+                <%= order.status === 'In Stitching' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' : '' %>
+                <%= order.status === 'Cutting' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200' : '' %>
+                <%= order.status === 'Order Placed' ? 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300' : '' %>
+                <%= order.status === 'Final Touches' ? 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200' : '' %>
+              ">
+                <%= order.status %>
+              </span>
+            </div>
+
+            <div class="space-y-2 text-sm">
+              <div>
+                <p class="text-gray-500 dark:text-gray-400 text-xs">Customer</p>
+                <% if (order.customer) { %>
+                  <a href="/admin/customers/<%= order.customer._id %>" class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-semibold">
+                    <%= order.customer.name %>
+                  </a>
+                <% } else { %>
+                  <span class="text-gray-500 dark:text-gray-400">N/A</span>
+                <% } %>
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <p class="text-gray-500 dark:text-gray-400 text-xs">Garment</p>
+                  <p class="font-medium dark:text-white"><%= order.garmentType %></p>
+                </div>
+                <div>
+                  <p class="text-gray-500 dark:text-gray-400 text-xs">Price</p>
+                  <p class="font-semibold dark:text-white">₹<%= order.price %></p>
+                </div>
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <p class="text-gray-500 dark:text-gray-400 text-xs">Due Date</p>
+                  <p class="font-medium dark:text-white"><%= order.dueDate ? new Date(order.dueDate).toLocaleDateString() : '-' %></p>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex gap-2 pt-2 border-t border-gray-200 dark:border-gray-700">
+              <a href="/admin/orders/<%= order._id %>" class="flex-1 text-center bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded text-xs">
+                View
+              </a>
+              <a href="/admin/orders/<%= order._id %>/edit" class="flex-1 text-center bg-orange-600 hover:bg-orange-700 text-white font-semibold py-2 rounded text-xs">
+                Edit
+              </a>
+              <% const statuses = ['Order Placed', 'Cutting', 'In Stitching', 'Final Touches', 'Ready for Pickup'];
+                 const currentIdx = statuses.indexOf(order.status);
+                 const nextStatus = currentIdx < statuses.length - 1 ? statuses[currentIdx + 1] : null;
+              %>
+              <% if (nextStatus) { %>
+                <button onclick="quickUpdateStatus('<%= order._id %>', '<%= nextStatus %>')" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-2 rounded text-xs">
+                  Next
+                </button>
+              <% } %>
+            </div>
+
+            <form action="/admin/orders/<%= order._id %>?_method=DELETE" method="POST" style="display: block;"
+                  onsubmit="return confirm('Are you sure?');">
+              <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-2 rounded text-xs">
+                Delete
+              </button>
+            </form>
+          </div>
+        <% }) %>
+      <% } else { %>
+        <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6 text-center">
+          <p class="text-gray-500 dark:text-gray-400 text-sm mb-3">
+            No orders found.
+          </p>
+          <a href="/admin/orders/new" class="inline-block bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded text-sm">
+            Create one
+          </a>
+        </div>
+      <% } %>
+    </div>
+  </div>
+
+  <%- include('../partials/footer') %>
+  <script src="/js/order-status.js"></script>
+  <script>
+    async function quickUpdateStatus(orderId, newStatus) {
+      if (confirm(`Move order to "${newStatus}"?`)) {
+        const response = await fetch(`/admin/orders/${orderId}/status`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ status: newStatus }),
+        });
+
+        if (response.ok) {
+          showNotification(`Status updated to ${newStatus}`, 'success');
+          setTimeout(() => {
+            location.reload();
+          }, 1000);
+        } else {
+          showNotification('Failed to update status', 'error');
+        }
+      }
+    }
+  </script>
+</body>
+</html>

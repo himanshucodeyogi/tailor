@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('../../partials/head') %>
+<body class="bg-gray-50 dark:bg-gray-900">
+  <%- include('../../partials/nav-admin') %>
+
+  <div class="max-w-2xl mx-auto px-3 sm:px-4 py-6 sm:py-12">
+    <%- include('../../partials/flash') %>
+
+    <!-- Back Button -->
+    <a href="/admin/tailors" class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium mb-4 sm:mb-6 inline-block text-sm sm:text-base">
+      ← Back to Tailors
+    </a>
+
+    <!-- Create Form -->
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 sm:p-8">
+      <h1 class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white mb-4 sm:mb-6">Create New Tailor Account</h1>
+
+      <form action="/admin/tailors" method="POST" class="space-y-4 sm:space-y-6">
+        <!-- Name -->
+        <div>
+          <label for="name" class="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Full Name</label>
+          <input
+            type="text"
+            id="name"
+            name="name"
+            placeholder="e.g., Ahmed Khan"
+            class="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg px-3 sm:px-4 py-2 sm:py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
+            required
+          />
+        </div>
+
+        <!-- Username -->
+        <div>
+          <label for="username" class="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Username</label>
+          <input
+            type="text"
+            id="username"
+            name="username"
+            placeholder="e.g., tailor_ahmed"
+            class="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg px-3 sm:px-4 py-2 sm:py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
+            required
+          />
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Minimum 3 characters, no spaces</p>
+        </div>
+
+        <!-- Password -->
+        <div>
+          <label for="password" class="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Password</label>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            placeholder="At least 6 characters"
+            class="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg px-3 sm:px-4 py-2 sm:py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
+            required
+          />
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Minimum 6 characters</p>
+        </div>
+
+        <!-- Confirm Password -->
+        <div>
+          <label for="confirmPassword" class="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Confirm Password</label>
+          <input
+            type="password"
+            id="confirmPassword"
+            name="confirmPassword"
+            placeholder="Re-enter password"
+            class="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg px-3 sm:px-4 py-2 sm:py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
+            required
+          />
+        </div>
+
+        <!-- Form Actions -->
+        <div class="flex flex-col sm:flex-row gap-2 sm:gap-4 pt-4 sm:pt-6 border-t border-gray-200 dark:border-gray-700">
+          <button
+            type="submit"
+            class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 sm:py-3 px-4 sm:px-8 rounded-lg transition text-sm sm:text-base w-full sm:w-auto"
+          >
+            Create Tailor
+          </button>
+          <a href="/admin/tailors" class="bg-gray-300 hover:bg-gray-400 dark:bg-gray-600 dark:hover:bg-gray-700 text-gray-800 dark:text-white font-bold py-2 sm:py-3 px-4 sm:px-8 rounded-lg transition inline-block text-sm sm:text-base w-full sm:w-auto text-center">
+            Cancel
+          </a>
+        </div>
+      </form>
+
+      <!-- Info Box -->
+      <div class="bg-yellow-50 dark:bg-yellow-900 border border-yellow-200 dark:border-yellow-700 rounded-lg p-4 mt-6 sm:mt-8">
+        <p class="text-yellow-800 dark:text-yellow-200 text-xs sm:text-sm">
+          <strong>⚠️ Note:</strong> After creating the account, make sure to share the username and password with the tailor in a secure way. They will use these credentials to log in at <code class="bg-yellow-100 dark:bg-yellow-800 px-2 py-1 rounded text-xs">/tailor/login</code>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <%- include('../../partials/footer') %>
+</body>
+</html>

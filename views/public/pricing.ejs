@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('../partials/head') %>
+<body class="bg-gray-50">
+  <%- include('../partials/nav-public') %>
+
+  <div class="max-w-7xl mx-auto px-4 py-12">
+    <%- include('../partials/flash') %>
+
+    <div class="text-center mb-12">
+      <h1 class="text-4xl font-bold text-gray-800 mb-4">Stitching Charges</h1>
+      <p class="text-lg text-gray-600">Professional tailoring at affordable prices</p>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-lg overflow-hidden max-w-4xl mx-auto">
+      <table class="w-full">
+        <thead>
+          <tr class="bg-blue-600 text-white">
+            <th class="px-6 py-4 text-left font-semibold">Garment Type</th>
+            <th class="px-6 py-4 text-left font-semibold">Price Range</th>
+            <th class="px-6 py-4 text-left font-semibold">Details</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="border-b hover:bg-gray-50">
+            <td class="px-6 py-4 font-semibold text-gray-800">Suit</td>
+            <td class="px-6 py-4 text-blue-600 font-bold">₹800 - ₹1,500</td>
+            <td class="px-6 py-4 text-gray-600">Full tailoring, alterations, and fitting</td>
+          </tr>
+          <tr class="border-b hover:bg-gray-50">
+            <td class="px-6 py-4 font-semibold text-gray-800">Shirt</td>
+            <td class="px-6 py-4 text-blue-600 font-bold">₹300 - ₹600</td>
+            <td class="px-6 py-4 text-gray-600">Sleeve shortening, tapering, collar fitting</td>
+          </tr>
+          <tr class="hover:bg-gray-50">
+            <td class="px-6 py-4 font-semibold text-gray-800">Kurta</td>
+            <td class="px-6 py-4 text-blue-600 font-bold">₹400 - ₹800</td>
+            <td class="px-6 py-4 text-gray-600">Length adjustment, shoulder fitting, design customization</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 max-w-4xl mx-auto mt-8">
+      <p class="text-gray-700">
+        <strong>Note:</strong> Prices vary based on complexity of work and fabric type. For custom designs and special requests, please inquire directly.
+      </p>
+    </div>
+  </div>
+
+  <%- include('../partials/footer') %>
+</body>
+</html>

@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('../partials/head') %>
+<body class="bg-gray-50">
+  <%- include('../partials/nav-admin') %>
+
+  <div class="max-w-7xl mx-auto px-4 py-8">
+    <%- include('../partials/flash') %>
+
+    <div class="mb-8">
+      <a href="/admin/orders" class="text-blue-600 hover:text-blue-800 font-semibold">← Back to Orders</a>
+    </div>
+
+    <!-- Order Header -->
+    <div class="bg-white rounded-lg shadow p-8 mb-8">
+      <div class="flex justify-between items-start mb-6">
+        <div>
+          <h1 class="text-3xl font-bold text-gray-800">Order #<%= order.orderNumber %></h1>
+          <p class="text-gray-600 mt-2">
+            <strong>Customer:</strong>
+            <% if (order.customer) { %>
+              <a href="/admin/customers/<%= order.customer._id %>" class="text-blue-600 hover:text-blue-800">
+                <%= order.customer.name %>
+              </a>
+              (<%= order.customer.phone %>)
+            <% } else { %>
+              N/A
+            <% } %>
+          </p>
+        </div>
+        <div class="space-x-2">
+          <a href="/admin/orders/<%= order._id %>/edit" class="bg-orange-600 hover:bg-orange-700 text-white font-semibold py-2 px-4 rounded">
+            Edit
+          </a>
+          <form action="/admin/orders/<%= order._id %>?_method=DELETE" method="POST" style="display: inline;"
+                onsubmit="return confirm('Are you sure?');">
+            <button type="submit" class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded">
+              Delete
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Status Stepper -->
+      <div class="mb-8">
+        <div class="flex justify-between items-center mb-6">
+          <h3 class="text-lg font-bold text-gray-800">Order Progress</h3>
+          <button
+            type="button"
+            onclick="openStatusModal()"
+            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm font-semibold"
+          >
+            ⚡ Quick Update Status
+          </button>
+        </div>
+        <div class="flex items-center justify-between">
+          <%
+            let statuses = [
+              'Order Placed',
+              'Cutting',
+              'In Stitching',
+              'Final Touches',
+              'Ready for Pickup'
+            ];
+            const currentIndex = statuses.indexOf(order.status);
+          %>
+          <% statuses.forEach((step, i) => { %>
+            <div class="flex flex-col items-center">
+              <div class="w-12 h-12 rounded-full flex items-center justify-center text-sm font-bold <%= currentIndex >= i ? 'bg-blue-600 text-white' : 'bg-gray-300 text-gray-600' %>" data-step-number="<%= i %>">
+                <%= i + 1 %>
+              </div>
+              <span class="text-xs mt-3 text-center w-24 font-medium <%= currentIndex >= i ? 'text-blue-600 font-semibold' : 'text-gray-400' %>">
+                <%= step %>
+              </span>
+            </div>
+            <% if (i < statuses.length - 1) { %>
+              <div class="flex-1 h-1 mx-2 <%= currentIndex > i ? 'bg-blue-600' : 'bg-gray-300' %>" data-step-line="<%= i %>"></div>
+            <% } %>
+          <% }) %>
+        </div>
+      </div>
+
+      <!-- Order Details Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="bg-gray-50 rounded p-4">
+          <p class="text-gray-600 text-sm">Garment Type</p>
+          <p class="text-lg font-semibold text-gray-800"><%= order.garmentType %></p>
+        </div>
+
+        <div class="bg-gray-50 rounded p-4">
+          <p class="text-gray-600 text-sm">Current Status</p>
+          <p class="inline-block px-3 py-1 rounded-full text-sm font-semibold
+            <%= order.status === 'Ready for Pickup' ? 'bg-green-100 text-green-800' : '' %>
+            <%= order.status === 'In Stitching' ? 'bg-blue-100 text-blue-800' : '' %>
+            <%= order.status === 'Cutting' ? 'bg-yellow-100 text-yellow-800' : '' %>
+            <%= order.status === 'Order Placed' ? 'bg-gray-100 text-gray-800' : '' %>
+            <%= order.status === 'Final Touches' ? 'bg-orange-100 text-orange-800' : '' %>
+          " id="statusBadge">
+            <%= order.status %>
+          </p>
+        </div>
+
+        <div class="bg-gray-50 rounded p-4">
+          <p class="text-gray-600 text-sm">Created Date</p>
+          <p class="text-lg font-semibold text-gray-800"><%= new Date(order.createdAt).toLocaleDateString() %></p>
+        </div>
+
+        <div class="bg-gray-50 rounded p-4">
+          <p class="text-gray-600 text-sm">Due Date</p>
+          <p class="text-lg font-semibold text-gray-800">
+            <%= order.dueDate ? new Date(order.dueDate).toLocaleDateString() : '-' %>
+          </p>
+        </div>
+
+        <div class="bg-gray-50 rounded p-4">
+          <p class="text-gray-600 text-sm">Total Price</p>
+          <p class="text-lg font-semibold text-blue-600">₹<%= order.price %></p>
+        </div>
+
+        <div class="bg-gray-50 rounded p-4">
+          <p class="text-gray-600 text-sm">Advance Paid</p>
+          <p class="text-lg font-semibold text-green-600">₹<%= order.advancePaid %></p>
+        </div>
+
+        <div class="bg-gray-50 rounded p-4 col-span-1 md:col-span-2 lg:col-span-1">
+          <p class="text-gray-600 text-sm">Balance Due</p>
+          <p class="text-lg font-semibold <%= order.price - order.advancePaid === 0 ? 'text-green-600' : 'text-red-600' %>">
+            ₹<%= order.price - order.advancePaid %>
+          </p>
+        </div>
+      </div>
+
+      <!-- Description -->
+      <% if (order.description) { %>
+        <div class="mt-8 bg-blue-50 border border-blue-200 rounded p-6">
+          <h4 class="text-lg font-bold text-gray-800 mb-2">Description</h4>
+          <p class="text-gray-700 whitespace-pre-wrap"><%= order.description %></p>
+        </div>
+      <% } %>
+    </div>
+  </div>
+
+  <!-- Hidden input for order ID -->
+  <input type="hidden" id="orderId" value="<%= order._id %>" />
+
+  <!-- Status Update Modal -->
+  <div id="statusModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg shadow-lg p-8 max-w-md w-full mx-4">
+      <h2 class="text-2xl font-bold text-gray-800 mb-6">Update Order Status</h2>
+
+      <p class="text-gray-600 mb-6">Current Status: <span class="font-semibold"><%= order.status %></span></p>
+
+      <div class="space-y-3 mb-6">
+        <% statuses.forEach((status, index) => { %>
+          <button
+            type="button"
+            onclick="handleStatusSelect('<%= status %>')"
+            class="w-full px-4 py-3 rounded border-2 text-left font-semibold transition-all
+              <%= status === order.status ? 'bg-blue-600 text-white border-blue-600' : 'border-gray-300 text-gray-700 hover:border-blue-600' %>
+            "
+          >
+            <span class="mr-2">
+              <% if (status === order.status) { %>✓<% } %>
+              <% if (index < statuses.indexOf(order.status)) { %>✓<% } %>
+            </span>
+            <%= status %>
+          </button>
+        <% }); %>
+      </div>
+
+      <button
+        type="button"
+        onclick="closeStatusModal()"
+        class="w-full px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold rounded"
+      >
+        Cancel
+      </button>
+    </div>
+  </div>
+
+  <%- include('../partials/footer') %>
+  <script src="/js/order-status.js"></script>
+</body>
+</html>

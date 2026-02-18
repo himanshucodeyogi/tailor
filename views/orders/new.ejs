@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('../partials/head') %>
+<body class="bg-gray-50 dark:bg-gray-900">
+  <%- include('../partials/nav-admin') %>
+
+  <div class="max-w-4xl mx-auto px-3 sm:px-4 py-6 sm:py-8">
+    <%- include('../partials/flash') %>
+
+    <h1 class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white mb-4 sm:mb-8">Create New Order</h1>
+
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 sm:p-8">
+      <form action="/admin/orders" method="POST" class="space-y-4 sm:space-y-6">
+        <!-- Customer Select -->
+        <div>
+          <label class="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Customer *</label>
+          <select
+            name="customer"
+            class="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded px-3 sm:px-4 py-2 sm:py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
+            required
+          >
+            <option value="">-- Select a customer --</option>
+            <% customers.forEach((customer) => { %>
+              <option value="<%= customer._id %>" <%= selectedCustomerId === customer._id.toString() ? 'selected' : '' %>>
+                <%= customer.name %> (<%= customer.phone %>)
+              </option>
+            <% }) %>
+          </select>
+        </div>
+
+        <!-- Garment Type -->
+        <div>
+          <label class="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Garment Type *</label>
+          <select
+            name="garmentType"
+            class="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded px-3 sm:px-4 py-2 sm:py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
+            required
+          >
+            <option value="Suit">Suit</option>
+            <option value="Shirt">Shirt</option>
+            <option value="Kurta">Kurta</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+
+        <!-- Description -->
+        <div>
+          <label class="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Description</label>
+          <textarea
+            name="description"
+            placeholder="Describe the order details..."
+            rows="4"
+            class="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded px-3 sm:px-4 py-2 sm:py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
+          ></textarea>
+        </div>
+
+        <!-- Price Info -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+          <div>
+            <label class="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Price (₹)</label>
+            <input
+              type="number"
+              name="price"
+              placeholder="0"
+              step="0.01"
+              min="0"
+              class="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded px-3 sm:px-4 py-2 sm:py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
+            />
+          </div>
+
+          <div>
+            <label class="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Advance Paid (₹)</label>
+            <input
+              type="number"
+              name="advancePaid"
+              placeholder="0"
+              step="0.01"
+              min="0"
+              class="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded px-3 sm:px-4 py-2 sm:py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
+            />
+          </div>
+        </div>
+
+        <!-- Due Date & Status -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+          <div>
+            <label class="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Due Date</label>
+            <input
+              type="date"
+              name="dueDate"
+              class="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded px-3 sm:px-4 py-2 sm:py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
+            />
+          </div>
+
+          <div>
+            <label class="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Status</label>
+            <select
+              name="status"
+              class="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded px-3 sm:px-4 py-2 sm:py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
+            >
+              <% statuses.forEach((status) => { %>
+                <option value="<%= status %>" <%= status === 'Order Placed' ? 'selected' : '' %>>
+                  <%= status %>
+                </option>
+              <% }) %>
+            </select>
+          </div>
+        </div>
+
+        <!-- Buttons -->
+        <div class="flex flex-col sm:flex-row gap-2 sm:gap-4 pt-4 sm:pt-6 border-t border-gray-200 dark:border-gray-700">
+          <button
+            type="submit"
+            class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 sm:py-3 px-4 sm:px-6 rounded text-sm sm:text-base w-full sm:w-auto"
+          >
+            Create Order
+          </button>
+          <a href="/admin/orders" class="bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2 sm:py-3 px-4 sm:px-6 rounded text-sm sm:text-base w-full sm:w-auto text-center">
+            Cancel
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <%- include('../partials/footer') %>
+</body>
+</html>

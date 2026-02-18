@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('../partials/head') %>
+<body class="bg-gray-50 dark:bg-gray-900">
+  <%- include('../partials/nav-admin') %>
+
+  <div class="max-w-7xl mx-auto px-3 sm:px-4 py-6 sm:py-8">
+    <%- include('../partials/flash') %>
+
+    <div class="mb-6 sm:mb-8">
+      <a href="/admin/customers" class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-semibold text-sm sm:text-base">← Back to Customers</a>
+    </div>
+
+    <!-- Customer Info Card -->
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 sm:p-8 mb-6 sm:mb-8">
+      <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 sm:gap-6 mb-6">
+        <div>
+          <h1 class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white"><%= customer.name %></h1>
+          <p class="text-gray-600 dark:text-gray-400 mt-2"><%= customer.phone %></p>
+        </div>
+        <div class="flex gap-2 w-full sm:w-auto">
+          <a href="/admin/customers/<%= customer._id %>/edit" class="flex-1 sm:flex-none bg-orange-600 hover:bg-orange-700 text-white font-semibold py-2 px-4 rounded text-center text-sm sm:text-base">
+            Edit
+          </a>
+          <form action="/admin/customers/<%= customer._id %>?_method=DELETE" method="POST" style="display: flex; flex: 1 1 auto;"
+                onsubmit="return confirm('Are you sure? This will also delete all related orders.');">
+            <button type="submit" class="flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded text-sm sm:text-base">
+              Delete
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <% if (customer.notes) { %>
+        <div class="mb-6">
+          <p class="text-gray-700 dark:text-gray-300 text-sm sm:text-base"><strong>Notes:</strong> <%= customer.notes %></p>
+        </div>
+      <% } %>
+
+      <!-- Measurements -->
+      <div class="bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-700 rounded p-4 sm:p-6">
+        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-4 mb-4">
+          <h3 class="text-lg sm:text-xl font-bold text-gray-800 dark:text-blue-100">Measurements (in inches)</h3>
+          <a href="/admin/customers/<%= customer._id %>/edit" class="text-blue-600 dark:text-blue-300 hover:text-blue-800 dark:hover:text-blue-200 text-sm font-semibold text-center sm:text-right">Edit</a>
+        </div>
+
+        <% if (customer.measurements && customer.measurements.length > 0) { %>
+          <div class="space-y-3 sm:space-y-4">
+            <% customer.measurements.forEach((measurement) => { %>
+              <div class="bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded p-3 sm:p-4">
+                <h4 class="font-bold text-gray-800 dark:text-white mb-3 capitalize text-sm sm:text-base"><%= measurement.type %></h4>
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-3">
+                  <% ['length', 'chest', 'shoulder', 'waist', 'arm', 'neck', 'hip', 'thigh'].forEach((field) => { %>
+                    <div>
+                      <span class="text-gray-600 dark:text-gray-400 text-xs"><%= field.charAt(0).toUpperCase() + field.slice(1) %></span>
+                      <p class="font-bold text-blue-600 dark:text-blue-300 text-sm"><%= measurement[field] || '-' %></p>
+                    </div>
+                  <% }); %>
+                </div>
+                <% if (measurement.notes) { %>
+                  <p class="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-2"><strong>Notes:</strong> <%= measurement.notes %></p>
+                <% } %>
+              </div>
+            <% }); %>
+          </div>
+        <% } else { %>
+          <p class="text-gray-500 dark:text-gray-400 text-sm">No measurements added yet. <a href="/admin/customers/<%= customer._id %>/edit" class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-semibold">Add measurements</a></p>
+        <% } %>
+      </div>
+
+      <div class="mt-6 text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+        <p>Created: <%= new Date(customer.createdAt).toLocaleDateString() %></p>
+        <p>Last updated: <%= new Date(customer.updatedAt).toLocaleDateString() %></p>
+      </div>
+    </div>
+
+    <!-- Orders Section -->
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 sm:p-8">
+      <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-4 mb-6">
+        <h2 class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-white">Orders</h2>
+        <a href="/admin/orders/new?customerId=<%= customer._id %>" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded text-sm sm:text-base text-center sm:text-left w-full sm:w-auto">
+          + Create New Order
+        </a>
+      </div>
+
+      <% if (orders && orders.length > 0) { %>
+        <!-- Desktop Table -->
+        <div class="hidden sm:block overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="bg-gray-100 dark:bg-gray-700 border-b-2 border-gray-200 dark:border-gray-600">
+                <th class="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-300">Order #</th>
+                <th class="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-300">Garment</th>
+                <th class="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-300">Status</th>
+                <th class="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-300">Price</th>
+                <th class="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-300">Due Date</th>
+                <th class="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-300">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% orders.forEach((order) => { %>
+                <tr class="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">
+                  <td class="py-3 px-4 font-mono text-sm"><%= order.orderNumber %></td>
+                  <td class="py-3 px-4"><%= order.garmentType %></td>
+                  <td class="py-3 px-4">
+                    <span class="px-3 py-1 rounded-full text-xs font-semibold
+                      <%= order.status === 'Ready for Pickup' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : '' %>
+                      <%= order.status === 'In Stitching' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' : '' %>
+                      <%= order.status === 'Cutting' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200' : '' %>
+                      <%= order.status === 'Order Placed' ? 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300' : '' %>
+                      <%= order.status === 'Final Touches' ? 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200' : '' %>
+                    ">
+                      <%= order.status %>
+                    </span>
+                  </td>
+                  <td class="py-3 px-4"><strong class="dark:text-white">₹<%= order.price %></strong></td>
+                  <td class="py-3 px-4 text-sm dark:text-gray-300">
+                    <%= order.dueDate ? new Date(order.dueDate).toLocaleDateString() : '-' %>
+                  </td>
+                  <td class="py-3 px-4">
+                    <a href="/admin/orders/<%= order._id %>" class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-semibold">View</a>
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Mobile Cards View -->
+        <div class="sm:hidden space-y-3">
+          <% orders.forEach((order) => { %>
+            <div class="bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg p-4 space-y-3">
+              <div class="flex justify-between items-start gap-2">
+                <div>
+                  <p class="text-xs text-gray-500 dark:text-gray-400">Order #</p>
+                  <p class="font-mono font-semibold text-gray-900 dark:text-white"><%= order.orderNumber %></p>
+                </div>
+                <span class="px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap
+                  <%= order.status === 'Ready for Pickup' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : '' %>
+                  <%= order.status === 'In Stitching' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' : '' %>
+                  <%= order.status === 'Cutting' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200' : '' %>
+                  <%= order.status === 'Order Placed' ? 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300' : '' %>
+                  <%= order.status === 'Final Touches' ? 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200' : '' %>
+                ">
+                  <%= order.status %>
+                </span>
+              </div>
+
+              <div class="space-y-2 text-sm">
+                <div class="grid grid-cols-2 gap-2">
+                  <div>
+                    <p class="text-gray-500 dark:text-gray-400 text-xs">Garment</p>
+                    <p class="font-medium dark:text-white"><%= order.garmentType %></p>
+                  </div>
+                  <div>
+                    <p class="text-gray-500 dark:text-gray-400 text-xs">Price</p>
+                    <p class="font-semibold dark:text-white">₹<%= order.price %></p>
+                  </div>
+                </div>
+                <div>
+                  <p class="text-gray-500 dark:text-gray-400 text-xs">Due Date</p>
+                  <p class="font-medium dark:text-white"><%= order.dueDate ? new Date(order.dueDate).toLocaleDateString() : '-' %></p>
+                </div>
+              </div>
+
+              <div class="pt-2 border-t border-gray-300 dark:border-gray-600">
+                <a href="/admin/orders/<%= order._id %>" class="text-center block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded text-xs">
+                  View Order
+                </a>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+      <% } else { %>
+        <p class="text-gray-500 dark:text-gray-400 text-center py-8 text-sm">No orders yet. <a href="/admin/orders/new?customerId=<%= customer._id %>" class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-semibold">Create one</a></p>
+      <% } %>
+    </div>
+  </div>
+
+  <%- include('../partials/footer') %>
+</body>
+</html>

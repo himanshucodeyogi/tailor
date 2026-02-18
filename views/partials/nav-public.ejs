@@ -1,0 +1,82 @@
+<nav class="bg-white dark:bg-gray-900 shadow-sm border-b border-gray-200 dark:border-gray-700">
+  <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+    <a href="/" class="text-xl sm:text-2xl font-bold text-blue-600 dark:text-blue-400">Tailor Shop</a>
+
+    <!-- Desktop Navigation -->
+    <div class="hidden md:flex gap-3 lg:gap-6 items-center">
+      <a href="/" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium text-sm lg:text-base"><%= request.path === '/' ? '📍' : '' %> Home</a>
+      <a href="/pricing" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium text-sm lg:text-base"><%= request.path === '/pricing' ? '📍' : '' %> Pricing</a>
+      <a href="/portfolio" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium text-sm lg:text-base"><%= request.path === '/portfolio' ? '📍' : '' %> Portfolio</a>
+
+      <!-- Divider -->
+      <div class="w-px h-6 bg-gray-300 dark:bg-gray-600"></div>
+
+      <!-- Quick Access Links -->
+      <a href="/tailor/login" class="text-teal-600 dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 font-medium text-sm lg:text-base">✂️ Tailor</a>
+      <a href="/admin/login" class="text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 font-medium text-sm lg:text-base">👨‍💼 Admin</a>
+
+      <button onclick="toggleTheme()" class="p-2 rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-100 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors" aria-label="Toggle theme">
+        <span class="dark:hidden">🌙</span>
+        <span class="hidden dark:inline">☀️</span>
+      </button>
+    </div>
+
+    <!-- Mobile Menu Button -->
+    <div class="md:hidden flex items-center gap-3">
+      <button onclick="toggleTheme()" class="p-2 rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-100 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors" aria-label="Toggle theme">
+        <span class="dark:hidden">🌙</span>
+        <span class="hidden dark:inline">☀️</span>
+      </button>
+      <button onclick="toggleMobileMenu()" class="p-2 rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-100 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors" aria-label="Toggle menu">
+        <span id="hamburger-icon" class="block">☰</span>
+        <span id="close-icon" class="hidden">✕</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile Menu -->
+  <div id="mobile-menu" class="hidden md:hidden bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
+    <div class="px-4 py-4 space-y-3">
+      <a href="/" class="block px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-blue-100 dark:hover:bg-gray-700 font-medium text-sm"><%= request.path === '/' ? '📍' : '' %> Home</a>
+      <a href="/pricing" class="block px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-blue-100 dark:hover:bg-gray-700 font-medium text-sm"><%= request.path === '/pricing' ? '📍' : '' %> Pricing</a>
+      <a href="/portfolio" class="block px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-blue-100 dark:hover:bg-gray-700 font-medium text-sm"><%= request.path === '/portfolio' ? '📍' : '' %> Portfolio</a>
+
+      <!-- Divider -->
+      <div class="my-2 border-t border-gray-200 dark:border-gray-700"></div>
+
+      <!-- Quick Access Links -->
+      <a href="/tailor/login" class="block px-4 py-2 rounded-lg text-teal-600 dark:text-teal-400 hover:bg-teal-100 dark:hover:bg-gray-700 font-medium text-sm">✂️ Tailor Portal</a>
+      <a href="/admin/login" class="block px-4 py-2 rounded-lg text-purple-600 dark:text-purple-400 hover:bg-purple-100 dark:hover:bg-gray-700 font-medium text-sm">👨‍💼 Admin Panel</a>
+    </div>
+  </div>
+</nav>
+
+<script>
+  function toggleMobileMenu() {
+    const menu = document.getElementById('mobile-menu');
+    const hamburger = document.getElementById('hamburger-icon');
+    const closeIcon = document.getElementById('close-icon');
+
+    if (menu.classList.contains('hidden')) {
+      menu.classList.remove('hidden');
+      hamburger.classList.add('hidden');
+      closeIcon.classList.remove('hidden');
+    } else {
+      menu.classList.add('hidden');
+      hamburger.classList.remove('hidden');
+      closeIcon.classList.add('hidden');
+    }
+  }
+
+  // Close mobile menu when a link is clicked
+  document.querySelectorAll('#mobile-menu a').forEach(link => {
+    link.addEventListener('click', () => {
+      const menu = document.getElementById('mobile-menu');
+      const hamburger = document.getElementById('hamburger-icon');
+      const closeIcon = document.getElementById('close-icon');
+      menu.classList.add('hidden');
+      hamburger.classList.remove('hidden');
+      closeIcon.classList.add('hidden');
+    });
+  });
+</script>

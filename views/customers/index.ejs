@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('../partials/head') %>
+<body class="bg-gray-50 dark:bg-gray-900">
+  <%- include('../partials/nav-admin') %>
+
+  <div class="max-w-7xl mx-auto px-3 sm:px-4 py-6 sm:py-8">
+    <%- include('../partials/flash') %>
+
+    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-4 mb-4 sm:mb-8">
+      <h1 class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white">Customers</h1>
+      <a href="/admin/customers/new" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded text-sm sm:text-base w-full sm:w-auto text-center">
+        + Add Customer
+      </a>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-3 sm:p-6 mb-4 sm:mb-8">
+      <form action="/admin/customers" method="GET" class="flex flex-col sm:flex-row gap-2 sm:gap-4">
+        <input
+          type="text"
+          name="phone"
+          placeholder="Search by phone..."
+          value="<%= searchPhone %>"
+          class="flex-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded px-3 sm:px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
+        />
+        <div class="flex gap-2">
+          <button
+            type="submit"
+            class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 sm:px-6 rounded text-sm flex-1 sm:flex-none"
+          >
+            Search
+          </button>
+          <% if (searchPhone) { %>
+            <a href="/admin/customers" class="bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2 px-4 sm:px-6 rounded text-sm flex-1 sm:flex-none text-center">
+              Clear
+            </a>
+          <% } %>
+        </div>
+      </form>
+    </div>
+
+    <!-- Desktop Table -->
+    <div class="hidden sm:block bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="bg-gray-100 dark:bg-gray-700 border-b-2 border-gray-200 dark:border-gray-600">
+            <th class="text-left py-4 px-6 font-semibold text-gray-700 dark:text-gray-300">Name</th>
+            <th class="text-left py-4 px-6 font-semibold text-gray-700 dark:text-gray-300">Phone</th>
+            <th class="text-left py-4 px-6 font-semibold text-gray-700 dark:text-gray-300">Orders</th>
+            <th class="text-left py-4 px-6 font-semibold text-gray-700 dark:text-gray-300">Created</th>
+            <th class="text-left py-4 px-6 font-semibold text-gray-700 dark:text-gray-300">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (customers && customers.length > 0) { %>
+            <% customers.forEach((customer, index) => { %>
+              <tr class="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">
+                <td class="py-4 px-6 font-medium text-gray-800 dark:text-white"><%= customer.name %></td>
+                <td class="py-4 px-6 text-gray-700 dark:text-gray-300"><%= customer.phone %></td>
+                <td class="py-4 px-6 text-gray-700 dark:text-gray-300">
+                  <span class="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded text-xs font-semibold">
+                    <%= customer.orders ? customer.orders.length : 0 %>
+                  </span>
+                </td>
+                <td class="py-4 px-6 text-gray-700 dark:text-gray-300 text-xs">
+                  <%= new Date(customer.createdAt).toLocaleDateString() %>
+                </td>
+                <td class="py-4 px-6 space-x-2">
+                  <a href="/admin/customers/<%= customer._id %>" class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-semibold text-sm">View</a>
+                  <a href="/admin/customers/<%= customer._id %>/edit" class="text-orange-600 dark:text-orange-400 hover:text-orange-800 dark:hover:text-orange-300 font-semibold text-sm">Edit</a>
+                  <form action="/admin/customers/<%= customer._id %>?_method=DELETE" method="POST" style="display: inline;"
+                        onsubmit="return confirm('Are you sure? This will also delete all related orders.');">
+                    <button type="submit" class="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 font-semibold text-sm">Delete</button>
+                  </form>
+                </td>
+              </tr>
+            <% }) %>
+          <% } else { %>
+            <tr>
+              <td colspan="5" class="py-8 text-center text-gray-500 dark:text-gray-400">
+                <% if (searchPhone) { %>
+                  No customers found matching that phone number.
+                <% } else { %>
+                  No customers yet. <a href="/admin/customers/new" class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-semibold">Add one now</a>
+                <% } %>
+              </td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Mobile Cards -->
+    <div class="sm:hidden space-y-3">
+      <% if (customers && customers.length > 0) { %>
+        <% customers.forEach((customer, index) => { %>
+          <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 space-y-3">
+            <div class="flex justify-between items-start gap-2">
+              <div>
+                <p class="text-xs text-gray-500 dark:text-gray-400">Name</p>
+                <p class="font-semibold text-gray-800 dark:text-white"><%= customer.name %></p>
+              </div>
+              <span class="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded text-xs font-semibold whitespace-nowrap">
+                <%= customer.orders ? customer.orders.length : 0 %> orders
+              </span>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 text-xs">
+              <div>
+                <p class="text-gray-500 dark:text-gray-400">Phone</p>
+                <p class="font-medium dark:text-white"><%= customer.phone %></p>
+              </div>
+              <div>
+                <p class="text-gray-500 dark:text-gray-400">Created</p>
+                <p class="font-medium dark:text-white"><%= new Date(customer.createdAt).toLocaleDateString() %></p>
+              </div>
+            </div>
+
+            <div class="flex gap-2 pt-2 border-t border-gray-200 dark:border-gray-700">
+              <a href="/admin/customers/<%= customer._id %>" class="flex-1 text-center bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded text-xs">
+                View
+              </a>
+              <a href="/admin/customers/<%= customer._id %>/edit" class="flex-1 text-center bg-orange-600 hover:bg-orange-700 text-white font-semibold py-2 rounded text-xs">
+                Edit
+              </a>
+              <form action="/admin/customers/<%= customer._id %>?_method=DELETE" method="POST" style="display: contents;"
+                    onsubmit="return confirm('Delete this customer and all related orders?');">
+                <button type="submit" class="flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold py-2 rounded text-xs">
+                  Delete
+                </button>
+              </form>
+            </div>
+          </div>
+        <% }) %>
+      <% } else { %>
+        <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6 text-center">
+          <p class="text-gray-500 dark:text-gray-400 text-sm mb-3">
+            <% if (searchPhone) { %>
+              No customers found matching that phone number.
+            <% } else { %>
+              No customers yet.
+            <% } %>
+          </p>
+          <% if (!searchPhone) { %>
+            <a href="/admin/customers/new" class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded text-sm">
+              Add First Customer
+            </a>
+          <% } %>
+        </div>
+      <% } %>
+    </div>
+  </div>
+
+  <%- include('../partials/footer') %>
+</body>
+</html>

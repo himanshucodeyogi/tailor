@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('../partials/head') %>
+<body class="bg-gray-50">
+  <%- include('../partials/nav-admin') %>
+
+  <div class="max-w-4xl mx-auto px-4 py-8">
+    <%- include('../partials/flash') %>
+
+    <h1 class="text-3xl font-bold text-gray-800 mb-8">Edit Order</h1>
+
+    <div class="bg-white rounded-lg shadow p-8">
+      <form action="/admin/orders/<%= order._id %>?_method=PUT" method="POST" class="space-y-6">
+        <!-- Customer (Read-only) -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Customer</label>
+          <div class="bg-gray-100 border border-gray-300 rounded px-4 py-2">
+            <p class="font-semibold text-gray-800">
+              <%= order.customer ? order.customer.name : 'N/A' %>
+              <span class="text-gray-600">(<%= order.customer ? order.customer.phone : '' %>)</span>
+            </p>
+          </div>
+          <input type="hidden" name="customer" value="<%= order.customer ? order.customer._id : '' %>" />
+        </div>
+
+        <!-- Garment Type -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Garment Type</label>
+          <select
+            name="garmentType"
+            class="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="Suit" <%= order.garmentType === 'Suit' ? 'selected' : '' %>>Suit</option>
+            <option value="Shirt" <%= order.garmentType === 'Shirt' ? 'selected' : '' %>>Shirt</option>
+            <option value="Kurta" <%= order.garmentType === 'Kurta' ? 'selected' : '' %>>Kurta</option>
+            <option value="Other" <%= order.garmentType === 'Other' ? 'selected' : '' %>>Other</option>
+          </select>
+        </div>
+
+        <!-- Description -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+          <textarea
+            name="description"
+            placeholder="Describe the order details..."
+            rows="4"
+            class="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          ><%= order.description %></textarea>
+        </div>
+
+        <!-- Price Info -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Price (₹)</label>
+            <input
+              type="number"
+              name="price"
+              value="<%= order.price %>"
+              step="0.01"
+              min="0"
+              class="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Advance Paid (₹)</label>
+            <input
+              type="number"
+              name="advancePaid"
+              value="<%= order.advancePaid %>"
+              step="0.01"
+              min="0"
+              class="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+        </div>
+
+        <!-- Due Date & Status -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Due Date</label>
+            <input
+              type="date"
+              name="dueDate"
+              value="<%= order.dueDate ? order.dueDate.toISOString().split('T')[0] : '' %>"
+              class="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+            <select
+              name="status"
+              class="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <% statuses.forEach((status) => { %>
+                <option value="<%= status %>" <%= order.status === status ? 'selected' : '' %>>
+                  <%= status %>
+                </option>
+              <% }) %>
+            </select>
+          </div>
+        </div>
+
+        <!-- Order Info -->
+        <div class="bg-gray-50 border border-gray-200 rounded p-4">
+          <h3 class="font-semibold text-gray-800 mb-3">Order Info</h3>
+          <div class="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+            <div>
+              <span class="text-gray-600">Order #:</span>
+              <p class="font-mono"><%= order.orderNumber %></p>
+            </div>
+            <div>
+              <span class="text-gray-600">Created:</span>
+              <p><%= new Date(order.createdAt).toLocaleDateString() %></p>
+            </div>
+            <div>
+              <span class="text-gray-600">Status Index:</span>
+              <p><%= order.statusIndex + 1 %>/5</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Buttons -->
+        <div class="flex gap-4">
+          <button
+            type="submit"
+            class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded"
+          >
+            Update Order
+          </button>
+          <a href="/admin/orders/<%= order._id %>" class="bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2 px-6 rounded">
+            Cancel
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <%- include('../partials/footer') %>
+</body>
+</html>

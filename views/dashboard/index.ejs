@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('../partials/head') %>
+<body class="bg-gray-50 dark:bg-gray-900">
+  <%- include('../partials/nav-admin') %>
+
+  <div class="max-w-7xl mx-auto px-3 sm:px-4 py-6 sm:py-8">
+    <%- include('../partials/flash') %>
+
+    <h1 class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white mb-6 sm:mb-8">Dashboard</h1>
+
+    <!-- Stats Grid -->
+    <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-6 sm:mb-8">
+      <!-- Total Customers -->
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-3 sm:p-6">
+        <div class="flex items-center justify-between gap-2">
+          <div>
+            <p class="text-gray-600 dark:text-gray-400 text-xs sm:text-sm font-medium">Customers</p>
+            <p class="text-2xl sm:text-3xl font-bold text-blue-600"><%= stats.totalCustomers %></p>
+          </div>
+          <div class="text-2xl sm:text-4xl">👥</div>
+        </div>
+      </div>
+
+      <!-- Active Orders -->
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-3 sm:p-6">
+        <div class="flex items-center justify-between gap-2">
+          <div>
+            <p class="text-gray-600 dark:text-gray-400 text-xs sm:text-sm font-medium">Orders</p>
+            <p class="text-2xl sm:text-3xl font-bold text-orange-600"><%= stats.totalActiveOrders %></p>
+          </div>
+          <div class="text-2xl sm:text-4xl">📋</div>
+        </div>
+      </div>
+
+      <!-- Ready for Pickup -->
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-3 sm:p-6">
+        <div class="flex items-center justify-between gap-2">
+          <div>
+            <p class="text-gray-600 dark:text-gray-400 text-xs sm:text-sm font-medium">Ready</p>
+            <p class="text-2xl sm:text-3xl font-bold text-green-600"><%= stats.readyForPickup %></p>
+          </div>
+          <div class="text-2xl sm:text-4xl">✅</div>
+        </div>
+      </div>
+
+      <!-- Low Stock Items -->
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-3 sm:p-6">
+        <div class="flex items-center justify-between gap-2">
+          <div>
+            <p class="text-gray-600 dark:text-gray-400 text-xs sm:text-sm font-medium">Low Stock</p>
+            <p class="text-2xl sm:text-3xl font-bold text-red-600"><%= stats.lowStockCount %></p>
+          </div>
+          <div class="text-2xl sm:text-4xl">⚠️</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Low Stock Alert -->
+    <% if (lowStockItems && lowStockItems.length > 0) { %>
+      <div class="bg-red-50 dark:bg-red-900 border border-red-200 dark:border-red-700 rounded-lg p-4 sm:p-6 mb-6 sm:mb-8">
+        <h3 class="text-base sm:text-lg font-bold text-red-800 dark:text-red-200 mb-3 sm:mb-4">⚠️ Low Stock Alert</h3>
+        <div class="space-y-2">
+          <% lowStockItems.forEach((item) => { %>
+            <div class="flex justify-between items-center text-xs sm:text-sm gap-2">
+              <span class="text-gray-700 dark:text-gray-300"><strong><%= item.itemName %></strong> (<%= item.unit %>)</span>
+              <span class="text-red-600 dark:text-red-400 font-bold whitespace-nowrap">
+                <%= item.quantity %> / <%= item.lowStockThreshold %>
+              </span>
+            </div>
+          <% }) %>
+        </div>
+        <a href="/admin/inventory" class="inline-block mt-3 sm:mt-4 bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded text-sm">
+          Manage Inventory
+        </a>
+      </div>
+    <% } %>
+
+    <!-- Order Status Breakdown & Quick Actions -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8 mb-6 sm:mb-8">
+      <!-- Status Breakdown -->
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 sm:p-6">
+        <h3 class="text-lg sm:text-xl font-bold text-gray-800 dark:text-white mb-4 sm:mb-6">Order Status</h3>
+        <div class="space-y-3">
+          <% if (statusBreakdown && statusBreakdown.length > 0) { %>
+            <% statusBreakdown.forEach((status) => { %>
+              <div class="flex justify-between items-center">
+                <span class="font-medium text-gray-700 dark:text-gray-300 text-sm"><%= status._id %></span>
+                <span class="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-3 py-1 rounded-full font-bold text-xs">
+                  <%= status.count %>
+                </span>
+              </div>
+            <% }) %>
+          <% } else { %>
+            <p class="text-gray-500 dark:text-gray-400 text-sm">No active orders</p>
+          <% } %>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 sm:p-6">
+        <h3 class="text-lg sm:text-xl font-bold text-gray-800 dark:text-white mb-4 sm:mb-6">Quick Actions</h3>
+        <div class="space-y-2">
+          <a href="/admin/customers/new" class="block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded text-center text-sm">
+            + Add Customer
+          </a>
+          <a href="/admin/orders/new" class="block bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded text-center text-sm">
+            + Create Order
+          </a>
+          <a href="/admin/customers" class="block bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2 px-4 rounded text-center text-sm">
+            View Customers
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Orders -->
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 sm:p-6">
+      <h3 class="text-lg sm:text-xl font-bold text-gray-800 dark:text-white mb-4 sm:mb-6">Recent Orders</h3>
+
+      <!-- Desktop Table -->
+      <div class="hidden sm:block overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b-2 border-gray-200 dark:border-gray-700">
+              <th class="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-300">Order #</th>
+              <th class="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-300">Customer</th>
+              <th class="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-300">Garment</th>
+              <th class="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-300">Status</th>
+              <th class="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-300">Due Date</th>
+              <th class="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-300">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (recentOrders && recentOrders.length > 0) { %>
+              <% recentOrders.forEach((order) => { %>
+                <tr class="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">
+                  <td class="py-3 px-4 font-mono text-xs dark:text-gray-300"><%= order.orderNumber %></td>
+                  <td class="py-3 px-4 dark:text-gray-300"><%= order.customer ? order.customer.name : 'N/A' %></td>
+                  <td class="py-3 px-4 dark:text-gray-300"><%= order.garmentType %></td>
+                  <td class="py-3 px-4">
+                    <span class="px-3 py-1 rounded-full text-xs font-semibold
+                      <%= order.status === 'Ready for Pickup' ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200' : '' %>
+                      <%= order.status === 'In Stitching' ? 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200' : '' %>
+                      <%= order.status === 'Cutting' ? 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200' : '' %>
+                      <%= order.status === 'Order Placed' ? 'bg-gray-100 dark:bg-gray-600 text-gray-800 dark:text-gray-200' : '' %>
+                      <%= order.status === 'Final Touches' ? 'bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200' : '' %>
+                    ">
+                      <%= order.status %>
+                    </span>
+                  </td>
+                  <td class="py-3 px-4 dark:text-gray-300">
+                    <% if (order.dueDate) { %>
+                      <%= new Date(order.dueDate).toLocaleDateString() %>
+                    <% } else { %>
+                      <span class="text-gray-400 dark:text-gray-500">-</span>
+                    <% } %>
+                  </td>
+                  <td class="py-3 px-4">
+                    <a href="/admin/orders/<%= order._id %>" class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-semibold text-sm">View</a>
+                  </td>
+                </tr>
+              <% }) %>
+            <% } else { %>
+              <tr>
+                <td colspan="6" class="py-8 text-center text-gray-500 dark:text-gray-400">No orders yet</td>
+              </tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Mobile Cards -->
+      <div class="sm:hidden space-y-3">
+        <% if (recentOrders && recentOrders.length > 0) { %>
+          <% recentOrders.forEach((order) => { %>
+            <div class="bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg p-3">
+              <div class="flex justify-between items-start gap-2 mb-2">
+                <div>
+                  <p class="text-xs text-gray-500 dark:text-gray-400">Order #</p>
+                  <p class="font-mono font-bold text-sm dark:text-white"><%= order.orderNumber %></p>
+                </div>
+                <span class="px-2 py-1 rounded text-xs font-semibold whitespace-nowrap
+                  <%= order.status === 'Ready for Pickup' ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200' : '' %>
+                  <%= order.status === 'In Stitching' ? 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200' : '' %>
+                  <%= order.status === 'Cutting' ? 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200' : '' %>
+                  <%= order.status === 'Order Placed' ? 'bg-gray-100 dark:bg-gray-600 text-gray-800 dark:text-gray-200' : '' %>
+                  <%= order.status === 'Final Touches' ? 'bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200' : '' %>
+                ">
+                  <%= order.status %>
+                </span>
+              </div>
+
+              <div class="grid grid-cols-2 gap-2 text-xs mb-2">
+                <div>
+                  <p class="text-gray-500 dark:text-gray-400">Customer</p>
+                  <p class="font-medium dark:text-white"><%= order.customer ? order.customer.name : 'N/A' %></p>
+                </div>
+                <div>
+                  <p class="text-gray-500 dark:text-gray-400">Garment</p>
+                  <p class="font-medium dark:text-white"><%= order.garmentType %></p>
+                </div>
+              </div>
+
+              <div class="text-xs mb-2">
+                <p class="text-gray-500 dark:text-gray-400">Due Date</p>
+                <p class="font-medium dark:text-white">
+                  <% if (order.dueDate) { %>
+                    <%= new Date(order.dueDate).toLocaleDateString() %>
+                  <% } else { %>
+                    <span class="text-gray-400">Not set</span>
+                  <% } %>
+                </p>
+              </div>
+
+              <a href="/admin/orders/<%= order._id %>" class="block w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded text-center text-xs">
+                View Details
+              </a>
+            </div>
+          <% }) %>
+        <% } else { %>
+          <p class="text-center text-gray-500 dark:text-gray-400 py-6">No orders yet</p>
+        <% } %>
+      </div>
+    </div>
+  </div>
+
+  <%- include('../partials/footer') %>
+</body>
+</html>

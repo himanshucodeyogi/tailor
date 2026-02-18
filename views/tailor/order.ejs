@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('../partials/head') %>
+<body class="bg-gray-50 dark:bg-gray-900">
+  <%- include('../partials/nav-tailor') %>
+
+  <div class="max-w-4xl mx-auto px-3 sm:px-4 py-6 sm:py-12">
+    <%- include('../partials/flash') %>
+
+    <!-- Back Button -->
+    <a href="/tailor/dashboard" class="text-teal-600 dark:text-teal-400 hover:text-teal-800 dark:hover:text-teal-300 font-medium mb-4 sm:mb-6 inline-block text-sm sm:text-base">
+      ← Back to Orders
+    </a>
+
+    <!-- Order Header -->
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 sm:p-8 mb-6 sm:mb-8">
+      <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 sm:gap-4 mb-4 sm:mb-6">
+        <div>
+          <h1 class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white mb-2">Order #<%= order.orderNumber %></h1>
+          <p class="text-xs sm:text-base text-gray-600 dark:text-gray-400">
+            Customer: <strong><%= order.customer.name %></strong>
+          </p>
+          <p class="text-xs sm:text-base text-gray-600 dark:text-gray-400">
+            Phone: <strong><%= order.customer.phone %></strong>
+          </p>
+        </div>
+        <span class="px-3 py-1 sm:px-4 sm:py-2 rounded-lg text-xs sm:text-sm font-bold whitespace-nowrap
+          <% if (order.status === 'Order Placed') { %>
+            bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-white
+          <% } else if (order.status === 'Cutting') { %>
+            bg-yellow-200 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200
+          <% } else if (order.status === 'In Stitching') { %>
+            bg-blue-200 dark:bg-blue-900 text-blue-800 dark:text-blue-200
+          <% } else if (order.status === 'Final Touches') { %>
+            bg-purple-200 dark:bg-purple-900 text-purple-800 dark:text-purple-200
+          <% } else if (order.status === 'Ready for Pickup') { %>
+            bg-green-200 dark:bg-green-900 text-green-800 dark:text-green-200
+          <% } %>
+        ">
+          <%= order.status %>
+        </span>
+      </div>
+
+      <!-- 5-Step Stepper - Mobile Friendly -->
+      <div class="flex items-center justify-between mb-6 sm:mb-8 overflow-x-auto pb-2">
+        <% statuses.forEach((step, i) => { %>
+          <div class="flex flex-col items-center flex-shrink-0">
+            <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-xs sm:text-sm font-bold <%= currentIndex >= i ? 'bg-teal-600 text-white' : 'bg-gray-300 dark:bg-gray-600 text-gray-600 dark:text-gray-400' %>">
+              <%= i + 1 %>
+            </div>
+            <span class="text-xs mt-1 sm:mt-2 text-center w-14 sm:w-24 font-medium <%= currentIndex >= i ? 'text-teal-600 dark:text-teal-400' : 'text-gray-400 dark:text-gray-500' %>">
+              <%= step.split(' ')[0] %>
+            </span>
+          </div>
+          <% if (i < statuses.length - 1) { %>
+            <div class="flex-1 h-1 mx-1 sm:mx-2 flex-shrink-0 <%= currentIndex > i ? 'bg-teal-600' : 'bg-gray-300 dark:bg-gray-600' %>"></div>
+          <% } %>
+        <% }) %>
+      </div>
+
+      <!-- Quick Update Status Button -->
+      <div class="flex flex-col sm:flex-row gap-2 sm:gap-4 mb-4 sm:mb-6">
+        <button onclick="openStatusModal()" class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 sm:py-3 px-4 sm:px-6 rounded-lg transition text-sm sm:text-base">
+          Update Status
+        </button>
+        <a href="/tailor/customers/<%= order.customer._id %>/measurements/edit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 sm:py-3 px-4 sm:px-6 rounded-lg transition inline-block text-sm sm:text-base w-full sm:w-auto text-center">
+          Edit Measurements
+        </a>
+      </div>
+    </div>
+
+    <!-- Order Details -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-6 mb-6 sm:mb-8">
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-3 sm:p-6">
+        <p class="text-gray-600 dark:text-gray-400 text-xs sm:text-sm">Garment Type</p>
+        <p class="text-base sm:text-lg font-semibold text-gray-800 dark:text-white"><%= order.garmentType %></p>
+      </div>
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-3 sm:p-6">
+        <p class="text-gray-600 dark:text-gray-400 text-xs sm:text-sm">Created Date</p>
+        <p class="text-base sm:text-lg font-semibold text-gray-800 dark:text-white"><%= new Date(order.createdAt).toLocaleDateString() %></p>
+      </div>
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-3 sm:p-6">
+        <p class="text-gray-600 dark:text-gray-400 text-xs sm:text-sm">Due Date</p>
+        <p class="text-base sm:text-lg font-semibold text-gray-800 dark:text-white">
+          <%= order.dueDate ? new Date(order.dueDate).toLocaleDateString() : 'Not set' %>
+        </p>
+      </div>
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-3 sm:p-6">
+        <p class="text-gray-600 dark:text-gray-400 text-xs sm:text-sm">Price</p>
+        <p class="text-base sm:text-lg font-semibold text-gray-800 dark:text-white">₹<%= order.price %></p>
+      </div>
+    </div>
+
+    <!-- Description -->
+    <% if (order.description) { %>
+      <div class="bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-700 rounded-lg p-4 sm:p-6 mb-6 sm:mb-8">
+        <p class="text-blue-700 dark:text-blue-300 text-xs sm:text-sm font-medium mb-2">Description</p>
+        <p class="text-blue-800 dark:text-blue-200 text-sm sm:text-base"><%= order.description %></p>
+      </div>
+    <% } %>
+
+    <!-- Customer Measurements -->
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 sm:p-8">
+      <h2 class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-white mb-4 sm:mb-6">Customer Measurements</h2>
+
+      <% if (order.customer.measurements && order.customer.measurements.length > 0) { %>
+        <div class="space-y-4 sm:space-y-6">
+          <% order.customer.measurements.forEach((measurement) => { %>
+            <div class="border border-gray-200 dark:border-gray-600 rounded-lg p-3 sm:p-4">
+              <h3 class="text-base sm:text-lg font-semibold text-teal-600 dark:text-teal-400 mb-3 sm:mb-4 capitalize">
+                <%= measurement.type %>
+              </h3>
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+                <div>
+                  <p class="text-xs text-gray-500 dark:text-gray-400">Length</p>
+                  <p class="text-base sm:text-lg font-semibold text-gray-800 dark:text-white">
+                    <%= measurement.length !== null ? measurement.length : '-' %>
+                  </p>
+                </div>
+                <div>
+                  <p class="text-xs text-gray-500 dark:text-gray-400">Chest</p>
+                  <p class="text-base sm:text-lg font-semibold text-gray-800 dark:text-white">
+                    <%= measurement.chest !== null ? measurement.chest : '-' %>
+                  </p>
+                </div>
+                <div>
+                  <p class="text-xs text-gray-500 dark:text-gray-400">Shoulder</p>
+                  <p class="text-base sm:text-lg font-semibold text-gray-800 dark:text-white">
+                    <%= measurement.shoulder !== null ? measurement.shoulder : '-' %>
+                  </p>
+                </div>
+                <div>
+                  <p class="text-xs text-gray-500 dark:text-gray-400">Waist</p>
+                  <p class="text-base sm:text-lg font-semibold text-gray-800 dark:text-white">
+                    <%= measurement.waist !== null ? measurement.waist : '-' %>
+                  </p>
+                </div>
+                <div>
+                  <p class="text-xs text-gray-500 dark:text-gray-400">Arm</p>
+                  <p class="text-base sm:text-lg font-semibold text-gray-800 dark:text-white">
+                    <%= measurement.arm !== null ? measurement.arm : '-' %>
+                  </p>
+                </div>
+                <div>
+                  <p class="text-xs text-gray-500 dark:text-gray-400">Neck</p>
+                  <p class="text-base sm:text-lg font-semibold text-gray-800 dark:text-white">
+                    <%= measurement.neck !== null ? measurement.neck : '-' %>
+                  </p>
+                </div>
+                <div>
+                  <p class="text-xs text-gray-500 dark:text-gray-400">Hip</p>
+                  <p class="text-base sm:text-lg font-semibold text-gray-800 dark:text-white">
+                    <%= measurement.hip !== null ? measurement.hip : '-' %>
+                  </p>
+                </div>
+                <div>
+                  <p class="text-xs text-gray-500 dark:text-gray-400">Thigh</p>
+                  <p class="text-base sm:text-lg font-semibold text-gray-800 dark:text-white">
+                    <%= measurement.thigh !== null ? measurement.thigh : '-' %>
+                  </p>
+                </div>
+              </div>
+              <% if (measurement.notes) { %>
+                <p class="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-2 sm:mt-3">
+                  <strong>Notes:</strong> <%= measurement.notes %>
+                </p>
+              <% } %>
+            </div>
+          <% }) %>
+        </div>
+      <% } else { %>
+        <p class="text-gray-500 text-center py-8">No measurements recorded yet</p>
+      <% } %>
+    </div>
+  </div>
+
+  <!-- Status Update Modal -->
+  <div id="statusModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg shadow-2xl p-8 max-w-md w-full mx-4">
+      <h2 class="text-2xl font-bold text-gray-800 mb-6">Update Order Status</h2>
+
+      <div class="space-y-3 mb-8">
+        <% statuses.forEach((status) => { %>
+          <button
+            type="button"
+            onclick="handleStatusSelect('<%= status %>')"
+            class="w-full px-4 py-3 rounded-lg font-medium transition text-left
+              <% if (status === order.status) { %>
+                bg-teal-600 text-white
+              <% } else { %>
+                bg-gray-100 text-gray-800 hover:bg-gray-200
+              <% } %>
+            "
+          >
+            <%= status %>
+          </button>
+        <% }) %>
+      </div>
+
+      <div class="flex gap-4">
+        <button onclick="closeStatusModal()" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-lg transition">
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function openStatusModal() {
+      document.getElementById('statusModal').classList.remove('hidden');
+    }
+
+    function closeStatusModal() {
+      document.getElementById('statusModal').classList.add('hidden');
+    }
+
+    async function handleStatusSelect(status) {
+      try {
+        const response = await fetch('/tailor/orders/<%= order._id %>/status', {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ status }),
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          location.reload();
+        } else {
+          alert('Error: ' + result.error);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Failed to update status');
+      }
+    }
+  </script>
+
+  <%- include('../partials/footer') %>
+</body>
+</html>

@@ -1,0 +1,74 @@
+<nav class="bg-gray-800 text-white shadow-lg">
+  <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+    <a href="/admin/dashboard" class="text-xl sm:text-2xl font-bold">Tailor Admin</a>
+
+    <!-- Desktop Navigation -->
+    <div class="hidden md:flex gap-4 lg:gap-8 items-center">
+      <a href="/admin/dashboard" class="hover:text-blue-300 font-medium text-sm lg:text-base <%= typeof request !== 'undefined' && request.path === '/admin/dashboard' ? 'border-b-2 border-blue-400 pb-1' : '' %>">Dashboard</a>
+      <a href="/admin/customers" class="hover:text-blue-300 font-medium text-sm lg:text-base <%= typeof request !== 'undefined' && request.path.includes('/customers') ? 'border-b-2 border-blue-400 pb-1' : '' %>">Customers</a>
+      <a href="/admin/orders" class="hover:text-blue-300 font-medium text-sm lg:text-base <%= typeof request !== 'undefined' && request.path.includes('/orders') ? 'border-b-2 border-blue-400 pb-1' : '' %>">Orders</a>
+      <a href="/admin/inventory" class="hover:text-blue-300 font-medium text-sm lg:text-base <%= typeof request !== 'undefined' && request.path.includes('/inventory') ? 'border-b-2 border-blue-400 pb-1' : '' %>">Inventory</a>
+      <a href="/admin/tailors" class="hover:text-blue-300 font-medium text-sm lg:text-base <%= typeof request !== 'undefined' && request.path.includes('/tailors') ? 'border-b-2 border-blue-400 pb-1' : '' %>">Tailors</a>
+      <form action="/admin/logout" method="POST" style="display: inline;">
+        <button type="submit" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded font-medium text-sm">Logout</button>
+      </form>
+    </div>
+
+    <!-- Mobile Menu Button -->
+    <div class="md:hidden">
+      <button onclick="toggleAdminMenu()" class="p-2 rounded-lg bg-gray-700 hover:bg-gray-600 transition" aria-label="Toggle menu">
+        <span id="admin-hamburger-icon" class="block text-lg">☰</span>
+        <span id="admin-close-icon" class="hidden text-lg">✕</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile Menu -->
+  <div id="admin-mobile-menu" class="hidden md:hidden bg-gray-700 border-t border-gray-600">
+    <div class="px-4 py-4 space-y-2">
+      <a href="/admin/dashboard" class="block px-4 py-2 rounded-lg text-white hover:bg-gray-600 font-medium text-sm <%= typeof request !== 'undefined' && request.path === '/admin/dashboard' ? 'bg-gray-600' : '' %>">Dashboard</a>
+      <a href="/admin/customers" class="block px-4 py-2 rounded-lg text-white hover:bg-gray-600 font-medium text-sm <%= typeof request !== 'undefined' && request.path.includes('/customers') ? 'bg-gray-600' : '' %>">Customers</a>
+      <a href="/admin/orders" class="block px-4 py-2 rounded-lg text-white hover:bg-gray-600 font-medium text-sm <%= typeof request !== 'undefined' && request.path.includes('/orders') ? 'bg-gray-600' : '' %>">Orders</a>
+      <a href="/admin/inventory" class="block px-4 py-2 rounded-lg text-white hover:bg-gray-600 font-medium text-sm <%= typeof request !== 'undefined' && request.path.includes('/inventory') ? 'bg-gray-600' : '' %>">Inventory</a>
+      <a href="/admin/tailors" class="block px-4 py-2 rounded-lg text-white hover:bg-gray-600 font-medium text-sm <%= typeof request !== 'undefined' && request.path.includes('/tailors') ? 'bg-gray-600' : '' %>">Tailors</a>
+
+      <!-- Divider -->
+      <div class="my-2 border-t border-gray-600"></div>
+
+      <!-- Logout -->
+      <form action="/admin/logout" method="POST" class="px-4">
+        <button type="submit" class="w-full bg-red-600 hover:bg-red-700 px-4 py-2 rounded font-medium text-sm">Logout</button>
+      </form>
+    </div>
+  </div>
+</nav>
+
+<script>
+  function toggleAdminMenu() {
+    const menu = document.getElementById('admin-mobile-menu');
+    const hamburger = document.getElementById('admin-hamburger-icon');
+    const closeIcon = document.getElementById('admin-close-icon');
+
+    if (menu.classList.contains('hidden')) {
+      menu.classList.remove('hidden');
+      hamburger.classList.add('hidden');
+      closeIcon.classList.remove('hidden');
+    } else {
+      menu.classList.add('hidden');
+      hamburger.classList.remove('hidden');
+      closeIcon.classList.add('hidden');
+    }
+  }
+
+  // Close mobile menu when a link is clicked
+  document.querySelectorAll('#admin-mobile-menu a').forEach(link => {
+    link.addEventListener('click', () => {
+      const menu = document.getElementById('admin-mobile-menu');
+      const hamburger = document.getElementById('admin-hamburger-icon');
+      const closeIcon = document.getElementById('admin-close-icon');
+      menu.classList.add('hidden');
+      hamburger.classList.remove('hidden');
+      closeIcon.classList.add('hidden');
+    });
+  });
+</script>

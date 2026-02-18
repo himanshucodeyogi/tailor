@@ -1,0 +1,94 @@
+<nav class="bg-gradient-to-r from-teal-600 to-cyan-600 text-white shadow-lg">
+  <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+    <!-- Brand -->
+    <a href="/tailor/dashboard" class="text-xl sm:text-2xl font-bold">✂ Tailor</a>
+
+    <!-- Desktop Navigation -->
+    <div class="hidden md:flex space-x-8">
+      <a
+        href="/tailor/dashboard"
+        class="<%= request.path === '/tailor/dashboard' ? 'border-b-2 border-white' : 'hover:text-gray-200' %> pb-2 transition text-sm lg:text-base"
+      >
+        Dashboard
+      </a>
+    </div>
+
+    <!-- Desktop: Right: User & Logout -->
+    <div class="hidden md:flex items-center space-x-6">
+      <span class="text-sm lg:text-base">
+        Welcome, <strong><%= tailorName %></strong>
+      </span>
+      <form action="/tailor/logout" method="POST" class="inline">
+        <button
+          type="submit"
+          class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-medium transition text-sm"
+        >
+          Logout
+        </button>
+      </form>
+    </div>
+
+    <!-- Mobile Menu Button -->
+    <div class="md:hidden flex items-center gap-2">
+      <button onclick="toggleTailorMenu()" class="p-2 rounded-lg bg-white bg-opacity-20 hover:bg-opacity-30 transition" aria-label="Toggle menu">
+        <span id="tailor-hamburger-icon" class="block text-lg">☰</span>
+        <span id="tailor-close-icon" class="hidden text-lg">✕</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile Menu -->
+  <div id="tailor-mobile-menu" class="hidden md:hidden bg-teal-700 border-t border-teal-500">
+    <div class="px-4 py-4 space-y-3">
+      <a href="/tailor/dashboard" class="block px-4 py-2 rounded-lg text-white hover:bg-teal-600 font-medium text-sm"><%= request.path === '/tailor/dashboard' ? '✓' : '' %> Dashboard</a>
+
+      <!-- Divider -->
+      <div class="my-2 border-t border-teal-500"></div>
+
+      <!-- User Info -->
+      <div class="px-4 py-2 text-sm">
+        <p class="text-teal-100">Welcome, <strong><%= tailorName %></strong></p>
+      </div>
+
+      <!-- Logout -->
+      <form action="/tailor/logout" method="POST" class="px-4">
+        <button
+          type="submit"
+          class="w-full bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-medium transition text-sm"
+        >
+          Logout
+        </button>
+      </form>
+    </div>
+  </div>
+</nav>
+
+<script>
+  function toggleTailorMenu() {
+    const menu = document.getElementById('tailor-mobile-menu');
+    const hamburger = document.getElementById('tailor-hamburger-icon');
+    const closeIcon = document.getElementById('tailor-close-icon');
+
+    if (menu.classList.contains('hidden')) {
+      menu.classList.remove('hidden');
+      hamburger.classList.add('hidden');
+      closeIcon.classList.remove('hidden');
+    } else {
+      menu.classList.add('hidden');
+      hamburger.classList.remove('hidden');
+      closeIcon.classList.add('hidden');
+    }
+  }
+
+  // Close mobile menu when a link is clicked
+  document.querySelectorAll('#tailor-mobile-menu a').forEach(link => {
+    link.addEventListener('click', () => {
+      const menu = document.getElementById('tailor-mobile-menu');
+      const hamburger = document.getElementById('tailor-hamburger-icon');
+      const closeIcon = document.getElementById('tailor-close-icon');
+      menu.classList.add('hidden');
+      hamburger.classList.remove('hidden');
+      closeIcon.classList.add('hidden');
+    });
+  });
+</script>

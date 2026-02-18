@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('../partials/head') %>
+<body class="bg-gray-50 dark:bg-gray-900">
+  <%- include('../partials/nav-tailor') %>
+
+  <div class="max-w-4xl mx-auto px-3 sm:px-4 py-6 sm:py-12">
+    <%- include('../partials/flash') %>
+
+    <!-- Back Button -->
+    <a href="/tailor/dashboard" class="text-teal-600 dark:text-teal-400 hover:text-teal-800 dark:hover:text-teal-300 font-medium mb-4 sm:mb-6 inline-block text-sm sm:text-base">
+      ← Back to Orders
+    </a>
+
+    <!-- Edit Form -->
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 sm:p-8">
+      <h1 class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white mb-2">Edit Measurements</h1>
+      <p class="text-gray-600 dark:text-gray-400 mb-6 sm:mb-8 text-sm sm:text-base">Customer: <strong><%= customer.name %></strong></p>
+
+      <form action="/tailor/customers/<%= customer._id %>/measurements?_method=PUT" method="POST" class="space-y-8">
+        <!-- Dynamic Measurement Types -->
+        <div class="space-y-6">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-xl font-semibold text-gray-800">Measurement Types</h2>
+            <button type="button" onclick="addMeasurementType()" class="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg font-medium transition">
+              + Add Type
+            </button>
+          </div>
+
+          <!-- Selected Types Container -->
+          <div id="measurementTypesContainer" class="space-y-6 p-4 bg-gray-50 rounded-lg">
+            <% if (customer.measurements && customer.measurements.length > 0) { %>
+              <% customer.measurements.forEach((measurement) => { %>
+                <div class="measurement-block bg-white p-6 rounded-lg border border-gray-200" data-type="<%= measurement.type %>">
+                  <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold text-teal-600 capitalize">
+                      <%= measurement.type %>
+                    </h3>
+                    <button type="button" onclick="this.closest('.measurement-block').remove()" class="text-red-600 hover:text-red-800 font-medium">
+                      Remove
+                    </button>
+                  </div>
+
+                  <input type="hidden" name="measurementTypes" value="<%= measurement.type %>">
+
+                  <!-- Measurement Fields Grid -->
+                  <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-1">Length (cm)</label>
+                      <input
+                        type="number"
+                        name="length_<%= measurement.type %>"
+                        value="<%= measurement.length || '' %>"
+                        step="0.1"
+                        min="0"
+                        placeholder="0"
+                        class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                      />
+                    </div>
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-1">Chest (cm)</label>
+                      <input
+                        type="number"
+                        name="chest_<%= measurement.type %>"
+                        value="<%= measurement.chest || '' %>"
+                        step="0.1"
+                        min="0"
+                        placeholder="0"
+                        class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                      />
+                    </div>
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-1">Shoulder (cm)</label>
+                      <input
+                        type="number"
+                        name="shoulder_<%= measurement.type %>"
+                        value="<%= measurement.shoulder || '' %>"
+                        step="0.1"
+                        min="0"
+                        placeholder="0"
+                        class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                      />
+                    </div>
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-1">Waist (cm)</label>
+                      <input
+                        type="number"
+                        name="waist_<%= measurement.type %>"
+                        value="<%= measurement.waist || '' %>"
+                        step="0.1"
+                        min="0"
+                        placeholder="0"
+                        class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                      />
+                    </div>
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-1">Arm (cm)</label>
+                      <input
+                        type="number"
+                        name="arm_<%= measurement.type %>"
+                        value="<%= measurement.arm || '' %>"
+                        step="0.1"
+                        min="0"
+                        placeholder="0"
+                        class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                      />
+                    </div>
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-1">Neck (cm)</label>
+                      <input
+                        type="number"
+                        name="neck_<%= measurement.type %>"
+                        value="<%= measurement.neck || '' %>"
+                        step="0.1"
+                        min="0"
+                        placeholder="0"
+                        class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                      />
+                    </div>
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-1">Hip (cm)</label>
+                      <input
+                        type="number"
+                        name="hip_<%= measurement.type %>"
+                        value="<%= measurement.hip || '' %>"
+                        step="0.1"
+                        min="0"
+                        placeholder="0"
+                        class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                      />
+                    </div>
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-1">Thigh (cm)</label>
+                      <input
+                        type="number"
+                        name="thigh_<%= measurement.type %>"
+                        value="<%= measurement.thigh || '' %>"
+                        step="0.1"
+                        min="0"
+                        placeholder="0"
+                        class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                      />
+                    </div>
+                  </div>
+
+                  <!-- Notes -->
+                  <div class="mt-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Notes (Optional)</label>
+                    <textarea
+                      name="notes_<%= measurement.type %>"
+                      placeholder="Add any special notes"
+                      rows="2"
+                      class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                    ><%= measurement.notes || '' %></textarea>
+                  </div>
+                </div>
+              <% }) %>
+            <% } %>
+          </div>
+
+          <!-- Type Selector Dropdown -->
+          <div class="hidden" id="typeSelector">
+            <select id="typeDropdown" class="w-full border border-gray-300 rounded px-3 py-2">
+              <% measurementTypes.forEach((type) => { %>
+                <option value="<%= type %>"><%= type.charAt(0).toUpperCase() + type.slice(1) %></option>
+              <% }) %>
+            </select>
+          </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="flex gap-4 pt-6 border-t border-gray-200">
+          <button
+            type="submit"
+            class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-8 rounded-lg transition"
+          >
+            Save Measurements
+          </button>
+          <a href="/tailor/dashboard" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-3 px-8 rounded-lg transition inline-block">
+            Cancel
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const measurementTypes = [
+      'pant', 'shirt', 'coat', 'jacket', 'kurta',
+      'salwar', 'sherwani', 'lehenga', 'saree', 'other'
+    ];
+
+    function getUsedTypes() {
+      const blocks = document.querySelectorAll('.measurement-block');
+      return Array.from(blocks).map(b => b.getAttribute('data-type'));
+    }
+
+    function addMeasurementType() {
+      const usedTypes = getUsedTypes();
+      const availableTypes = measurementTypes.filter(t => !usedTypes.includes(t));
+
+      if (availableTypes.length === 0) {
+        alert('All measurement types have been added');
+        return;
+      }
+
+      const selectedType = availableTypes[0];
+      const container = document.getElementById('measurementTypesContainer');
+
+      const block = document.createElement('div');
+      block.className = 'measurement-block bg-white p-6 rounded-lg border border-gray-200';
+      block.setAttribute('data-type', selectedType);
+
+      block.innerHTML = `
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg font-semibold text-teal-600 capitalize">${selectedType}</h3>
+          <button type="button" onclick="this.closest('.measurement-block').remove()" class="text-red-600 hover:text-red-800 font-medium">Remove</button>
+        </div>
+        <input type="hidden" name="measurementTypes" value="${selectedType}">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Length (cm)</label>
+            <input type="number" name="length_${selectedType}" step="0.1" min="0" placeholder="0" class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Chest (cm)</label>
+            <input type="number" name="chest_${selectedType}" step="0.1" min="0" placeholder="0" class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Shoulder (cm)</label>
+            <input type="number" name="shoulder_${selectedType}" step="0.1" min="0" placeholder="0" class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Waist (cm)</label>
+            <input type="number" name="waist_${selectedType}" step="0.1" min="0" placeholder="0" class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Arm (cm)</label>
+            <input type="number" name="arm_${selectedType}" step="0.1" min="0" placeholder="0" class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Neck (cm)</label>
+            <input type="number" name="neck_${selectedType}" step="0.1" min="0" placeholder="0" class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Hip (cm)</label>
+            <input type="number" name="hip_${selectedType}" step="0.1" min="0" placeholder="0" class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Thigh (cm)</label>
+            <input type="number" name="thigh_${selectedType}" step="0.1" min="0" placeholder="0" class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500" />
+          </div>
+        </div>
+        <div class="mt-4">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Notes (Optional)</label>
+          <textarea name="notes_${selectedType}" placeholder="Add any special notes" rows="2" class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500"></textarea>
+        </div>
+      `;
+
+      container.appendChild(block);
+    }
+  </script>
+
+  <%- include('../partials/footer') %>
+</body>
+</html>

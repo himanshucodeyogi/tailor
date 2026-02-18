@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('../partials/head') %>
+<body class="bg-gray-50">
+  <%- include('../partials/nav-admin') %>
+
+  <div class="max-w-4xl mx-auto px-4 py-8">
+    <%- include('../partials/flash') %>
+
+    <h1 class="text-3xl font-bold text-gray-800 mb-8">Edit Customer</h1>
+
+    <div class="bg-white rounded-lg shadow p-8">
+      <form action="/admin/customers/<%= customer._id %>?_method=PUT" method="POST" class="space-y-6" onsubmit="logFormData(event)">
+        <!-- Name -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Customer Name *</label>
+          <input
+            type="text"
+            name="name"
+            placeholder="Enter customer name"
+            value="<%= customer.name %>"
+            class="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
+          />
+        </div>
+
+        <!-- Phone -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Phone Number *</label>
+          <input
+            type="text"
+            name="phone"
+            placeholder="10-15 digits (e.g., 9876543210)"
+            value="<%= customer.phone %>"
+            class="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
+          />
+        </div>
+
+        <!-- Notes -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Notes</label>
+          <textarea
+            name="notes"
+            placeholder="Any special notes about the customer..."
+            rows="3"
+            class="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          ><%= customer.notes %></textarea>
+        </div>
+
+        <!-- Measurements -->
+        <div class="bg-blue-50 border border-blue-200 rounded p-6">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-bold text-gray-800">Measurements (in inches)</h3>
+            <button
+              type="button"
+              onclick="addMeasurementType()"
+              class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm font-semibold"
+            >
+              + Add Measurement Type
+            </button>
+          </div>
+          <div id="measurementsContainer">
+            <% if (customer.measurements && customer.measurements.length > 0) { %>
+              <% customer.measurements.forEach((measurement, index) => { %>
+                <div class="measurement-type-block bg-blue-50 border border-blue-200 rounded p-4 mb-4">
+                  <div class="flex justify-between items-center mb-4">
+                    <select name="measurementTypes" class="measurement-type-select border border-gray-300 rounded px-3 py-2 font-semibold" required>
+                      <option value="">Select Type</option>
+                      <option value="pant" <%= measurement.type === 'pant' ? 'selected' : '' %>>Pant</option>
+                      <option value="shirt" <%= measurement.type === 'shirt' ? 'selected' : '' %>>Shirt</option>
+                      <option value="coat" <%= measurement.type === 'coat' ? 'selected' : '' %>>Coat</option>
+                      <option value="jacket" <%= measurement.type === 'jacket' ? 'selected' : '' %>>Jacket</option>
+                      <option value="kurta" <%= measurement.type === 'kurta' ? 'selected' : '' %>>Kurta</option>
+                      <option value="salwar" <%= measurement.type === 'salwar' ? 'selected' : '' %>>Salwar</option>
+                      <option value="sherwani" <%= measurement.type === 'sherwani' ? 'selected' : '' %>>Sherwani</option>
+                      <option value="lehenga" <%= measurement.type === 'lehenga' ? 'selected' : '' %>>Lehenga</option>
+                      <option value="saree" <%= measurement.type === 'saree' ? 'selected' : '' %>>Saree</option>
+                      <option value="other" <%= measurement.type === 'other' ? 'selected' : '' %>>Other</option>
+                    </select>
+                    <button type="button" onclick="removeMeasurementType(this)" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm">
+                      Remove
+                    </button>
+                  </div>
+
+                  <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    <div>
+                      <label class="block text-xs font-medium text-gray-700 mb-1">Length</label>
+                      <input type="number" name="length_<%= index %>" placeholder="Length" step="0.5" value="<%= measurement.length || '' %>" class="w-full border border-gray-300 rounded px-2 py-1 text-sm" />
+                    </div>
+                    <div>
+                      <label class="block text-xs font-medium text-gray-700 mb-1">Chest</label>
+                      <input type="number" name="chest_<%= index %>" placeholder="Chest" step="0.5" value="<%= measurement.chest || '' %>" class="w-full border border-gray-300 rounded px-2 py-1 text-sm" />
+                    </div>
+                    <div>
+                      <label class="block text-xs font-medium text-gray-700 mb-1">Shoulder</label>
+                      <input type="number" name="shoulder_<%= index %>" placeholder="Shoulder" step="0.5" value="<%= measurement.shoulder || '' %>" class="w-full border border-gray-300 rounded px-2 py-1 text-sm" />
+                    </div>
+                    <div>
+                      <label class="block text-xs font-medium text-gray-700 mb-1">Waist</label>
+                      <input type="number" name="waist_<%= index %>" placeholder="Waist" step="0.5" value="<%= measurement.waist || '' %>" class="w-full border border-gray-300 rounded px-2 py-1 text-sm" />
+                    </div>
+                    <div>
+                      <label class="block text-xs font-medium text-gray-700 mb-1">Arm</label>
+                      <input type="number" name="arm_<%= index %>" placeholder="Arm" step="0.5" value="<%= measurement.arm || '' %>" class="w-full border border-gray-300 rounded px-2 py-1 text-sm" />
+                    </div>
+                    <div>
+                      <label class="block text-xs font-medium text-gray-700 mb-1">Neck</label>
+                      <input type="number" name="neck_<%= index %>" placeholder="Neck" step="0.5" value="<%= measurement.neck || '' %>" class="w-full border border-gray-300 rounded px-2 py-1 text-sm" />
+                    </div>
+                    <div>
+                      <label class="block text-xs font-medium text-gray-700 mb-1">Hip</label>
+                      <input type="number" name="hip_<%= index %>" placeholder="Hip" step="0.5" value="<%= measurement.hip || '' %>" class="w-full border border-gray-300 rounded px-2 py-1 text-sm" />
+                    </div>
+                    <div>
+                      <label class="block text-xs font-medium text-gray-700 mb-1">Thigh</label>
+                      <input type="number" name="thigh_<%= index %>" placeholder="Thigh" step="0.5" value="<%= measurement.thigh || '' %>" class="w-full border border-gray-300 rounded px-2 py-1 text-sm" />
+                    </div>
+                    <div class="col-span-2 md:col-span-1">
+                      <label class="block text-xs font-medium text-gray-700 mb-1">Notes</label>
+                      <input type="text" name="notes_<%= index %>" placeholder="Notes" value="<%= measurement.notes || '' %>" class="w-full border border-gray-300 rounded px-2 py-1 text-sm" />
+                    </div>
+                  </div>
+                </div>
+              <% }); %>
+            <% } %>
+          </div>
+          <p class="text-sm text-gray-600 mt-2">Click "Add Measurement Type" to add measurements for different garments</p>
+        </div>
+
+        <!-- Buttons -->
+        <div class="flex gap-4">
+          <button
+            type="submit"
+            onclick="return validateMeasurements()"
+            class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded"
+          >
+            Update Customer
+          </button>
+          <a href="/admin/customers/<%= customer._id %>" class="bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2 px-6 rounded">
+            Cancel
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <%- include('../partials/footer') %>
+  <script src="/js/measurements.js"></script>
+</body>
+</html>
