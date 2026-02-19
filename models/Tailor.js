@@ -6,7 +6,6 @@ const tailorSchema = new mongoose.Schema(
     username: {
       type: String,
       required: true,
-      unique: true,
       trim: true,
     },
     name: {
@@ -18,9 +17,17 @@ const tailorSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    shop: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Shop',
+      required: true,
+    },
   },
   { timestamps: true }
 );
+
+// Compound index for multi-tenancy
+tailorSchema.index({ username: 1, shop: 1 }, { unique: true });
 
 // Instance method to compare password
 tailorSchema.methods.comparePassword = async function (plainText) {

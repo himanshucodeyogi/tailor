@@ -54,6 +54,11 @@ const orderSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    shop: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Shop',
+      required: true,
+    },
   },
   { timestamps: true }
 );
@@ -86,5 +91,6 @@ orderSchema.statics.STATUS_COLORS = {
 orderSchema.index({ customer: 1, status: 1 });
 orderSchema.index({ orderNumber: 1 });
 orderSchema.index({ createdAt: -1 });
+orderSchema.index({ shop: 1 });
 
 module.exports = mongoose.model('Order', orderSchema);

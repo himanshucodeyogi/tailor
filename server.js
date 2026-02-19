@@ -59,6 +59,25 @@ app.use((req, res, next) => {
   next();
 });
 
+// CORS for /api routes (Flutter app)
+const cors = require('cors');
+app.use('/api', cors({
+  origin: function (origin, callback) {
+    // Allow requests with no origin (mobile apps, curl, etc.)
+    if (!origin) return callback(null, true);
+    // Allow any localhost or 10.0.2.2 origin (Flutter web/emulator dev)
+    if (origin.startsWith('http://localhost:') || origin.startsWith('http://10.0.2.2:')) {
+      return callback(null, true);
+    }
+    // Allow custom origins from env
+    const allowed = process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : [];
+    if (allowed.includes(origin)) return callback(null, true);
+    callback(new Error('Not allowed by CORS'));
+  },
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));
+
 // Routes
 const publicRoutes = require('./routes/public');
 const authRoutes = require('./routes/auth');
@@ -81,8 +100,34 @@ app.use('/admin/tailors', isAdmin, adminTailorRoutes);
 app.use('/tailor', tailorAuthRoutes);
 app.use('/tailor', isTailor, tailorRoutes);
 
+// === REST API Routes (JWT-protected, for Flutter app) ===
+const { verifyAdminToken, verifyTailorToken } = require('./middleware/jwt-auth');
+
+const apiAuthRoutes = require('./routes/api/auth');
+const apiPublicRoutes = require('./routes/api/public');
+const apiShopRoutes = require('./routes/api/shop');
+const apiDashboardRoutes = require('./routes/api/admin/dashboard');
+const apiCustomerRoutes = require('./routes/api/admin/customers');
+const apiOrderRoutes = require('./routes/api/admin/orders');
+const apiInventoryRoutes = require('./routes/api/admin/inventory');
+const apiAdminTailorRoutes = require('./routes/api/admin/tailors');
+const apiTailorRoutes = require('./routes/api/tailor');
+
+app.use('/api/auth', apiAuthRoutes);
+app.use('/api/shops', apiShopRoutes);
+app.use('/api', apiPublicRoutes);
+app.use('/api/admin/dashboard', verifyAdminToken, apiDashboardRoutes);
+app.use('/api/admin/customers', verifyAdminToken, apiCustomerRoutes);
+app.use('/api/admin/orders', verifyAdminToken, apiOrderRoutes);
+app.use('/api/admin/inventory', verifyAdminToken, apiInventoryRoutes);
+app.use('/api/admin/tailors', verifyAdminToken, apiAdminTailorRoutes);
+app.use('/api/tailor', verifyTailorToken, apiTailorRoutes);
+
 // 404 Not Found handler
 app.use((req, res) => {
+  if (req.path.startsWith('/api')) {
+    return res.status(404).json({ error: 'API endpoint not found' });
+  }
   res.status(404).render('404', {
     title: 'Page Not Found',
   });
@@ -91,6 +136,9 @@ app.use((req, res) => {
 // Global error handler
 app.use((err, req, res, next) => {
   console.error('Error:', err);
+  if (req.path.startsWith('/api')) {
+    return res.status(500).json({ error: 'Server error' });
+  }
   res.status(500).render('500', {
     title: 'Server Error',
     error: err.message,

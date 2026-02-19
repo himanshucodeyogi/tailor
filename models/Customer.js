@@ -30,9 +30,13 @@ const customerSchema = new mongoose.Schema(
     phone: {
       type: String,
       required: [true, 'Phone number is required'],
-      unique: true,
       trim: true,
       match: [/^\d{10,15}$/, 'Please enter a valid phone number'],
+    },
+    shop: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Shop',
+      required: true,
     },
     measurements: [measurementItemSchema],
     notes: {
@@ -44,7 +48,8 @@ const customerSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// Indexes for faster searches
-customerSchema.index({ phone: 1 });
+// Compound indexes for multi-tenancy
+customerSchema.index({ phone: 1, shop: 1 }, { unique: true });
+customerSchema.index({ shop: 1 });
 
 module.exports = mongoose.model('Customer', customerSchema);

@@ -5,8 +5,12 @@ const inventorySchema = new mongoose.Schema(
     itemName: {
       type: String,
       required: [true, 'Item name is required'],
-      unique: true,
       trim: true,
+    },
+    shop: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Shop',
+      required: true,
     },
     quantity: {
       type: Number,
@@ -26,6 +30,9 @@ const inventorySchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+// Compound index for multi-tenancy
+inventorySchema.index({ itemName: 1, shop: 1 }, { unique: true });
 
 // Virtual: is stock low?
 inventorySchema.virtual('isLowStock').get(function () {

@@ -8,7 +8,19 @@
       "Bash(lsof:*)",
       "Bash(curl:*)",
       "Bash(git init:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git remote set-url:*)",
+      "Bash(git push:*)",
+      "Bash(where:*)",
+      "Bash(cmd /c \"where flutter 2>&1\")",
+      "Bash(cmd /c \"flutter --version 2>&1\")",
+      "Bash(cmd /c \"dir C:\\\\flutter\\\\bin\\\\flutter.bat 2>&1\")",
+      "Bash(cmd /c \"dir C:\\\\src\\\\flutter\\\\bin\\\\flutter.bat 2>&1\")",
+      "Bash(cmd /c \"dir %LOCALAPPDATA%\\\\flutter\\\\bin\\\\flutter.bat 2>&1\")",
+      "Bash(node:*)",
+      "Bash(cmd /c \"dir /s /b C:\\\\Users\\\\codey\\\\allcode\\\\ta_flutter\\\\lib\\\\*.dart 2>&1 | find /c /v \"\"\")",
+      "Bash(cmd /c \"dir /s /b C:\\\\Users\\\\codey\\\\allcode\\\\ta_flutter\\\\lib\\\\*.dart\")"
     ]
   }
 }
