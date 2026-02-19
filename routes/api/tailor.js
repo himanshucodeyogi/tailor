@@ -8,7 +8,7 @@ const ORDER_STATUSES = ['Order Placed', 'Cutting', 'In Stitching', 'Final Touche
 // GET /api/tailor/dashboard
 router.get('/dashboard', async (req, res) => {
   try {
-    const orders = await Order.find({ isActive: true, shop: req.shopId })
+    const orders = await Order.find({ isActive: true, shop: req.shopId, assignedTailor: req.tailorId })
       .populate('customer', 'name phone')
       .sort({ createdAt: -1 })
       .lean();
@@ -45,7 +45,7 @@ router.get('/dashboard', async (req, res) => {
 // GET /api/tailor/orders/:id
 router.get('/orders/:id', async (req, res) => {
   try {
-    const order = await Order.findOne({ _id: req.params.id, shop: req.shopId }).populate('customer').lean();
+    const order = await Order.findOne({ _id: req.params.id, shop: req.shopId, assignedTailor: req.tailorId }).populate('customer').lean();
     if (!order) return res.status(404).json({ error: 'Order not found' });
 
     res.json({
@@ -89,7 +89,7 @@ router.patch('/orders/:id/status', async (req, res) => {
     }
 
     const order = await Order.findOneAndUpdate(
-      { _id: req.params.id, shop: req.shopId },
+      { _id: req.params.id, shop: req.shopId, assignedTailor: req.tailorId },
       { status },
       { new: true, runValidators: true }
     ).lean();

@@ -2,11 +2,13 @@ const express = require('express');
 const router = express.Router();
 const Order = require('../../../models/Order');
 const Customer = require('../../../models/Customer');
+const Tailor = require('../../../models/Tailor');
 
 const ORDER_STATUSES = ['Order Placed', 'Cutting', 'In Stitching', 'Final Touches', 'Ready for Pickup'];
 
 function formatOrder(o) {
   const customer = o.customer;
+  const tailor = o.assignedTailor;
   return {
     id: o._id,
     orderNumber: o.orderNumber,
@@ -24,6 +26,9 @@ function formatOrder(o) {
     customer: customer
       ? { id: customer._id, name: customer.name, phone: customer.phone }
       : null,
+    assignedTailor: tailor
+      ? { id: tailor._id, name: tailor.name }
+      : null,
   };
 }
 
@@ -39,6 +44,7 @@ router.get('/', async (req, res) => {
     const total = await Order.countDocuments(filter);
     const orders = await Order.find(filter)
       .populate('customer', 'name phone')
+      .populate('assignedTailor', 'name')
       .sort({ createdAt: -1 })
       .skip((page - 1) * limit)
       .limit(parseInt(limit))
@@ -61,7 +67,7 @@ router.get('/', async (req, res) => {
 // Body: { customerId, garmentType, description, price, advancePaid, dueDate, status }
 router.post('/', async (req, res) => {
   try {
-    const { customerId, garmentType, description, price, advancePaid, dueDate, status } = req.body;
+    const { customerId, garmentType, description, price, advancePaid, dueDate, status, tailorId } = req.body;
 
     if (!customerId) return res.status(400).json({ error: 'Customer is required' });
     if (!garmentType) return res.status(400).json({ error: 'Garment type is required' });
@@ -82,12 +88,14 @@ router.post('/', async (req, res) => {
       advancePaid: advancePaid ? parseFloat(advancePaid) : 0,
       dueDate: dueDate ? new Date(dueDate) : null,
       status: status || 'Order Placed',
+      assignedTailor: tailorId || null,
       isActive: true,
       shop: req.shopId,
     });
 
     await order.save();
     await order.populate('customer', 'name phone');
+    await order.populate('assignedTailor', 'name');
 
     res.status(201).json({ order: formatOrder(order.toObject({ virtuals: false })) });
   } catch (err) {
@@ -102,7 +110,10 @@ router.post('/', async (req, res) => {
 // GET /api/admin/orders/:id
 router.get('/:id', async (req, res) => {
   try {
-    const order = await Order.findOne({ _id: req.params.id, shop: req.shopId }).populate('customer').lean();
+    const order = await Order.findOne({ _id: req.params.id, shop: req.shopId })
+      .populate('customer')
+      .populate('assignedTailor', 'name')
+      .lean();
     if (!order) return res.status(404).json({ error: 'Order not found' });
     res.json({ order: formatOrder(order) });
   } catch (err) {
@@ -114,7 +125,7 @@ router.get('/:id', async (req, res) => {
 // PUT /api/admin/orders/:id
 router.put('/:id', async (req, res) => {
   try {
-    const { garmentType, description, price, advancePaid, dueDate, status } = req.body;
+    const { garmentType, description, price, advancePaid, dueDate, status, tailorId } = req.body;
     const order = await Order.findOne({ _id: req.params.id, shop: req.shopId });
     if (!order) return res.status(404).json({ error: 'Order not found' });
 
@@ -124,9 +135,11 @@ router.put('/:id', async (req, res) => {
     if (advancePaid !== undefined) order.advancePaid = parseFloat(advancePaid);
     if (dueDate !== undefined) order.dueDate = dueDate ? new Date(dueDate) : null;
     if (status && ORDER_STATUSES.includes(status)) order.status = status;
+    if (tailorId !== undefined) order.assignedTailor = tailorId || null;
 
     await order.save();
     await order.populate('customer', 'name phone');
+    await order.populate('assignedTailor', 'name');
 
     res.json({ order: formatOrder(order.toObject({ virtuals: false })) });
   } catch (err) {
@@ -148,13 +161,70 @@ router.patch('/:id/status', async (req, res) => {
       { _id: req.params.id, shop: req.shopId },
       { status },
       { new: true, runValidators: true }
-    ).populate('customer', 'name phone').lean();
+    ).populate('customer', 'name phone').populate('assignedTailor', 'name').lean();
 
     if (!order) return res.status(404).json({ error: 'Order not found' });
 
     res.json({ order: formatOrder(order) });
   } catch (err) {
     console.error('API update order status error:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// PATCH /api/admin/orders/:id/assign
+// Body: { tailorId: "..." } or { tailorId: null }
+router.patch('/:id/assign', async (req, res) => {
+  try {
+    const { tailorId } = req.body;
+
+    if (tailorId) {
+      const tailor = await Tailor.findOne({ _id: tailorId, shop: req.shopId });
+      if (!tailor) return res.status(404).json({ error: 'Tailor not found' });
+    }
+
+    const order = await Order.findOneAndUpdate(
+      { _id: req.params.id, shop: req.shopId },
+      { assignedTailor: tailorId || null },
+      { new: true, runValidators: true }
+    ).populate('customer', 'name phone').populate('assignedTailor', 'name').lean();
+
+    if (!order) return res.status(404).json({ error: 'Order not found' });
+
+    res.json({ order: formatOrder(order) });
+  } catch (err) {
+    console.error('API assign tailor error:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// POST /api/admin/orders/bulk-assign
+// Body: { orderIds: [...], tailorId: "..." }
+router.post('/bulk-assign', async (req, res) => {
+  try {
+    const { orderIds, tailorId } = req.body;
+
+    if (!orderIds || !Array.isArray(orderIds) || orderIds.length === 0) {
+      return res.status(400).json({ error: 'orderIds array is required' });
+    }
+    if (!tailorId) {
+      return res.status(400).json({ error: 'tailorId is required' });
+    }
+
+    const tailor = await Tailor.findOne({ _id: tailorId, shop: req.shopId });
+    if (!tailor) return res.status(404).json({ error: 'Tailor not found' });
+
+    const result = await Order.updateMany(
+      { _id: { $in: orderIds }, shop: req.shopId },
+      { assignedTailor: tailorId }
+    );
+
+    res.json({
+      message: `${result.modifiedCount} orders assigned to ${tailor.name}`,
+      modifiedCount: result.modifiedCount,
+    });
+  } catch (err) {
+    console.error('API bulk assign error:', err);
     res.status(500).json({ error: 'Server error' });
   }
 });

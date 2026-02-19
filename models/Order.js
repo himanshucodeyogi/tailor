@@ -54,6 +54,11 @@ const orderSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    assignedTailor: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Tailor',
+      default: null,
+    },
     shop: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Shop',
@@ -92,5 +97,6 @@ orderSchema.index({ customer: 1, status: 1 });
 orderSchema.index({ orderNumber: 1 });
 orderSchema.index({ createdAt: -1 });
 orderSchema.index({ shop: 1 });
+orderSchema.index({ assignedTailor: 1, shop: 1 });
 
 module.exports = mongoose.model('Order', orderSchema);
