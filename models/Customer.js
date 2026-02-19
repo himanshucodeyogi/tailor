@@ -15,6 +15,7 @@ const measurementItemSchema = new mongoose.Schema(
     neck: { type: Number, default: null },
     hip: { type: Number, default: null },
     thigh: { type: Number, default: null },
+    inseam: { type: Number, default: null },
     notes: { type: String, trim: true, default: '' },
   },
   { _id: false, timestamps: true }
