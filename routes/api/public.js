@@ -44,8 +44,16 @@ router.post('/track', async (req, res) => {
       return res.status(404).json({ error: 'No active orders found for this phone number' });
     }
 
+    // Fetch shop details for display
+    const shop = customer.shop
+      ? await Shop.findById(customer.shop).select('shopName address phone').lean()
+      : null;
+
     res.json({
       customer: { id: customer._id, name: customer.name, phone: customer.phone },
+      shop: shop
+        ? { name: shop.shopName, address: shop.address || '', phone: shop.phone || '' }
+        : null,
       orders: orders.map((o) => ({
         id: o._id,
         orderNumber: o.orderNumber,
