@@ -100,10 +100,8 @@ router.post('/', async (req, res) => {
       }
     }
 
-    // Generate unique order number
-    const timestamp = Date.now();
-    const random = Math.floor(Math.random() * 10000);
-    const orderNumber = `ORD-${timestamp}-${random}`;
+    // Generate next sequential order number (1A..1000A, 1B..1000B, ... 1Z..1000Z)
+    const orderNumber = await Order.generateNextOrderNumber(null);
     console.log('Generated order number:', orderNumber);
 
     // Create order

@@ -75,9 +75,7 @@ router.post('/', async (req, res) => {
     const customer = await Customer.findOne({ _id: customerId, shop: req.shopId });
     if (!customer) return res.status(404).json({ error: 'Customer not found' });
 
-    const timestamp = Date.now();
-    const random = Math.floor(Math.random() * 10000);
-    const orderNumber = `ORD-${timestamp}-${random}`;
+    const orderNumber = await Order.generateNextOrderNumber(req.shopId);
 
     const order = new Order({
       orderNumber,

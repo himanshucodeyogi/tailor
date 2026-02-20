@@ -68,7 +68,39 @@ const orderSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// Note: orderNumber is generated in the route handler before saving
+/**
+ * Generates the next order number for a shop.
+ * Sequence: 1A, 2A, ... 1000A, 1B, 2B, ... 1000B, ... 1Z, ... 1000Z, then restart 1A.
+ */
+orderSchema.statics.generateNextOrderNumber = async function (shopId) {
+  // Find the latest order for this shop that has valid format (numberLetter)
+  const lastOrder = await this.findOne(
+    { shop: shopId, orderNumber: { $regex: /^\d+[A-Z]$/ } }
+  )
+    .sort({ createdAt: -1 })
+    .select('orderNumber')
+    .lean();
+
+  if (!lastOrder || !lastOrder.orderNumber) return '1A';
+
+  const match = lastOrder.orderNumber.match(/^(\d+)([A-Z])$/);
+  if (!match) return '1A';
+
+  const number = parseInt(match[1], 10);
+  const letter = match[2];
+
+  if (number < 1000) {
+    return `${number + 1}${letter}`;
+  }
+
+  // number === 1000, move to next letter
+  if (letter === 'Z') {
+    return '1A'; // restart cycle
+  }
+
+  const nextLetter = String.fromCharCode(letter.charCodeAt(0) + 1);
+  return `1${nextLetter}`;
+};
 
 // Virtual: balance due
 orderSchema.virtual('balanceDue').get(function () {
