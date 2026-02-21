@@ -58,6 +58,14 @@ const orderSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
+    pendingReadyPhoto: {
+      type: String,
+      default: null,
+    },
+    pendingApproval: {
+      type: Boolean,
+      default: false,
+    },
     assignedTailor: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Tailor',

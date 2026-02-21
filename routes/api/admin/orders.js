@@ -27,6 +27,8 @@ function formatOrder(o) {
       ? { id: customer._id, name: customer.name, phone: customer.phone }
       : null,
     readyPhotoUrl: o.readyPhotoUrl || null,
+    pendingApproval: o.pendingApproval || false,
+    pendingReadyPhoto: o.pendingReadyPhoto || null,
     assignedTailor: tailor
       ? { id: tailor._id, name: tailor.name }
       : null,
@@ -36,10 +38,13 @@ function formatOrder(o) {
 // GET /api/admin/orders?status=xxx&page=1&limit=20
 router.get('/', async (req, res) => {
   try {
-    const { status, page = 1, limit = 20 } = req.query;
+    const { status, page = 1, limit = 20, pendingApproval } = req.query;
     let filter = { isActive: true, shop: req.shopId };
     if (status && status !== 'all' && ORDER_STATUSES.includes(status)) {
       filter.status = status;
+    }
+    if (pendingApproval === 'true') {
+      filter.pendingApproval = true;
     }
 
     const total = await Order.countDocuments(filter);
@@ -224,6 +229,33 @@ router.post('/bulk-assign', async (req, res) => {
     });
   } catch (err) {
     console.error('API bulk assign error:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// PATCH /api/admin/orders/:id/approve-ready
+// Body: { approved: true/false }
+router.patch('/:id/approve-ready', async (req, res) => {
+  try {
+    const { approved } = req.body;
+    const order = await Order.findOne({ _id: req.params.id, shop: req.shopId });
+    if (!order) return res.status(404).json({ error: 'Order not found' });
+    if (!order.pendingApproval) return res.status(400).json({ error: 'No pending approval for this order' });
+
+    if (approved) {
+      order.status = 'Ready for Pickup';
+      order.readyPhotoUrl = order.pendingReadyPhoto;
+    }
+    order.pendingApproval = false;
+    order.pendingReadyPhoto = null;
+
+    await order.save();
+    await order.populate('customer', 'name phone');
+    await order.populate('assignedTailor', 'name');
+
+    res.json({ order: formatOrder(order.toObject({ virtuals: false })) });
+  } catch (err) {
+    console.error('API approve-ready error:', err);
     res.status(500).json({ error: 'Server error' });
   }
 });

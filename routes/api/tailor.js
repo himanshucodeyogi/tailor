@@ -63,6 +63,8 @@ router.get('/orders/:id', async (req, res) => {
         dueDate: order.dueDate,
         createdAt: order.createdAt,
         readyPhotoUrl: order.readyPhotoUrl || null,
+        pendingApproval: order.pendingApproval || false,
+        pendingReadyPhoto: order.pendingReadyPhoto || null,
         customer: order.customer
           ? {
               id: order.customer._id,
@@ -93,10 +95,29 @@ router.patch('/orders/:id/status', async (req, res) => {
       return res.status(400).json({ error: 'Photo is required for Ready for Pickup status' });
     }
 
-    const update = { status };
-    if (readyPhotoUrl) {
-      update.readyPhotoUrl = readyPhotoUrl;
+    if (status === 'Ready for Pickup') {
+      // Store as pending — owner must approve before status changes
+      const order = await Order.findOneAndUpdate(
+        { _id: req.params.id, shop: req.shopId, assignedTailor: req.tailorId },
+        { pendingReadyPhoto: readyPhotoUrl, pendingApproval: true },
+        { new: true, runValidators: true }
+      ).lean();
+
+      if (!order) return res.status(404).json({ error: 'Order not found' });
+
+      return res.json({
+        order: {
+          id: order._id,
+          status: order.status,
+          statusIndex: ORDER_STATUSES.indexOf(order.status),
+          readyPhotoUrl: order.readyPhotoUrl || null,
+          pendingApproval: true,
+          pendingReadyPhoto: order.pendingReadyPhoto,
+        },
+      });
     }
+
+    const update = { status };
 
     const order = await Order.findOneAndUpdate(
       { _id: req.params.id, shop: req.shopId, assignedTailor: req.tailorId },
@@ -112,6 +133,8 @@ router.patch('/orders/:id/status', async (req, res) => {
         status: order.status,
         statusIndex: ORDER_STATUSES.indexOf(order.status),
         readyPhotoUrl: order.readyPhotoUrl || null,
+        pendingApproval: order.pendingApproval || false,
+        pendingReadyPhoto: order.pendingReadyPhoto || null,
       },
     });
   } catch (err) {

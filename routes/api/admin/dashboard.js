@@ -15,6 +15,7 @@ router.get('/', async (req, res) => {
     const totalCustomers = await Customer.countDocuments(shopFilter);
     const totalActiveOrders = await Order.countDocuments({ ...shopFilter, isActive: true });
     const readyForPickup = await Order.countDocuments({ ...shopFilter, status: 'Ready for Pickup', isActive: true });
+    const pendingApprovals = await Order.countDocuments({ ...shopFilter, pendingApproval: true, isActive: true });
 
     const lowStockItems = await Inventory.find({
       ...shopFilter,
@@ -38,6 +39,7 @@ router.get('/', async (req, res) => {
         totalCustomers,
         totalActiveOrders,
         readyForPickup,
+        pendingApprovals,
         lowStockCount: lowStockItems.length,
       },
       statusBreakdown: statusBreakdown.map((s) => ({
