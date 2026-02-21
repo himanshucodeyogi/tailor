@@ -61,64 +61,65 @@
             </button>
           </div>
           <div id="measurementsContainer">
+            <%
+              const FIELDS_FOR_TYPE = {
+                pant: ['length', 'waist', 'hip', 'thigh', 'knee', 'bottom', 'crotch'],
+                shirt: ['length', 'shoulder', 'chest', 'waist', 'sleeveLength', 'bicep', 'collar', 'cuff'],
+                coat: ['length', 'shoulder', 'chest', 'waist', 'hip', 'sleeveLength', 'armhole', 'crossBack'],
+                sherwani: ['length', 'shoulder', 'chest', 'waist', 'hip', 'sleeveLength', 'armhole', 'crossBack'],
+                jacket: ['length', 'shoulder', 'chest', 'waist', 'sleeve', 'neck'],
+                kurta: ['length', 'shoulder', 'chest', 'waist', 'hip', 'sleeveLength', 'collar', 'slits'],
+                salwar: ['length', 'waist', 'hip', 'crotch', 'bottom'],
+                lehenga: ['skirtLength', 'skirtWaist', 'skirtHip', 'blouseLength', 'blouseChest', 'blouseUnderbust', 'blouseShoulder', 'blouseSleeve'],
+                saree: ['blouseLength', 'blouseChest', 'blouseUnderbust', 'blouseShoulder', 'blouseSleeve', 'petticoatLength', 'petticoatWaist'],
+              };
+              const FIELD_LABELS = {
+                length: 'Length', shoulder: 'Shoulder', chest: 'Chest', waist: 'Waist', hip: 'Hip', neck: 'Neck',
+                thigh: 'Thigh', knee: 'Knee', bottom: 'Bottom', crotch: 'Crotch',
+                sleeveLength: 'Sleeve Length', bicep: 'Bicep', collar: 'Collar', cuff: 'Cuff',
+                armhole: 'Armhole', crossBack: 'Cross Back', sleeve: 'Sleeve', slits: 'Slits',
+                skirtLength: 'Skirt Length', skirtWaist: 'Skirt Waist', skirtHip: 'Skirt Hip',
+                blouseLength: 'Blouse Length', blouseChest: 'Blouse Chest', blouseUnderbust: 'Blouse Underbust',
+                blouseShoulder: 'Blouse Shoulder', blouseSleeve: 'Blouse Sleeve',
+                petticoatLength: 'Petticoat Length', petticoatWaist: 'Petticoat Waist',
+              };
+            %>
             <% if (customer.measurements && customer.measurements.length > 0) { %>
               <% customer.measurements.forEach((measurement, index) => { %>
-                <div class="measurement-type-block bg-blue-50 border border-blue-200 rounded p-4 mb-4">
+                <%
+                  const mType = measurement.type;
+                  const editFields = FIELDS_FOR_TYPE[mType] || Object.keys(FIELD_LABELS);
+                %>
+                <div class="measurement-type-block bg-blue-50 border border-blue-200 rounded p-4 mb-4" id="existing-block-<%= index %>">
                   <div class="flex justify-between items-center mb-4">
                     <select name="measurementTypes" class="measurement-type-select border border-gray-300 rounded px-3 py-2 font-semibold" required>
                       <option value="">Select Type</option>
-                      <option value="pant" <%= measurement.type === 'pant' ? 'selected' : '' %>>Pant</option>
-                      <option value="shirt" <%= measurement.type === 'shirt' ? 'selected' : '' %>>Shirt</option>
-                      <option value="coat" <%= measurement.type === 'coat' ? 'selected' : '' %>>Coat</option>
-                      <option value="jacket" <%= measurement.type === 'jacket' ? 'selected' : '' %>>Jacket</option>
-                      <option value="kurta" <%= measurement.type === 'kurta' ? 'selected' : '' %>>Kurta</option>
-                      <option value="salwar" <%= measurement.type === 'salwar' ? 'selected' : '' %>>Salwar</option>
-                      <option value="sherwani" <%= measurement.type === 'sherwani' ? 'selected' : '' %>>Sherwani</option>
-                      <option value="lehenga" <%= measurement.type === 'lehenga' ? 'selected' : '' %>>Lehenga</option>
-                      <option value="saree" <%= measurement.type === 'saree' ? 'selected' : '' %>>Saree</option>
-                      <option value="other" <%= measurement.type === 'other' ? 'selected' : '' %>>Other</option>
+                      <option value="pant" <%= mType === 'pant' ? 'selected' : '' %>>Pant</option>
+                      <option value="shirt" <%= mType === 'shirt' ? 'selected' : '' %>>Shirt</option>
+                      <option value="coat" <%= mType === 'coat' ? 'selected' : '' %>>Coat</option>
+                      <option value="jacket" <%= mType === 'jacket' ? 'selected' : '' %>>Jacket</option>
+                      <option value="kurta" <%= mType === 'kurta' ? 'selected' : '' %>>Kurta</option>
+                      <option value="salwar" <%= mType === 'salwar' ? 'selected' : '' %>>Salwar</option>
+                      <option value="sherwani" <%= mType === 'sherwani' ? 'selected' : '' %>>Sherwani</option>
+                      <option value="lehenga" <%= mType === 'lehenga' ? 'selected' : '' %>>Lehenga</option>
+                      <option value="saree" <%= mType === 'saree' ? 'selected' : '' %>>Saree</option>
+                      <option value="other" <%= mType === 'other' ? 'selected' : '' %>>Other</option>
                     </select>
-                    <button type="button" onclick="removeMeasurementType(this)" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm">
+                    <button type="button" onclick="removeMeasurementType('existing-block-<%= index %>')" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm">
                       Remove
                     </button>
                   </div>
 
                   <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
-                    <div>
-                      <label class="block text-xs font-medium text-gray-700 mb-1">Length</label>
-                      <input type="number" name="length_<%= index %>" placeholder="Length" step="0.5" value="<%= measurement.length || '' %>" class="w-full border border-gray-300 rounded px-2 py-1 text-sm" />
-                    </div>
-                    <div>
-                      <label class="block text-xs font-medium text-gray-700 mb-1">Chest</label>
-                      <input type="number" name="chest_<%= index %>" placeholder="Chest" step="0.5" value="<%= measurement.chest || '' %>" class="w-full border border-gray-300 rounded px-2 py-1 text-sm" />
-                    </div>
-                    <div>
-                      <label class="block text-xs font-medium text-gray-700 mb-1">Shoulder</label>
-                      <input type="number" name="shoulder_<%= index %>" placeholder="Shoulder" step="0.5" value="<%= measurement.shoulder || '' %>" class="w-full border border-gray-300 rounded px-2 py-1 text-sm" />
-                    </div>
-                    <div>
-                      <label class="block text-xs font-medium text-gray-700 mb-1">Waist</label>
-                      <input type="number" name="waist_<%= index %>" placeholder="Waist" step="0.5" value="<%= measurement.waist || '' %>" class="w-full border border-gray-300 rounded px-2 py-1 text-sm" />
-                    </div>
-                    <div>
-                      <label class="block text-xs font-medium text-gray-700 mb-1">Arm</label>
-                      <input type="number" name="arm_<%= index %>" placeholder="Arm" step="0.5" value="<%= measurement.arm || '' %>" class="w-full border border-gray-300 rounded px-2 py-1 text-sm" />
-                    </div>
-                    <div>
-                      <label class="block text-xs font-medium text-gray-700 mb-1">Neck</label>
-                      <input type="number" name="neck_<%= index %>" placeholder="Neck" step="0.5" value="<%= measurement.neck || '' %>" class="w-full border border-gray-300 rounded px-2 py-1 text-sm" />
-                    </div>
-                    <div>
-                      <label class="block text-xs font-medium text-gray-700 mb-1">Hip</label>
-                      <input type="number" name="hip_<%= index %>" placeholder="Hip" step="0.5" value="<%= measurement.hip || '' %>" class="w-full border border-gray-300 rounded px-2 py-1 text-sm" />
-                    </div>
-                    <div>
-                      <label class="block text-xs font-medium text-gray-700 mb-1">Thigh</label>
-                      <input type="number" name="thigh_<%= index %>" placeholder="Thigh" step="0.5" value="<%= measurement.thigh || '' %>" class="w-full border border-gray-300 rounded px-2 py-1 text-sm" />
-                    </div>
+                    <% editFields.forEach((field) => { %>
+                      <div>
+                        <label class="block text-xs font-medium text-gray-700 mb-1"><%= FIELD_LABELS[field] || field %></label>
+                        <input type="number" name="<%= field %>_<%= mType %>" placeholder="<%= FIELD_LABELS[field] || field %>" step="0.5" value="<%= measurement[field] || '' %>" class="w-full border border-gray-300 rounded px-2 py-1 text-sm" />
+                      </div>
+                    <% }); %>
                     <div class="col-span-2 md:col-span-1">
                       <label class="block text-xs font-medium text-gray-700 mb-1">Notes</label>
-                      <input type="text" name="notes_<%= index %>" placeholder="Notes" value="<%= measurement.notes || '' %>" class="w-full border border-gray-300 rounded px-2 py-1 text-sm" />
+                      <input type="text" name="notes_<%= mType %>" placeholder="Notes" value="<%= measurement.notes || '' %>" class="w-full border border-gray-300 rounded px-2 py-1 text-sm" />
                     </div>
                   </div>
                 </div>

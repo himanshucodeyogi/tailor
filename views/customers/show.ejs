@@ -49,10 +49,34 @@
             <% customer.measurements.forEach((measurement) => { %>
               <div class="bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded p-3 sm:p-4">
                 <h4 class="font-bold text-gray-800 dark:text-white mb-3 capitalize text-sm sm:text-base"><%= measurement.type %></h4>
+                <%
+                  const FIELDS_FOR_TYPE = {
+                    pant: ['length', 'waist', 'hip', 'thigh', 'knee', 'bottom', 'crotch'],
+                    shirt: ['length', 'shoulder', 'chest', 'waist', 'sleeveLength', 'bicep', 'collar', 'cuff'],
+                    coat: ['length', 'shoulder', 'chest', 'waist', 'hip', 'sleeveLength', 'armhole', 'crossBack'],
+                    sherwani: ['length', 'shoulder', 'chest', 'waist', 'hip', 'sleeveLength', 'armhole', 'crossBack'],
+                    jacket: ['length', 'shoulder', 'chest', 'waist', 'sleeve', 'neck'],
+                    kurta: ['length', 'shoulder', 'chest', 'waist', 'hip', 'sleeveLength', 'collar', 'slits'],
+                    salwar: ['length', 'waist', 'hip', 'crotch', 'bottom'],
+                    lehenga: ['skirtLength', 'skirtWaist', 'skirtHip', 'blouseLength', 'blouseChest', 'blouseUnderbust', 'blouseShoulder', 'blouseSleeve'],
+                    saree: ['blouseLength', 'blouseChest', 'blouseUnderbust', 'blouseShoulder', 'blouseSleeve', 'petticoatLength', 'petticoatWaist'],
+                  };
+                  const FIELD_LABELS = {
+                    length: 'Length', shoulder: 'Shoulder', chest: 'Chest', waist: 'Waist', hip: 'Hip', neck: 'Neck',
+                    thigh: 'Thigh', knee: 'Knee', bottom: 'Bottom', crotch: 'Crotch',
+                    sleeveLength: 'Sleeve Length', bicep: 'Bicep', collar: 'Collar', cuff: 'Cuff',
+                    armhole: 'Armhole', crossBack: 'Cross Back', sleeve: 'Sleeve', slits: 'Slits',
+                    skirtLength: 'Skirt Length', skirtWaist: 'Skirt Waist', skirtHip: 'Skirt Hip',
+                    blouseLength: 'Blouse Length', blouseChest: 'Blouse Chest', blouseUnderbust: 'Blouse Underbust',
+                    blouseShoulder: 'Blouse Shoulder', blouseSleeve: 'Blouse Sleeve',
+                    petticoatLength: 'Petticoat Length', petticoatWaist: 'Petticoat Waist',
+                  };
+                  const displayFields = FIELDS_FOR_TYPE[measurement.type] || Object.keys(FIELD_LABELS);
+                %>
                 <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-3">
-                  <% ['length', 'chest', 'shoulder', 'waist', 'arm', 'neck', 'hip', 'thigh'].forEach((field) => { %>
+                  <% displayFields.forEach((field) => { %>
                     <div>
-                      <span class="text-gray-600 dark:text-gray-400 text-xs"><%= field.charAt(0).toUpperCase() + field.slice(1) %></span>
+                      <span class="text-gray-600 dark:text-gray-400 text-xs"><%= FIELD_LABELS[field] || field %></span>
                       <p class="font-bold text-blue-600 dark:text-blue-300 text-sm"><%= measurement[field] || '-' %></p>
                     </div>
                   <% }); %>

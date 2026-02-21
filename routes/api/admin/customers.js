@@ -48,7 +48,7 @@ router.get('/', async (req, res) => {
 });
 
 // POST /api/admin/customers
-// Body: { name, phone, notes, measurements: [{type, length, chest, ...}] }
+// Body: { name, phone, notes, measurements: [{type, length, shoulder, chest, waist, ...}] }
 router.post('/', async (req, res) => {
   try {
     const { name, phone, notes, measurements = [] } = req.body;

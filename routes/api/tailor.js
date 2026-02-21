@@ -144,7 +144,7 @@ router.patch('/orders/:id/status', async (req, res) => {
 });
 
 // PUT /api/tailor/customers/:id/measurements
-// Body: { measurements: [{type, length, chest, shoulder, waist, arm, neck, hip, thigh, notes}] }
+// Body: { measurements: [{type, length, shoulder, chest, waist, hip, neck, thigh, knee, bottom, crotch, sleeveLength, bicep, collar, cuff, armhole, crossBack, sleeve, slits, skirtLength, skirtWaist, skirtHip, blouseLength, blouseChest, blouseUnderbust, blouseShoulder, blouseSleeve, petticoatLength, petticoatWaist, notes}] }
 router.put('/customers/:id/measurements', async (req, res) => {
   try {
     const { measurements } = req.body;

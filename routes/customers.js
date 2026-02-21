@@ -3,6 +3,25 @@ const router = express.Router();
 const Customer = require('../models/Customer');
 const Order = require('../models/Order');
 
+const ALL_MEASUREMENT_FIELDS = [
+  'length', 'shoulder', 'chest', 'waist', 'hip', 'neck',
+  'thigh', 'knee', 'bottom', 'crotch',
+  'sleeveLength', 'bicep', 'collar', 'cuff',
+  'armhole', 'crossBack', 'sleeve', 'slits',
+  'skirtLength', 'skirtWaist', 'skirtHip',
+  'blouseLength', 'blouseChest', 'blouseUnderbust', 'blouseShoulder', 'blouseSleeve',
+  'petticoatLength', 'petticoatWaist',
+];
+
+function parseMeasurement(type, body) {
+  const measurement = { type, notes: body[`notes_${type}`] || '' };
+  for (const field of ALL_MEASUREMENT_FIELDS) {
+    const val = body[`${field}_${type}`];
+    measurement[field] = val ? parseFloat(val) : null;
+  }
+  return measurement;
+}
+
 // GET /admin/customers - List all customers with search
 router.get('/', async (req, res) => {
   try {
@@ -67,32 +86,10 @@ router.post('/', async (req, res) => {
 
     const measurements = [];
     typesArray.forEach((type) => {
-      // Filter out empty types
-      if (!type) {
-        console.log('Skipping empty type');
-        return;
-      }
-
-      console.log(`Processing type: ${type}`);
-
-      const measurement = {
-        type,
-        length: req.body[`length_${type}`] ? parseFloat(req.body[`length_${type}`]) : null,
-        chest: req.body[`chest_${type}`] ? parseFloat(req.body[`chest_${type}`]) : null,
-        shoulder: req.body[`shoulder_${type}`] ? parseFloat(req.body[`shoulder_${type}`]) : null,
-        waist: req.body[`waist_${type}`] ? parseFloat(req.body[`waist_${type}`]) : null,
-        arm: req.body[`arm_${type}`] ? parseFloat(req.body[`arm_${type}`]) : null,
-        neck: req.body[`neck_${type}`] ? parseFloat(req.body[`neck_${type}`]) : null,
-        hip: req.body[`hip_${type}`] ? parseFloat(req.body[`hip_${type}`]) : null,
-        thigh: req.body[`thigh_${type}`] ? parseFloat(req.body[`thigh_${type}`]) : null,
-        notes: req.body[`notes_${type}`] || '',
-      };
-      console.log(`Measurement object for ${type}:`, measurement);
-      measurements.push(measurement);
+      if (!type) return;
+      measurements.push(parseMeasurement(type, req.body));
     });
-    console.log('All parsed measurements:', measurements);
 
-    // Create customer
     const customer = new Customer({
       name,
       phone,
@@ -189,34 +186,11 @@ router.put('/:id', async (req, res) => {
       typesArray = typesArray ? [typesArray] : [];
     }
 
-    console.log('Measurement types array:', typesArray);
-
     const measurements = [];
     typesArray.forEach((type) => {
-      // Filter out empty types
-      if (!type) {
-        console.log('Skipping empty type');
-        return;
-      }
-
-      console.log(`Processing type: ${type}`);
-
-      const measurement = {
-        type,
-        length: req.body[`length_${type}`] ? parseFloat(req.body[`length_${type}`]) : null,
-        chest: req.body[`chest_${type}`] ? parseFloat(req.body[`chest_${type}`]) : null,
-        shoulder: req.body[`shoulder_${type}`] ? parseFloat(req.body[`shoulder_${type}`]) : null,
-        waist: req.body[`waist_${type}`] ? parseFloat(req.body[`waist_${type}`]) : null,
-        arm: req.body[`arm_${type}`] ? parseFloat(req.body[`arm_${type}`]) : null,
-        neck: req.body[`neck_${type}`] ? parseFloat(req.body[`neck_${type}`]) : null,
-        hip: req.body[`hip_${type}`] ? parseFloat(req.body[`hip_${type}`]) : null,
-        thigh: req.body[`thigh_${type}`] ? parseFloat(req.body[`thigh_${type}`]) : null,
-        notes: req.body[`notes_${type}`] || '',
-      };
-      console.log(`Measurement object for ${type}:`, measurement);
-      measurements.push(measurement);
+      if (!type) return;
+      measurements.push(parseMeasurement(type, req.body));
     });
-    console.log('All parsed measurements:', measurements);
 
     // Update fields
     customer.name = name;
