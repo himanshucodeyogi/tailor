@@ -54,6 +54,10 @@ const orderSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    readyPhotoUrl: {
+      type: String,
+      default: null,
+    },
     assignedTailor: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Tailor',

@@ -66,6 +66,7 @@ router.post('/track', async (req, res) => {
         balanceDue: o.price - o.advancePaid,
         dueDate: o.dueDate,
         createdAt: o.createdAt,
+        readyPhotoUrl: o.readyPhotoUrl || null,
       })),
     });
   } catch (err) {

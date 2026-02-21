@@ -62,6 +62,7 @@ router.get('/orders/:id', async (req, res) => {
         balanceDue: order.price - order.advancePaid,
         dueDate: order.dueDate,
         createdAt: order.createdAt,
+        readyPhotoUrl: order.readyPhotoUrl || null,
         customer: order.customer
           ? {
               id: order.customer._id,
@@ -80,17 +81,26 @@ router.get('/orders/:id', async (req, res) => {
 });
 
 // PATCH /api/tailor/orders/:id/status
-// Body: { status }
+// Body: { status, readyPhotoUrl? }
 router.patch('/orders/:id/status', async (req, res) => {
   try {
-    const { status } = req.body;
+    const { status, readyPhotoUrl } = req.body;
     if (!ORDER_STATUSES.includes(status)) {
       return res.status(400).json({ error: 'Invalid status' });
     }
 
+    if (status === 'Ready for Pickup' && !readyPhotoUrl) {
+      return res.status(400).json({ error: 'Photo is required for Ready for Pickup status' });
+    }
+
+    const update = { status };
+    if (readyPhotoUrl) {
+      update.readyPhotoUrl = readyPhotoUrl;
+    }
+
     const order = await Order.findOneAndUpdate(
       { _id: req.params.id, shop: req.shopId, assignedTailor: req.tailorId },
-      { status },
+      update,
       { new: true, runValidators: true }
     ).lean();
 
@@ -101,6 +111,7 @@ router.patch('/orders/:id/status', async (req, res) => {
         id: order._id,
         status: order.status,
         statusIndex: ORDER_STATUSES.indexOf(order.status),
+        readyPhotoUrl: order.readyPhotoUrl || null,
       },
     });
   } catch (err) {

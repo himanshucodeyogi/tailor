@@ -26,6 +26,7 @@ function formatOrder(o) {
     customer: customer
       ? { id: customer._id, name: customer.name, phone: customer.phone }
       : null,
+    readyPhotoUrl: o.readyPhotoUrl || null,
     assignedTailor: tailor
       ? { id: tailor._id, name: tailor.name }
       : null,
