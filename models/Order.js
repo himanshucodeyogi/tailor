@@ -71,6 +71,16 @@ const orderSchema = new mongoose.Schema(
       ref: 'Tailor',
       default: null,
     },
+    assignedCuttingMaster: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'CuttingMaster',
+      default: null,
+    },
+    cuttingStatus: {
+      type: String,
+      enum: ['Pending', 'Done'],
+      default: 'Pending',
+    },
     shop: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Shop',

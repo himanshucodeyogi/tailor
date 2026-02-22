@@ -101,7 +101,7 @@ app.use('/tailor', tailorAuthRoutes);
 app.use('/tailor', isTailor, tailorRoutes);
 
 // === REST API Routes (JWT-protected, for Flutter app) ===
-const { verifyAdminToken, verifyTailorToken } = require('./middleware/jwt-auth');
+const { verifyAdminToken, verifyTailorToken, verifyCuttingMasterToken } = require('./middleware/jwt-auth');
 
 const apiAuthRoutes = require('./routes/api/auth');
 const apiPublicRoutes = require('./routes/api/public');
@@ -111,7 +111,9 @@ const apiCustomerRoutes = require('./routes/api/admin/customers');
 const apiOrderRoutes = require('./routes/api/admin/orders');
 const apiInventoryRoutes = require('./routes/api/admin/inventory');
 const apiAdminTailorRoutes = require('./routes/api/admin/tailors');
+const apiAdminCuttingMasterRoutes = require('./routes/api/admin/cutting-masters');
 const apiTailorRoutes = require('./routes/api/tailor');
+const apiCuttingMasterRoutes = require('./routes/api/cutting-master');
 
 app.use('/api/auth', apiAuthRoutes);
 app.use('/api/shops', apiShopRoutes);
@@ -121,7 +123,9 @@ app.use('/api/admin/customers', verifyAdminToken, apiCustomerRoutes);
 app.use('/api/admin/orders', verifyAdminToken, apiOrderRoutes);
 app.use('/api/admin/inventory', verifyAdminToken, apiInventoryRoutes);
 app.use('/api/admin/tailors', verifyAdminToken, apiAdminTailorRoutes);
+app.use('/api/admin/cutting-masters', verifyAdminToken, apiAdminCuttingMasterRoutes);
 app.use('/api/tailor', verifyTailorToken, apiTailorRoutes);
+app.use('/api/cuttingmaster', verifyCuttingMasterToken, apiCuttingMasterRoutes);
 
 // 404 Not Found handler
 app.use((req, res) => {
