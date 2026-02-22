@@ -17,8 +17,6 @@ const orderSchema = new mongoose.Schema(
     },
     orderNumber: {
       type: String,
-      unique: true,
-      sparse: true,
       trim: true,
     },
     garmentType: {
@@ -148,7 +146,7 @@ orderSchema.statics.STATUS_COLORS = {
 
 // Indexes for better query performance
 orderSchema.index({ customer: 1, status: 1 });
-orderSchema.index({ orderNumber: 1 });
+orderSchema.index({ orderNumber: 1, shop: 1 }, { unique: true, sparse: true });
 orderSchema.index({ createdAt: -1 });
 orderSchema.index({ shop: 1 });
 orderSchema.index({ assignedTailor: 1, shop: 1 });
