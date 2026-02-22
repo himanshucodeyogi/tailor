@@ -2,12 +2,13 @@ const express = require('express');
 const router = express.Router();
 const Order = require('../../../models/Order');
 const Customer = require('../../../models/Customer');
-const Tailor = require('../../../models/Tailor');
+const CuttingMaster = require('../../../models/CuttingMaster');
 
 const ORDER_STATUSES = ['Order Placed', 'Cutting', 'In Stitching', 'Final Touches', 'Ready for Pickup'];
 
 function formatOrder(o) {
   const customer = o.customer;
+  const cuttingMaster = o.assignedCuttingMaster;
   const tailor = o.assignedTailor;
   return {
     id: o._id,
@@ -29,6 +30,9 @@ function formatOrder(o) {
     readyPhotoUrl: o.readyPhotoUrl || null,
     pendingApproval: o.pendingApproval || false,
     pendingReadyPhoto: o.pendingReadyPhoto || null,
+    assignedCuttingMaster: cuttingMaster
+      ? { id: cuttingMaster._id, name: cuttingMaster.name }
+      : null,
     assignedTailor: tailor
       ? { id: tailor._id, name: tailor.name }
       : null,
@@ -50,6 +54,7 @@ router.get('/', async (req, res) => {
     const total = await Order.countDocuments(filter);
     const orders = await Order.find(filter)
       .populate('customer', 'name phone')
+      .populate('assignedCuttingMaster', 'name')
       .populate('assignedTailor', 'name')
       .sort({ createdAt: -1 })
       .skip((page - 1) * limit)
@@ -73,7 +78,7 @@ router.get('/', async (req, res) => {
 // Body: { customerId, garmentType, description, price, advancePaid, dueDate, status }
 router.post('/', async (req, res) => {
   try {
-    const { customerId, garmentType, description, price, advancePaid, dueDate, status, tailorId } = req.body;
+    const { customerId, garmentType, description, price, advancePaid, dueDate, status, cuttingMasterId } = req.body;
 
     if (!customerId) return res.status(400).json({ error: 'Customer is required' });
     if (!garmentType) return res.status(400).json({ error: 'Garment type is required' });
@@ -92,13 +97,14 @@ router.post('/', async (req, res) => {
       advancePaid: advancePaid ? parseFloat(advancePaid) : 0,
       dueDate: dueDate ? new Date(dueDate) : null,
       status: status || 'Order Placed',
-      assignedTailor: tailorId || null,
+      assignedCuttingMaster: cuttingMasterId || null,
       isActive: true,
       shop: req.shopId,
     });
 
     await order.save();
     await order.populate('customer', 'name phone');
+    await order.populate('assignedCuttingMaster', 'name');
     await order.populate('assignedTailor', 'name');
 
     res.status(201).json({ order: formatOrder(order.toObject({ virtuals: false })) });
@@ -116,6 +122,7 @@ router.get('/:id', async (req, res) => {
   try {
     const order = await Order.findOne({ _id: req.params.id, shop: req.shopId })
       .populate('customer')
+      .populate('assignedCuttingMaster', 'name')
       .populate('assignedTailor', 'name')
       .lean();
     if (!order) return res.status(404).json({ error: 'Order not found' });
@@ -129,7 +136,7 @@ router.get('/:id', async (req, res) => {
 // PUT /api/admin/orders/:id
 router.put('/:id', async (req, res) => {
   try {
-    const { garmentType, description, price, advancePaid, dueDate, status, tailorId } = req.body;
+    const { garmentType, description, price, advancePaid, dueDate, status, cuttingMasterId } = req.body;
     const order = await Order.findOne({ _id: req.params.id, shop: req.shopId });
     if (!order) return res.status(404).json({ error: 'Order not found' });
 
@@ -139,10 +146,11 @@ router.put('/:id', async (req, res) => {
     if (advancePaid !== undefined) order.advancePaid = parseFloat(advancePaid);
     if (dueDate !== undefined) order.dueDate = dueDate ? new Date(dueDate) : null;
     if (status && ORDER_STATUSES.includes(status)) order.status = status;
-    if (tailorId !== undefined) order.assignedTailor = tailorId || null;
+    if (cuttingMasterId !== undefined) order.assignedCuttingMaster = cuttingMasterId || null;
 
     await order.save();
     await order.populate('customer', 'name phone');
+    await order.populate('assignedCuttingMaster', 'name');
     await order.populate('assignedTailor', 'name');
 
     res.json({ order: formatOrder(order.toObject({ virtuals: false })) });
@@ -165,7 +173,7 @@ router.patch('/:id/status', async (req, res) => {
       { _id: req.params.id, shop: req.shopId },
       { status },
       { new: true, runValidators: true }
-    ).populate('customer', 'name phone').populate('assignedTailor', 'name').lean();
+    ).populate('customer', 'name phone').populate('assignedCuttingMaster', 'name').populate('assignedTailor', 'name').lean();
 
     if (!order) return res.status(404).json({ error: 'Order not found' });
 
@@ -177,54 +185,54 @@ router.patch('/:id/status', async (req, res) => {
 });
 
 // PATCH /api/admin/orders/:id/assign
-// Body: { tailorId: "..." } or { tailorId: null }
+// Body: { cuttingMasterId: "..." } or { cuttingMasterId: null }
 router.patch('/:id/assign', async (req, res) => {
   try {
-    const { tailorId } = req.body;
+    const { cuttingMasterId } = req.body;
 
-    if (tailorId) {
-      const tailor = await Tailor.findOne({ _id: tailorId, shop: req.shopId });
-      if (!tailor) return res.status(404).json({ error: 'Tailor not found' });
+    if (cuttingMasterId) {
+      const cm = await CuttingMaster.findOne({ _id: cuttingMasterId, shop: req.shopId });
+      if (!cm) return res.status(404).json({ error: 'Cutting Master not found' });
     }
 
     const order = await Order.findOneAndUpdate(
       { _id: req.params.id, shop: req.shopId },
-      { assignedTailor: tailorId || null },
+      { assignedCuttingMaster: cuttingMasterId || null },
       { new: true, runValidators: true }
-    ).populate('customer', 'name phone').populate('assignedTailor', 'name').lean();
+    ).populate('customer', 'name phone').populate('assignedCuttingMaster', 'name').populate('assignedTailor', 'name').lean();
 
     if (!order) return res.status(404).json({ error: 'Order not found' });
 
     res.json({ order: formatOrder(order) });
   } catch (err) {
-    console.error('API assign tailor error:', err);
+    console.error('API assign cutting master error:', err);
     res.status(500).json({ error: 'Server error' });
   }
 });
 
 // POST /api/admin/orders/bulk-assign
-// Body: { orderIds: [...], tailorId: "..." }
+// Body: { orderIds: [...], cuttingMasterId: "..." }
 router.post('/bulk-assign', async (req, res) => {
   try {
-    const { orderIds, tailorId } = req.body;
+    const { orderIds, cuttingMasterId } = req.body;
 
     if (!orderIds || !Array.isArray(orderIds) || orderIds.length === 0) {
       return res.status(400).json({ error: 'orderIds array is required' });
     }
-    if (!tailorId) {
-      return res.status(400).json({ error: 'tailorId is required' });
+    if (!cuttingMasterId) {
+      return res.status(400).json({ error: 'cuttingMasterId is required' });
     }
 
-    const tailor = await Tailor.findOne({ _id: tailorId, shop: req.shopId });
-    if (!tailor) return res.status(404).json({ error: 'Tailor not found' });
+    const cm = await CuttingMaster.findOne({ _id: cuttingMasterId, shop: req.shopId });
+    if (!cm) return res.status(404).json({ error: 'Cutting Master not found' });
 
     const result = await Order.updateMany(
       { _id: { $in: orderIds }, shop: req.shopId },
-      { assignedTailor: tailorId }
+      { assignedCuttingMaster: cuttingMasterId }
     );
 
     res.json({
-      message: `${result.modifiedCount} orders assigned to ${tailor.name}`,
+      message: `${result.modifiedCount} orders assigned to ${cm.name}`,
       modifiedCount: result.modifiedCount,
     });
   } catch (err) {
@@ -251,6 +259,7 @@ router.patch('/:id/approve-ready', async (req, res) => {
 
     await order.save();
     await order.populate('customer', 'name phone');
+    await order.populate('assignedCuttingMaster', 'name');
     await order.populate('assignedTailor', 'name');
 
     res.json({ order: formatOrder(order.toObject({ virtuals: false })) });
