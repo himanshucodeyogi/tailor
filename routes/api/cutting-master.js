@@ -14,6 +14,7 @@ router.get('/dashboard', async (req, res) => {
       assignedCuttingMaster: req.cuttingMasterId,
     })
       .populate('customer', 'name phone')
+      .populate('assignedTailor', 'name')
       .sort({ createdAt: -1 })
       .lean();
 
@@ -36,6 +37,9 @@ router.get('/dashboard', async (req, res) => {
         createdAt: o.createdAt,
         customer: o.customer
           ? { id: o.customer._id, name: o.customer.name, phone: o.customer.phone }
+          : null,
+        assignedTailor: o.assignedTailor
+          ? { id: o.assignedTailor._id, name: o.assignedTailor.name }
           : null,
       })),
     });
@@ -153,6 +157,37 @@ router.patch('/orders/:id/assign-tailor', async (req, res) => {
     });
   } catch (err) {
     console.error('API cutting master assign tailor error:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// POST /api/cuttingmaster/orders/bulk-assign-tailor
+// Body: { orderIds: [...], tailorId: "..." }
+router.post('/orders/bulk-assign-tailor', async (req, res) => {
+  try {
+    const { orderIds, tailorId } = req.body;
+
+    if (!orderIds || !Array.isArray(orderIds) || orderIds.length === 0) {
+      return res.status(400).json({ error: 'orderIds array is required' });
+    }
+    if (!tailorId) {
+      return res.status(400).json({ error: 'tailorId is required' });
+    }
+
+    const tailor = await Tailor.findOne({ _id: tailorId, shop: req.shopId }).lean();
+    if (!tailor) return res.status(404).json({ error: 'Tailor not found' });
+
+    const result = await Order.updateMany(
+      { _id: { $in: orderIds }, shop: req.shopId, assignedCuttingMaster: req.cuttingMasterId },
+      { assignedTailor: tailorId }
+    );
+
+    res.json({
+      message: `${result.modifiedCount} orders assigned to ${tailor.name}`,
+      modifiedCount: result.modifiedCount,
+    });
+  } catch (err) {
+    console.error('API cutting master bulk assign tailor error:', err);
     res.status(500).json({ error: 'Server error' });
   }
 });
