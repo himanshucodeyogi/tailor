@@ -96,17 +96,25 @@ router.get('/orders/:id', async (req, res) => {
 });
 
 // PATCH /api/cuttingmaster/orders/:id/cutting-status
-// Body: { cuttingStatus: 'Pending' | 'Done' }
+// Body: { cuttingStatus: 'Pending' | 'Done', status?: string }
 router.patch('/orders/:id/cutting-status', async (req, res) => {
   try {
-    const { cuttingStatus } = req.body;
+    const { cuttingStatus, status } = req.body;
     if (!['Pending', 'Done'].includes(cuttingStatus)) {
       return res.status(400).json({ error: 'Invalid cutting status. Must be Pending or Done.' });
     }
 
+    const updateData = { cuttingStatus };
+
+    // If status is provided, update it along with statusIndex
+    if (status && ORDER_STATUSES.includes(status)) {
+      updateData.status = status;
+      updateData.statusIndex = ORDER_STATUSES.indexOf(status);
+    }
+
     const order = await Order.findOneAndUpdate(
       { _id: req.params.id, shop: req.shopId, assignedCuttingMaster: req.cuttingMasterId },
-      { cuttingStatus },
+      updateData,
       { new: true, runValidators: true }
     ).lean();
 
@@ -117,6 +125,7 @@ router.patch('/orders/:id/cutting-status', async (req, res) => {
         id: order._id,
         cuttingStatus: order.cuttingStatus,
         status: order.status,
+        statusIndex: ORDER_STATUSES.indexOf(order.status),
       },
     });
   } catch (err) {
@@ -126,10 +135,10 @@ router.patch('/orders/:id/cutting-status', async (req, res) => {
 });
 
 // PATCH /api/cuttingmaster/orders/:id/assign-tailor
-// Body: { tailorId: string }
+// Body: { tailorId: string, status?: string }
 router.patch('/orders/:id/assign-tailor', async (req, res) => {
   try {
-    const { tailorId } = req.body;
+    const { tailorId, status } = req.body;
     if (!tailorId) {
       return res.status(400).json({ error: 'tailorId is required' });
     }
@@ -140,9 +149,17 @@ router.patch('/orders/:id/assign-tailor', async (req, res) => {
       return res.status(404).json({ error: 'Tailor not found' });
     }
 
+    const updateData = { assignedTailor: tailorId };
+
+    // If status is provided, update it along with statusIndex
+    if (status && ORDER_STATUSES.includes(status)) {
+      updateData.status = status;
+      updateData.statusIndex = ORDER_STATUSES.indexOf(status);
+    }
+
     const order = await Order.findOneAndUpdate(
       { _id: req.params.id, shop: req.shopId, assignedCuttingMaster: req.cuttingMasterId },
-      { assignedTailor: tailorId },
+      updateData,
       { new: true, runValidators: true }
     ).lean();
 
@@ -153,6 +170,8 @@ router.patch('/orders/:id/assign-tailor', async (req, res) => {
         id: order._id,
         assignedTailor: tailorId,
         tailorName: tailor.name,
+        status: order.status,
+        statusIndex: ORDER_STATUSES.indexOf(order.status),
       },
     });
   } catch (err) {
