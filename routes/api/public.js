@@ -44,7 +44,7 @@ router.post('/track', async (req, res) => {
       customer: { $in: customerIds },
       isActive: true
     })
-      .populate('shop', 'shopName address phone shopCode')
+      .populate('shop')
       .sort({ createdAt: -1 })
       .lean();
 
@@ -55,31 +55,38 @@ router.post('/track', async (req, res) => {
     // Use the first customer's name (they should all have same name)
     const customerName = customers[0].name;
 
+    console.log('Orders found:', orders.length);
+    console.log('Sample order shop:', orders[0]?.shop);
+
     res.json({
       customer: { name: customerName, phone: cleanPhone },
-      orders: orders.map((o) => ({
-        id: o._id,
-        orderNumber: o.orderNumber,
-        garmentType: o.garmentType,
-        description: o.description,
-        status: o.status,
-        statusIndex: ORDER_STATUSES.indexOf(o.status),
-        price: o.price,
-        advancePaid: o.advancePaid,
-        balanceDue: o.price - o.advancePaid,
-        dueDate: o.dueDate,
-        createdAt: o.createdAt,
-        readyPhotoUrl: o.readyPhotoUrl || null,
-        cuttingStatus: o.cuttingStatus || 'Pending',
-        // Include shop details with each order
-        shop: o.shop ? {
-          id: o.shop._id,
-          name: o.shop.shopName,
-          code: o.shop.shopCode,
+      orders: orders.map((o) => {
+        const shopData = o.shop ? {
+          id: o.shop._id.toString(),
+          name: o.shop.shopName || '',
+          code: o.shop.shopCode || '',
           address: o.shop.address || '',
           phone: o.shop.phone || ''
-        } : null,
-      })),
+        } : null;
+
+        return {
+          id: o._id,
+          orderNumber: o.orderNumber,
+          garmentType: o.garmentType,
+          description: o.description,
+          status: o.status,
+          statusIndex: ORDER_STATUSES.indexOf(o.status),
+          price: o.price,
+          advancePaid: o.advancePaid,
+          balanceDue: o.price - o.advancePaid,
+          dueDate: o.dueDate,
+          createdAt: o.createdAt,
+          readyPhotoUrl: o.readyPhotoUrl || null,
+          cuttingStatus: o.cuttingStatus || 'Pending',
+          // Include shop details with each order
+          shop: shopData,
+        };
+      }),
     });
   } catch (err) {
     console.error('API track error:', err);
