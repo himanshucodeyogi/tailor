@@ -8,7 +8,8 @@ const ORDER_STATUSES = ['Order Placed', 'Cutting', 'In Stitching', 'Final Touche
 
 // POST /api/track
 // Body: { phone, shopCode }
-// Response 200: { customer: { id, name, phone }, orders: [...] }
+// Response 200: { customer: { name, phone }, orders: [...] }
+// Returns orders from ALL shops for the given phone number
 router.post('/track', async (req, res) => {
   try {
     const { phone, shopCode } = req.body;
@@ -19,7 +20,7 @@ router.post('/track', async (req, res) => {
 
     const cleanPhone = phone.replace(/\D/g, '');
 
-    // Build customer query
+    // Find ALL customers with this phone number across all shops
     let customerQuery = { phone: cleanPhone };
     if (shopCode && shopCode.trim()) {
       const shop = await Shop.findOne({ shopCode: shopCode.trim().toUpperCase() }).lean();
@@ -29,31 +30,33 @@ router.post('/track', async (req, res) => {
       customerQuery.shop = shop._id;
     }
 
-    const customer = await Customer.findOne(customerQuery).lean();
+    const customers = await Customer.find(customerQuery).lean();
 
-    if (!customer) {
+    if (customers.length === 0) {
       return res.status(404).json({ error: 'No customer found with that phone number' });
     }
 
-    const orders = await Order.find({ customer: customer._id, isActive: true, shop: customer.shop })
+    // Get customer IDs for finding orders
+    const customerIds = customers.map(c => c._id);
+
+    // Find all orders for these customers
+    const orders = await Order.find({
+      customer: { $in: customerIds },
+      isActive: true
+    })
+      .populate('shop', 'shopName address phone shopCode')
       .sort({ createdAt: -1 })
-      .limit(3)
       .lean();
 
     if (orders.length === 0) {
       return res.status(404).json({ error: 'No active orders found for this phone number' });
     }
 
-    // Fetch shop details for display
-    const shop = customer.shop
-      ? await Shop.findById(customer.shop).select('shopName address phone').lean()
-      : null;
+    // Use the first customer's name (they should all have same name)
+    const customerName = customers[0].name;
 
     res.json({
-      customer: { id: customer._id, name: customer.name, phone: customer.phone },
-      shop: shop
-        ? { name: shop.shopName, address: shop.address || '', phone: shop.phone || '' }
-        : null,
+      customer: { name: customerName, phone: cleanPhone },
       orders: orders.map((o) => ({
         id: o._id,
         orderNumber: o.orderNumber,
@@ -67,6 +70,15 @@ router.post('/track', async (req, res) => {
         dueDate: o.dueDate,
         createdAt: o.createdAt,
         readyPhotoUrl: o.readyPhotoUrl || null,
+        cuttingStatus: o.cuttingStatus || 'Pending',
+        // Include shop details with each order
+        shop: o.shop ? {
+          id: o.shop._id,
+          name: o.shop.shopName,
+          code: o.shop.shopCode,
+          address: o.shop.address || '',
+          phone: o.shop.phone || ''
+        } : null,
       })),
     });
   } catch (err) {
