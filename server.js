@@ -5,16 +5,39 @@ const session = require('express-session');
 const MongoStore = require('connect-mongo').default;
 const flash = require('connect-flash');
 const methodOverride = require('method-override');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+const mongoSanitize = require('express-mongo-sanitize');
+const hpp = require('hpp');
 
 const connectDB = require('./config/db');
 const flashMiddleware = require('./middleware/flash');
 const { isAdmin, isTailor } = require('./middleware/auth');
+
+// Validate required env vars at startup
+const requiredEnvVars = ['MONGODB_URI', 'SESSION_SECRET', 'JWT_SECRET'];
+for (const envVar of requiredEnvVars) {
+  if (!process.env[envVar]) {
+    console.error(`FATAL: ${envVar} environment variable is not set`);
+    process.exit(1);
+  }
+}
 
 // Connect to MongoDB
 connectDB();
 
 // Initialize Express app
 const app = express();
+
+// Trust proxy (for Render, Heroku, etc. behind reverse proxy)
+if (process.env.NODE_ENV === 'production') {
+  app.set('trust proxy', 1);
+}
+
+// Helmet - secure HTTP headers
+app.use(helmet({
+  contentSecurityPolicy: false, // disabled for EJS views with inline scripts
+}));
 
 // View engine setup
 app.set('view engine', 'ejs');
@@ -25,14 +48,38 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Body parsing middleware
 app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
+app.use(express.json({ limit: '10kb' }));
+
+// NoSQL injection prevention - sanitize req.body, req.query, req.params
+app.use(mongoSanitize());
+
+// HTTP Parameter Pollution protection
+app.use(hpp());
 
 // Method override for PUT/DELETE
 app.use(methodOverride('_method'));
 
+// Rate limiting - login endpoints (brute force protection)
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 20, // 20 attempts per window
+  message: { error: 'Too many login attempts, please try again after 15 minutes' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// Rate limiting - general API (DDoS protection)
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 200, // 200 requests per window
+  message: { error: 'Too many requests, please try again later' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 // Session configuration
 const sessionConfig = session({
-  secret: process.env.SESSION_SECRET || 'your_secret_key',
+  secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
   store: new MongoStore({
@@ -41,6 +88,7 @@ const sessionConfig = session({
   cookie: {
     secure: process.env.NODE_ENV === 'production',
     httpOnly: true,
+    sameSite: 'lax',
     maxAge: 1000 * 60 * 60 * 8, // 8 hours
   },
 });
@@ -77,6 +125,12 @@ app.use('/api', cors({
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
+
+// Apply rate limiters
+app.use('/api/auth', authLimiter);
+app.use('/admin/login', authLimiter);
+app.use('/tailor/login', authLimiter);
+app.use('/api', apiLimiter);
 
 // Routes
 const publicRoutes = require('./routes/public');
@@ -145,7 +199,7 @@ app.use((err, req, res, next) => {
   }
   res.status(500).render('500', {
     title: 'Server Error',
-    error: err.message,
+    error: process.env.NODE_ENV === 'production' ? 'Internal server error' : err.message,
     request: req,
   });
 });

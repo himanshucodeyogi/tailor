@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret_change_in_prod';
+const JWT_SECRET = process.env.JWT_SECRET;
 
 const verifyAdminToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
