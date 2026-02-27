@@ -30,6 +30,7 @@ function formatOrder(o) {
     readyPhotoUrl: o.readyPhotoUrl || null,
     pendingApproval: o.pendingApproval || false,
     pendingReadyPhoto: o.pendingReadyPhoto || null,
+    cuttingStatus: o.cuttingStatus || 'Pending',
     assignedCuttingMaster: cuttingMaster
       ? { id: cuttingMaster._id, name: cuttingMaster.name }
       : null,
