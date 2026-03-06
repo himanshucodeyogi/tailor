@@ -6,7 +6,9 @@ const Customer = require('../models/Customer');
 // GET /tailor/dashboard - View all active orders
 router.get('/dashboard', async (req, res) => {
   try {
-    const orders = await Order.find({ isActive: true })
+    const orderFilter = { isActive: true };
+    if (req.session.shopId) orderFilter.shop = req.session.shopId;
+    const orders = await Order.find(orderFilter)
       .populate('customer', 'name phone')
       .sort({ createdAt: -1 });
 
@@ -31,7 +33,9 @@ router.get('/dashboard', async (req, res) => {
 // GET /tailor/orders/:id - View order detail with customer measurements
 router.get('/orders/:id', async (req, res) => {
   try {
-    const order = await Order.findById(req.params.id).populate('customer');
+    const oFilter = { _id: req.params.id };
+    if (req.session.shopId) oFilter.shop = req.session.shopId;
+    const order = await Order.findOne(oFilter).populate('customer');
 
     if (!order) {
       req.flash('error', 'Order not found');
@@ -65,8 +69,10 @@ router.patch('/orders/:id/status', async (req, res) => {
       return res.status(400).json({ error: 'Invalid status' });
     }
 
-    const order = await Order.findByIdAndUpdate(
-      req.params.id,
+    const statusFilter = { _id: req.params.id };
+    if (req.session.shopId) statusFilter.shop = req.session.shopId;
+    const order = await Order.findOneAndUpdate(
+      statusFilter,
       { status },
       { new: true, runValidators: true }
     );

@@ -7,29 +7,41 @@ const Inventory = require('../models/Inventory');
 // GET /admin/dashboard - Admin dashboard with stats
 router.get('/dashboard', async (req, res) => {
   try {
+    const shopId = req.session.shopId;
+    const shopFilter = shopId ? { shop: shopId } : {};
+
     // Get counts
-    const totalCustomers = await Customer.countDocuments();
-    const totalActiveOrders = await Order.countDocuments({ isActive: true });
+    const totalCustomers = await Customer.countDocuments(shopFilter);
+    const totalActiveOrders = await Order.countDocuments({ ...shopFilter, isActive: true });
     const readyForPickup = await Order.countDocuments({
+      ...shopFilter,
       status: 'Ready for Pickup',
       isActive: true,
     });
 
+    // Get pending approvals count
+    const pendingApprovals = await Order.countDocuments({
+      ...shopFilter,
+      isActive: true,
+      pendingApproval: true,
+    });
+
     // Get low stock items
     const lowStockItems = await Inventory.find({
+      ...shopFilter,
       $expr: { $lte: ['$quantity', '$lowStockThreshold'] },
     });
     const lowStockCount = lowStockItems.length;
 
     // Get status breakdown
     const statusBreakdown = await Order.aggregate([
-      { $match: { isActive: true } },
+      { $match: { ...shopFilter, isActive: true } },
       { $group: { _id: '$status', count: { $sum: 1 } } },
       { $sort: { _id: 1 } },
     ]);
 
     // Get recent orders
-    const recentOrders = await Order.find()
+    const recentOrders = await Order.find(shopFilter)
       .populate('customer', 'name phone')
       .sort({ createdAt: -1 })
       .limit(10);
@@ -41,6 +53,7 @@ router.get('/dashboard', async (req, res) => {
         totalActiveOrders,
         readyForPickup,
         lowStockCount,
+        pendingApprovals,
       },
       statusBreakdown,
       recentOrders,

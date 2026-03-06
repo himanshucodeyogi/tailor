@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('../partials/head') %>
+<body class="bg-gray-50 dark:bg-gray-950 min-h-screen">
+  <%- include('../partials/nav-cutting-master') %>
+
+  <div class="max-w-4xl mx-auto px-4 py-6 sm:py-8">
+    <%- include('../partials/flash') %>
+
+    <a href="/cutting-master/dashboard" class="btn btn-ghost btn-sm mb-4">
+      <span class="material-icons-round mi-sm">arrow_back</span>Back to Dashboard
+    </a>
+
+    <!-- Order Header -->
+    <div class="card mb-6">
+      <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 mb-5">
+        <div class="flex items-center gap-4">
+          <div class="w-14 h-14 bg-orange-50 dark:bg-orange-500/10 rounded-2xl flex items-center justify-center">
+            <span class="material-icons-round" style="font-size:28px;color:#F57C00;">receipt_long</span>
+          </div>
+          <div>
+            <h1 class="text-2xl font-extrabold text-gray-800 dark:text-white">Order #<%= order.orderNumber %></h1>
+            <p class="text-sm text-gray-500 dark:text-gray-400"><%= order.customer ? order.customer.name : 'N/A' %> &middot; <%= order.customer ? order.customer.phone : '' %></p>
+          </div>
+        </div>
+        <div class="flex flex-col items-end gap-2">
+          <span class="badge
+            <%= order.status === 'Order Placed' ? 'badge-placed' : '' %>
+            <%= order.status === 'Cutting' ? 'badge-cutting' : '' %>
+            <%= order.status === 'In Stitching' ? 'badge-stitching' : '' %>
+            <%= order.status === 'Final Touches' ? 'badge-touches' : '' %>
+            <%= order.status === 'Ready for Pickup' ? 'badge-ready' : '' %>
+          " style="font-size:0.85rem;padding:6px 16px;"><%= order.status %></span>
+          <span class="badge <%= order.cuttingStatus === 'Done' ? 'badge-ready' : 'badge-cutting' %>" style="font-size:0.8rem;padding:4px 12px;">
+            Cutting: <%= order.cuttingStatus || 'Pending' %>
+          </span>
+        </div>
+      </div>
+
+      <!-- Status Stepper -->
+      <div class="stepper mb-6">
+        <% statuses.forEach((step, i) => { %>
+          <div class="step <%= i < currentIndex ? 'completed' : '' %> <%= i === currentIndex ? 'active' : '' %>">
+            <div class="step-circle">
+              <% if (i < currentIndex) { %><span class="material-icons-round" style="font-size:16px;">check</span><% } else { %><%= i + 1 %><% } %>
+            </div>
+            <div class="step-label"><%= step %></div>
+            <% if (i < statuses.length - 1) { %><div class="step-line"></div><% } %>
+          </div>
+        <% }) %>
+      </div>
+
+      <div class="flex flex-col sm:flex-row gap-2 mb-4">
+        <button onclick="openCuttingModal()" class="btn" style="background:#F57C00;color:#fff;">
+          <span class="material-icons-round mi-sm">content_cut</span>Update Cutting Status
+        </button>
+        <button onclick="openAssignModal()" class="btn btn-primary">
+          <span class="material-icons-round mi-sm">person_add</span>Assign Tailor
+        </button>
+      </div>
+    </div>
+
+    <!-- Order Details -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+      <div class="card text-center"><p class="text-xs text-gray-400 uppercase mb-1">Garment</p><p class="font-bold text-gray-800 dark:text-white"><%= order.garmentType %></p></div>
+      <div class="card text-center"><p class="text-xs text-gray-400 uppercase mb-1">Created</p><p class="font-bold text-gray-800 dark:text-white"><%= new Date(order.createdAt).toLocaleDateString() %></p></div>
+      <div class="card text-center"><p class="text-xs text-gray-400 uppercase mb-1">Due Date</p><p class="font-bold text-gray-800 dark:text-white"><%= order.dueDate ? new Date(order.dueDate).toLocaleDateString() : 'Not set' %></p></div>
+      <div class="card text-center"><p class="text-xs text-gray-400 uppercase mb-1">Tailor</p><p class="font-bold text-gray-800 dark:text-white"><%= order.assignedTailor ? order.assignedTailor.name : 'Not assigned' %></p></div>
+    </div>
+
+    <% if (order.description) { %>
+      <div class="card mb-6 border-l-4" style="border-left-color:#F57C00;">
+        <div class="flex items-center gap-2 mb-2"><span class="material-icons-round mi-sm" style="color:#F57C00;">description</span><h4 class="font-bold text-gray-800 dark:text-white">Description</h4></div>
+        <p class="text-sm text-gray-600 dark:text-gray-400"><%= order.description %></p>
+      </div>
+    <% } %>
+
+    <!-- Customer Measurements -->
+    <div class="card">
+      <div class="flex items-center gap-2 mb-5">
+        <span class="material-icons-round" style="color:#F57C00;">straighten</span>
+        <h2 class="text-lg font-bold text-gray-800 dark:text-white">Customer Measurements</h2>
+      </div>
+
+      <% if (order.customer && order.customer.measurements && order.customer.measurements.length > 0) { %>
+        <div class="space-y-3">
+          <% order.customer.measurements.forEach((measurement) => { %>
+            <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+              <h3 class="font-bold text-accent-500 mb-3 capitalize flex items-center gap-2">
+                <span class="material-icons-round mi-sm">checkroom</span><%= measurement.type %>
+              </h3>
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <% ['length', 'chest', 'shoulder', 'waist', 'hip', 'thigh', 'neck', 'sleeveLength', 'bicep', 'collar', 'cuff', 'bottom', 'crotch', 'knee'].forEach((field) => { %>
+                  <% if (measurement[field]) { %>
+                    <div>
+                      <p class="text-xs text-gray-400 uppercase"><%= field.replace(/([A-Z])/g, ' $1') %></p>
+                      <p class="font-bold text-gray-800 dark:text-white"><%= measurement[field] %></p>
+                    </div>
+                  <% } %>
+                <% }) %>
+              </div>
+              <% if (measurement.notes) { %>
+                <p class="text-xs text-gray-500 mt-3 pt-2 border-t border-gray-200 dark:border-gray-700"><strong>Notes:</strong> <%= measurement.notes %></p>
+              <% } %>
+            </div>
+          <% }) %>
+        </div>
+      <% } else { %>
+        <div class="text-center py-8">
+          <span class="material-icons-round text-gray-300 dark:text-gray-600" style="font-size:40px;">straighten</span>
+          <p class="text-gray-400 mt-2 text-sm">No measurements recorded yet</p>
+        </div>
+      <% } %>
+    </div>
+  </div>
+
+  <!-- Cutting Status Modal -->
+  <div id="cuttingModal" class="modal-overlay">
+    <div class="modal-content">
+      <h2 class="text-xl font-bold text-gray-800 dark:text-white mb-2">Update Cutting Status</h2>
+      <p class="text-sm text-gray-500 mb-5">Current: <strong><%= order.cuttingStatus || 'Pending' %></strong></p>
+      <div class="space-y-2 mb-5">
+        <% ['Pending', 'Done'].forEach((cs) => { %>
+          <button type="button" onclick="handleCuttingStatus('<%= cs %>')"
+            class="w-full px-4 py-3 rounded-lg border-2 text-left font-semibold text-sm transition-all flex items-center gap-3
+              <%= cs === (order.cuttingStatus || 'Pending') ? 'border-orange-500 text-white' : 'border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:border-orange-400' %>"
+            style="<%= cs === (order.cuttingStatus || 'Pending') ? 'background:#F57C00;border-color:#F57C00;' : '' %>">
+            <span class="material-icons-round mi-sm">
+              <%= cs === (order.cuttingStatus || 'Pending') ? 'radio_button_checked' : 'radio_button_unchecked' %>
+            </span>
+            <%= cs %>
+          </button>
+        <% }) %>
+      </div>
+      <button type="button" onclick="closeCuttingModal()" class="btn btn-outline btn-block">Cancel</button>
+    </div>
+  </div>
+
+  <!-- Assign Tailor Modal -->
+  <div id="assignModal" class="modal-overlay">
+    <div class="modal-content">
+      <h2 class="text-xl font-bold text-gray-800 dark:text-white mb-2">Assign Tailor</h2>
+      <p class="text-sm text-gray-500 mb-5">Current: <strong><%= order.assignedTailor ? order.assignedTailor.name : 'Not assigned' %></strong></p>
+      <div class="space-y-2 mb-5">
+        <% if (tailors && tailors.length > 0) { %>
+          <% tailors.forEach((tailor) => { %>
+            <button type="button" onclick="handleAssignTailor('<%= tailor._id %>')"
+              class="w-full px-4 py-3 rounded-lg border-2 text-left font-semibold text-sm transition-all flex items-center gap-3
+                <%= order.assignedTailor && order.assignedTailor._id.toString() === tailor._id.toString() ? 'bg-primary-500 text-white border-primary-500' : 'border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:border-primary-400' %>">
+              <span class="material-icons-round mi-sm">
+                <%= order.assignedTailor && order.assignedTailor._id.toString() === tailor._id.toString() ? 'radio_button_checked' : 'radio_button_unchecked' %>
+              </span>
+              <%= tailor.name %>
+            </button>
+          <% }) %>
+        <% } else { %>
+          <p class="text-gray-400 text-center py-4">No tailors available</p>
+        <% } %>
+      </div>
+      <button type="button" onclick="closeAssignModal()" class="btn btn-outline btn-block">Cancel</button>
+    </div>
+  </div>
+
+  <script>
+    function openCuttingModal() { document.getElementById('cuttingModal').classList.add('active'); }
+    function closeCuttingModal() { document.getElementById('cuttingModal').classList.remove('active'); }
+    function openAssignModal() { document.getElementById('assignModal').classList.add('active'); }
+    function closeAssignModal() { document.getElementById('assignModal').classList.remove('active'); }
+
+    async function handleCuttingStatus(cuttingStatus) {
+      try {
+        const response = await fetch('/cutting-master/orders/<%= order._id %>/cutting-status', {
+          method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ cuttingStatus }),
+        });
+        const result = await response.json();
+        if (result.success) { location.reload(); } else { alert('Error: ' + result.error); }
+      } catch (error) { alert('Failed to update cutting status'); }
+    }
+
+    async function handleAssignTailor(tailorId) {
+      try {
+        const response = await fetch('/cutting-master/orders/<%= order._id %>/assign-tailor', {
+          method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ tailorId }),
+        });
+        const result = await response.json();
+        if (result.success) { location.reload(); } else { alert('Error: ' + result.error); }
+      } catch (error) { alert('Failed to assign tailor'); }
+    }
+  </script>
+
+  <%- include('../partials/footer') %>
+</body>
+</html>

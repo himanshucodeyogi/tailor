@@ -1,154 +1,75 @@
 <!DOCTYPE html>
 <html lang="en">
 <%- include('../partials/head') %>
-<body class="bg-gray-50 dark:bg-gray-900">
+<body class="bg-gray-50 dark:bg-gray-950 min-h-screen">
   <%- include('../partials/nav-tailor') %>
 
-  <div class="max-w-7xl mx-auto px-3 sm:px-4 py-6 sm:py-12">
+  <div class="max-w-7xl mx-auto px-4 py-6 sm:py-8">
     <%- include('../partials/flash') %>
 
-    <!-- Stats Section -->
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-6 mb-6 sm:mb-12">
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 sm:p-6">
-        <div class="flex items-center justify-between gap-3">
-          <div>
-            <p class="text-gray-600 dark:text-gray-400 text-xs sm:text-sm font-medium">Total Orders</p>
-            <p class="text-2xl sm:text-3xl font-bold text-teal-600"><%= stats.totalOrders %></p>
-          </div>
-          <div class="text-3xl sm:text-4xl text-teal-200">📋</div>
-        </div>
+    <!-- Stats -->
+    <div class="grid grid-cols-3 gap-3 sm:gap-5 mb-6 sm:mb-8">
+      <div class="stat-card" style="border-color: #FFA726;">
+        <div class="stat-icon" style="background: #FFA726;"><span class="material-icons-round">receipt_long</span></div>
+        <div><div class="stat-value text-accent-400"><%= stats.totalOrders %></div><div class="stat-label">Total</div></div>
       </div>
-
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 sm:p-6">
-        <div class="flex items-center justify-between gap-3">
-          <div>
-            <p class="text-gray-600 dark:text-gray-400 text-xs sm:text-sm font-medium">In Progress</p>
-            <p class="text-2xl sm:text-3xl font-bold text-yellow-600"><%= stats.inProgress %></p>
-          </div>
-          <div class="text-3xl sm:text-4xl text-yellow-200">⚙️</div>
-        </div>
+      <div class="stat-card" style="border-color: #1976D2;">
+        <div class="stat-icon" style="background: #1976D2;"><span class="material-icons-round">pending</span></div>
+        <div><div class="stat-value text-primary-500"><%= stats.inProgress %></div><div class="stat-label">In Progress</div></div>
       </div>
-
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 sm:p-6">
-        <div class="flex items-center justify-between gap-3">
-          <div>
-            <p class="text-gray-600 dark:text-gray-400 text-xs sm:text-sm font-medium">Ready</p>
-            <p class="text-2xl sm:text-3xl font-bold text-green-600"><%= stats.readyForPickup %></p>
-          </div>
-          <div class="text-3xl sm:text-4xl text-green-200">✅</div>
-        </div>
+      <div class="stat-card" style="border-color: #388E3C;">
+        <div class="stat-icon" style="background: #388E3C;"><span class="material-icons-round">check_circle</span></div>
+        <div><div class="stat-value text-success-600"><%= stats.readyForPickup %></div><div class="stat-label">Ready</div></div>
       </div>
     </div>
 
-    <!-- Orders Table -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 sm:p-8">
-      <h2 class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-white mb-4 sm:mb-6">Active Orders</h2>
+    <!-- Active Orders -->
+    <div class="card">
+      <div class="flex items-center gap-2 mb-5">
+        <span class="material-icons-round text-accent-500">receipt_long</span>
+        <h2 class="text-lg font-bold text-gray-800 dark:text-white">Active Orders</h2>
+      </div>
 
       <% if (orders.length === 0) { %>
-        <p class="text-gray-500 dark:text-gray-400 text-center py-8 sm:py-12 text-sm sm:text-base">No active orders</p>
+        <div class="text-center py-10">
+          <span class="material-icons-round text-gray-300 dark:text-gray-600" style="font-size:48px;">receipt_long</span>
+          <p class="text-gray-400 mt-2">No active orders</p>
+        </div>
       <% } else { %>
-        <!-- Desktop Table -->
+        <!-- Desktop -->
         <div class="hidden sm:block overflow-x-auto">
-          <table class="w-full text-left text-sm">
-            <thead class="border-b-2 border-gray-200 dark:border-gray-700">
-              <tr>
-                <th class="px-4 py-3 font-semibold text-gray-700 dark:text-gray-300">Order #</th>
-                <th class="px-4 py-3 font-semibold text-gray-700 dark:text-gray-300">Customer</th>
-                <th class="px-4 py-3 font-semibold text-gray-700 dark:text-gray-300">Garment</th>
-                <th class="px-4 py-3 font-semibold text-gray-700 dark:text-gray-300">Status</th>
-                <th class="px-4 py-3 font-semibold text-gray-700 dark:text-gray-300">Due Date</th>
-                <th class="px-4 py-3 font-semibold text-gray-700 dark:text-gray-300">Action</th>
-              </tr>
-            </thead>
+          <table class="data-table">
+            <thead><tr><th>Order #</th><th>Customer</th><th>Garment</th><th>Status</th><th>Due Date</th><th>Action</th></tr></thead>
             <tbody>
               <% orders.forEach((order) => { %>
-                <tr class="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
-                  <td class="px-4 py-3 font-semibold text-gray-800 dark:text-white"><%= order.orderNumber %></td>
-                  <td class="px-4 py-3">
-                    <div>
-                      <p class="font-medium text-gray-800 dark:text-white"><%= order.customer.name %></p>
-                      <p class="text-xs text-gray-500 dark:text-gray-400"><%= order.customer.phone %></p>
-                    </div>
-                  </td>
-                  <td class="px-4 py-3 text-gray-700 dark:text-gray-300"><%= order.garmentType %></td>
-                  <td class="px-4 py-3">
-                    <span class="px-3 py-1 rounded-full text-xs font-semibold
-                      <% if (order.status === 'Order Placed') { %>
-                        bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-white
-                      <% } else if (order.status === 'Cutting') { %>
-                        bg-yellow-200 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200
-                      <% } else if (order.status === 'In Stitching') { %>
-                        bg-blue-200 dark:bg-blue-900 text-blue-800 dark:text-blue-200
-                      <% } else if (order.status === 'Final Touches') { %>
-                        bg-purple-200 dark:bg-purple-900 text-purple-800 dark:text-purple-200
-                      <% } else if (order.status === 'Ready for Pickup') { %>
-                        bg-green-200 dark:bg-green-900 text-green-800 dark:text-green-200
-                      <% } %>
-                    ">
-                      <%= order.status %>
-                    </span>
-                  </td>
-                  <td class="px-4 py-3 text-gray-700 dark:text-gray-300">
-                    <%= order.dueDate ? new Date(order.dueDate).toLocaleDateString() : 'Not set' %>
-                  </td>
-                  <td class="px-4 py-3">
-                    <a href="/tailor/orders/<%= order._id %>" class="text-teal-600 hover:text-teal-800 dark:text-teal-400 dark:hover:text-teal-300 font-medium text-sm">
-                      View →
-                    </a>
-                  </td>
+                <tr>
+                  <td class="font-mono font-bold"><%= order.orderNumber %></td>
+                  <td><div><p class="font-medium text-gray-800 dark:text-white"><%= order.customer.name %></p><p class="text-xs text-gray-400"><%= order.customer.phone %></p></div></td>
+                  <td><%= order.garmentType %></td>
+                  <td><span class="badge <%= order.status === 'Order Placed' ? 'badge-placed' : '' %><%= order.status === 'Cutting' ? 'badge-cutting' : '' %><%= order.status === 'In Stitching' ? 'badge-stitching' : '' %><%= order.status === 'Final Touches' ? 'badge-touches' : '' %><%= order.status === 'Ready for Pickup' ? 'badge-ready' : '' %>"><%= order.status %></span></td>
+                  <td class="text-sm"><%= order.dueDate ? new Date(order.dueDate).toLocaleDateString() : 'Not set' %></td>
+                  <td><a href="/tailor/orders/<%= order._id %>" class="btn btn-accent btn-sm">View</a></td>
                 </tr>
               <% }) %>
             </tbody>
           </table>
         </div>
-
-        <!-- Mobile Cards -->
+        <!-- Mobile -->
         <div class="sm:hidden space-y-3">
           <% orders.forEach((order) => { %>
-            <div class="bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg p-4 space-y-3">
-              <div class="flex justify-between items-start gap-2">
+            <a href="/tailor/orders/<%= order._id %>" class="block bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-lg p-4">
+              <div class="flex justify-between items-start mb-2">
                 <div>
-                  <p class="text-xs text-gray-500 dark:text-gray-400">Order #</p>
-                  <p class="font-bold text-gray-800 dark:text-white"><%= order.orderNumber %></p>
+                  <p class="font-mono font-bold text-sm text-gray-800 dark:text-white">#<%= order.orderNumber %></p>
+                  <p class="text-xs text-gray-500"><%= order.customer.name %></p>
                 </div>
-                <span class="px-2 py-1 rounded text-xs font-semibold whitespace-nowrap
-                  <% if (order.status === 'Order Placed') { %>
-                    bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-white
-                  <% } else if (order.status === 'Cutting') { %>
-                    bg-yellow-200 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200
-                  <% } else if (order.status === 'In Stitching') { %>
-                    bg-blue-200 dark:bg-blue-900 text-blue-800 dark:text-blue-200
-                  <% } else if (order.status === 'Final Touches') { %>
-                    bg-purple-200 dark:bg-purple-900 text-purple-800 dark:text-purple-200
-                  <% } else if (order.status === 'Ready for Pickup') { %>
-                    bg-green-200 dark:bg-green-900 text-green-800 dark:text-green-200
-                  <% } %>
-                ">
-                  <%= order.status %>
-                </span>
+                <span class="badge <%= order.status === 'Order Placed' ? 'badge-placed' : '' %><%= order.status === 'Cutting' ? 'badge-cutting' : '' %><%= order.status === 'In Stitching' ? 'badge-stitching' : '' %><%= order.status === 'Final Touches' ? 'badge-touches' : '' %><%= order.status === 'Ready for Pickup' ? 'badge-ready' : '' %>"><%= order.status %></span>
               </div>
-
-              <div class="grid grid-cols-2 gap-3 text-xs">
-                <div>
-                  <p class="text-gray-500 dark:text-gray-400">Customer</p>
-                  <p class="font-medium text-gray-800 dark:text-white"><%= order.customer.name %></p>
-                  <p class="text-gray-500 dark:text-gray-400"><%= order.customer.phone %></p>
-                </div>
-                <div>
-                  <p class="text-gray-500 dark:text-gray-400">Garment</p>
-                  <p class="font-medium text-gray-800 dark:text-white"><%= order.garmentType %></p>
-                </div>
+              <div class="flex justify-between text-xs text-gray-500">
+                <span><%= order.garmentType %></span>
+                <span><%= order.dueDate ? new Date(order.dueDate).toLocaleDateString() : 'No due date' %></span>
               </div>
-
-              <div class="text-xs">
-                <p class="text-gray-500 dark:text-gray-400">Due Date</p>
-                <p class="font-medium text-gray-800 dark:text-white"><%= order.dueDate ? new Date(order.dueDate).toLocaleDateString() : 'Not set' %></p>
-              </div>
-
-              <a href="/tailor/orders/<%= order._id %>" class="block w-full bg-teal-600 hover:bg-teal-700 text-white font-medium py-2 rounded text-center text-sm">
-                View Order
-              </a>
-            </div>
+            </a>
           <% }) %>
         </div>
       <% } %>

@@ -2,12 +2,15 @@ const express = require('express');
 const router = express.Router();
 const Order = require('../models/Order');
 const Customer = require('../models/Customer');
+const CuttingMaster = require('../models/CuttingMaster');
 
 // GET /admin/orders - List all orders
 router.get('/', async (req, res) => {
   try {
     const { status } = req.query;
+    const shopId = req.session.shopId;
     let filter = { isActive: true };
+    if (shopId) filter.shop = shopId;
 
     if (status && status !== 'all') {
       filter.status = status;
@@ -34,7 +37,8 @@ router.get('/', async (req, res) => {
 router.get('/new', async (req, res) => {
   try {
     const { customerId } = req.query;
-    const customers = await Customer.find().sort({ name: 1 });
+    const custFilter = req.session.shopId ? { shop: req.session.shopId } : {};
+    const customers = await Customer.find(custFilter).sort({ name: 1 });
 
     // Order statuses
     const statuses = ['Order Placed', 'Cutting', 'In Stitching', 'Final Touches', 'Ready for Pickup'];
@@ -101,7 +105,7 @@ router.post('/', async (req, res) => {
     }
 
     // Generate next sequential order number (1A..1000A, 1B..1000B, ... 1Z..1000Z)
-    const orderNumber = await Order.generateNextOrderNumber(null);
+    const orderNumber = await Order.generateNextOrderNumber(req.session.shopId || null);
     console.log('Generated order number:', orderNumber);
 
     // Create order
@@ -122,6 +126,7 @@ router.post('/', async (req, res) => {
       dueDate: parsedDueDate,
       status: status || 'Order Placed',
       isActive: true,
+      shop: req.session.shopId,
     });
 
     console.log('Order instance created, saving to database...');
@@ -155,6 +160,82 @@ router.post('/', async (req, res) => {
     console.error('Final error message:', errorMessage);
     req.flash('error', errorMessage);
     res.redirect('/admin/orders/new');
+  }
+});
+
+// GET /admin/orders/pending-approvals - View orders pending approval
+router.get('/pending-approvals', async (req, res) => {
+  try {
+    const paFilter = { isActive: true, pendingApproval: true };
+    if (req.session.shopId) paFilter.shop = req.session.shopId;
+    const orders = await Order.find(paFilter)
+      .populate('customer', 'name phone')
+      .sort({ updatedAt: -1 });
+
+    res.render('orders/pending-approvals', {
+      title: 'Pending Approvals',
+      orders,
+    });
+  } catch (error) {
+    console.error('Pending approvals error:', error);
+    req.flash('error', 'Failed to load pending approvals');
+    res.redirect('/admin/dashboard');
+  }
+});
+
+// GET /admin/orders/bulk-assign - Bulk assign cutting masters
+router.get('/bulk-assign', async (req, res) => {
+  try {
+    const baFilter = { isActive: true, assignedCuttingMaster: null };
+    if (req.session.shopId) baFilter.shop = req.session.shopId;
+    const orders = await Order.find(baFilter)
+      .populate('customer', 'name phone')
+      .sort({ createdAt: -1 });
+
+    const cmFilter = req.session.shopId ? { shop: req.session.shopId } : {};
+    const cuttingMasters = await CuttingMaster.find(cmFilter).sort({ name: 1 });
+
+    res.render('orders/bulk-assign', {
+      title: 'Bulk Assign Orders',
+      orders,
+      cuttingMasters,
+    });
+  } catch (error) {
+    console.error('Bulk assign page error:', error);
+    req.flash('error', 'Failed to load bulk assign page');
+    res.redirect('/admin/orders');
+  }
+});
+
+// POST /admin/orders/bulk-assign - Process bulk assignment
+router.post('/bulk-assign', async (req, res) => {
+  try {
+    const { orderIds, cuttingMasterId } = req.body;
+
+    if (!orderIds || !Array.isArray(orderIds) || orderIds.length === 0) {
+      return res.status(400).json({ error: 'No orders selected' });
+    }
+    if (!cuttingMasterId) {
+      return res.status(400).json({ error: 'No cutting master selected' });
+    }
+
+    const cm = await CuttingMaster.findById(cuttingMasterId);
+    if (!cm) {
+      return res.status(404).json({ error: 'Cutting master not found' });
+    }
+
+    const result = await Order.updateMany(
+      { _id: { $in: orderIds } },
+      { assignedCuttingMaster: cuttingMasterId }
+    );
+
+    res.json({
+      success: true,
+      message: `${result.modifiedCount} order(s) assigned to ${cm.name}`,
+    });
+  } catch (error) {
+    console.error('Bulk assign error:', error);
+    res.status(500).json({ error: 'Failed to assign orders' });
   }
 });
 
@@ -192,7 +273,8 @@ router.get('/:id/edit', async (req, res) => {
       return res.redirect('/admin/orders');
     }
 
-    const customers = await Customer.find().sort({ name: 1 });
+    const editCustFilter = req.session.shopId ? { shop: req.session.shopId } : {};
+    const customers = await Customer.find(editCustFilter).sort({ name: 1 });
     const statuses = ['Order Placed', 'Cutting', 'In Stitching', 'Final Touches', 'Ready for Pickup'];
 
     res.render('orders/edit', {
@@ -269,6 +351,40 @@ router.patch('/:id/status', async (req, res) => {
   } catch (error) {
     console.error('Update order status error:', error);
     res.status(500).json({ error: 'Failed to update order status' });
+  }
+});
+
+// PATCH /admin/orders/:id/approve-ready - Approve or reject ready photo
+router.patch('/:id/approve-ready', async (req, res) => {
+  try {
+    const { approved } = req.body;
+    const order = await Order.findById(req.params.id);
+
+    if (!order) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
+
+    if (!order.pendingApproval) {
+      return res.status(400).json({ error: 'No pending approval for this order' });
+    }
+
+    if (approved) {
+      order.status = 'Ready for Pickup';
+      order.readyPhotoUrl = order.pendingReadyPhoto;
+    }
+
+    order.pendingApproval = false;
+    order.pendingReadyPhoto = null;
+
+    await order.save();
+
+    res.json({
+      success: true,
+      message: approved ? 'Order approved as ready' : 'Ready photo rejected',
+    });
+  } catch (error) {
+    console.error('Approve ready error:', error);
+    res.status(500).json({ error: 'Failed to process approval' });
   }
 });
 

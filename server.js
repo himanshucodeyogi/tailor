@@ -7,12 +7,9 @@ const flash = require('connect-flash');
 const methodOverride = require('method-override');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
-const mongoSanitize = require('express-mongo-sanitize');
-const hpp = require('hpp');
-
 const connectDB = require('./config/db');
 const flashMiddleware = require('./middleware/flash');
-const { isAdmin, isTailor } = require('./middleware/auth');
+const { isAdmin, isTailor, isCuttingMaster } = require('./middleware/auth');
 
 // Validate required env vars at startup
 const requiredEnvVars = ['MONGODB_URI', 'SESSION_SECRET', 'JWT_SECRET'];
@@ -49,12 +46,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Body parsing middleware
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json({ limit: '10kb' }));
-
-// NoSQL injection prevention - sanitize req.body, req.query, req.params
-app.use(mongoSanitize());
-
-// HTTP Parameter Pollution protection
-app.use(hpp());
 
 // Method override for PUT/DELETE
 app.use(methodOverride('_method'));
@@ -130,6 +121,8 @@ app.use('/api', cors({
 app.use('/api/auth', authLimiter);
 app.use('/admin/login', authLimiter);
 app.use('/tailor/login', authLimiter);
+app.use('/cutting-master/login', authLimiter);
+app.use('/register', authLimiter);
 app.use('/api', apiLimiter);
 
 // Routes
@@ -142,8 +135,13 @@ const inventoryRoutes = require('./routes/inventory');
 const adminTailorRoutes = require('./routes/admin-tailors');
 const tailorAuthRoutes = require('./routes/tailor-auth');
 const tailorRoutes = require('./routes/tailor');
+const cuttingMasterAuthRoutes = require('./routes/cutting-master-auth');
+const cuttingMasterRoutes = require('./routes/cutting-master');
+const adminCuttingMasterRoutes = require('./routes/admin-cutting-masters');
+const shopRoutes = require('./routes/shop');
 
 // Mount routes
+app.use('/', shopRoutes);
 app.use('/', publicRoutes);
 app.use('/admin', authRoutes);
 app.use('/admin', isAdmin, dashboardRoutes);
@@ -153,6 +151,9 @@ app.use('/admin/inventory', isAdmin, inventoryRoutes);
 app.use('/admin/tailors', isAdmin, adminTailorRoutes);
 app.use('/tailor', tailorAuthRoutes);
 app.use('/tailor', isTailor, tailorRoutes);
+app.use('/cutting-master', cuttingMasterAuthRoutes);
+app.use('/cutting-master', isCuttingMaster, cuttingMasterRoutes);
+app.use('/admin/cutting-masters', isAdmin, adminCuttingMasterRoutes);
 
 // === REST API Routes (JWT-protected, for Flutter app) ===
 const { verifyAdminToken, verifyTailorToken, verifyCuttingMasterToken } = require('./middleware/jwt-auth');

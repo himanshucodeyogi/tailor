@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('../../partials/head') %>
+<body class="bg-gray-50 dark:bg-gray-950 min-h-screen">
+  <%- include('../../partials/nav-admin') %>
+
+  <div class="max-w-5xl mx-auto px-4 py-6 sm:py-8">
+    <%- include('../../partials/flash') %>
+
+    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-6">
+      <div class="flex items-center gap-3">
+        <span class="material-icons-round mi-xl" style="color:#F57C00;">carpenter</span>
+        <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-800 dark:text-white">Cutting Masters</h1>
+      </div>
+      <a href="/admin/cutting-masters/new" class="btn btn-primary w-full sm:w-auto">
+        <span class="material-icons-round mi-sm">person_add</span>Create Cutting Master
+      </a>
+    </div>
+
+    <% if (cuttingMasters.length === 0) { %>
+      <div class="card text-center py-10">
+        <span class="material-icons-round text-gray-300 dark:text-gray-600" style="font-size:48px;">carpenter</span>
+        <p class="text-gray-400 mt-2">No cutting masters created yet</p>
+        <a href="/admin/cutting-masters/new" class="btn btn-primary btn-sm mt-3">Create First Cutting Master</a>
+      </div>
+    <% } else { %>
+      <!-- Desktop Table -->
+      <div class="hidden sm:block card p-0 overflow-hidden">
+        <table class="data-table">
+          <thead><tr><th class="pl-6">Name</th><th>Username</th><th>Created</th><th>Actions</th></tr></thead>
+          <tbody>
+            <% cuttingMasters.forEach((cm) => { %>
+              <tr>
+                <td class="pl-6">
+                  <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-full flex items-center justify-center" style="background:rgba(245,124,0,0.1);">
+                      <span class="material-icons-round mi-sm" style="color:#F57C00;">carpenter</span>
+                    </div>
+                    <span class="font-semibold text-gray-800 dark:text-white"><%= cm.name %></span>
+                  </div>
+                </td>
+                <td><code class="bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded text-xs"><%= cm.username %></code></td>
+                <td class="text-xs text-gray-500"><%= new Date(cm.createdAt).toLocaleDateString() %></td>
+                <td>
+                  <form action="/admin/cutting-masters/<%= cm._id %>?_method=DELETE" method="POST" style="display:inline;" onsubmit="return confirm('Delete this cutting master?');">
+                    <button type="submit" class="btn btn-ghost btn-sm" style="color:#D32F2F;">
+                      <span class="material-icons-round mi-sm">delete</span>Delete
+                    </button>
+                  </form>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Mobile Cards -->
+      <div class="sm:hidden space-y-3">
+        <% cuttingMasters.forEach((cm) => { %>
+          <div class="card">
+            <div class="flex justify-between items-start mb-2">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full flex items-center justify-center" style="background:rgba(245,124,0,0.1);">
+                  <span class="material-icons-round" style="color:#F57C00;">carpenter</span>
+                </div>
+                <div>
+                  <p class="font-semibold text-gray-800 dark:text-white"><%= cm.name %></p>
+                  <code class="text-xs text-gray-500"><%= cm.username %></code>
+                </div>
+              </div>
+              <form action="/admin/cutting-masters/<%= cm._id %>?_method=DELETE" method="POST" onsubmit="return confirm('Delete?');">
+                <button type="submit" class="btn btn-danger btn-sm"><span class="material-icons-round mi-sm">delete</span></button>
+              </form>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+    <% } %>
+
+    <div class="card mt-6 border-l-4" style="border-left-color:#F57C00;">
+      <div class="flex items-start gap-3">
+        <span class="material-icons-round mt-0.5" style="color:#F57C00;">info</span>
+        <p class="text-sm text-gray-600 dark:text-gray-400">
+          After creating a cutting master, share the username and password with them. They can log in at <code class="bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded text-xs">/cutting-master/login</code> to manage cutting tasks and assign tailors.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <%- include('../../partials/footer') %>
+</body>
+</html>

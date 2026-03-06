@@ -5,16 +5,16 @@
   <div class="w-full max-w-md">
     <div class="card shadow-elevated">
       <div class="text-center mb-8">
-        <div class="inline-flex items-center justify-center w-16 h-16 bg-accent-400 rounded-2xl mb-4 shadow-lg">
-          <span class="material-icons-round text-white" style="font-size:32px;">content_cut</span>
+        <div class="inline-flex items-center justify-center w-16 h-16 bg-amber-500 rounded-2xl mb-4 shadow-lg">
+          <span class="material-icons-round text-white" style="font-size:32px;">carpenter</span>
         </div>
-        <h1 class="text-2xl font-extrabold text-gray-800 dark:text-white">Tailor Portal</h1>
-        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Login to manage your orders</p>
+        <h1 class="text-2xl font-extrabold text-gray-800 dark:text-white">Cutting Master</h1>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Login to manage cutting orders</p>
       </div>
 
       <%- include('../partials/flash') %>
 
-      <form action="/tailor/login" method="POST" class="space-y-5">
+      <form action="/cutting-master/login" method="POST" class="space-y-5">
         <div>
           <label class="form-label">Shop Code</label>
           <div class="relative">
@@ -36,7 +36,7 @@
             <input type="password" name="password" placeholder="Enter your password" class="form-input pl-10" required autocomplete="current-password" />
           </div>
         </div>
-        <button type="submit" class="btn btn-accent btn-block btn-lg mt-2">
+        <button type="submit" class="btn btn-block btn-lg mt-2" style="background:#F57C00;color:white;">
           <span class="material-icons-round mi-sm">login</span>Login
         </button>
       </form>

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('../partials/head') %>
+<body class="bg-gray-50 dark:bg-gray-950 min-h-screen">
+  <%- include('../partials/nav-cutting-master') %>
+
+  <div class="max-w-7xl mx-auto px-4 py-6 sm:py-8">
+    <%- include('../partials/flash') %>
+
+    <!-- Stats -->
+    <div class="grid grid-cols-3 gap-3 sm:gap-5 mb-6 sm:mb-8">
+      <div class="stat-card" style="border-color: #F57C00;">
+        <div class="stat-icon" style="background: #F57C00;"><span class="material-icons-round">receipt_long</span></div>
+        <div><div class="stat-value" style="color:#F57C00;"><%= stats.totalOrders %></div><div class="stat-label">Total</div></div>
+      </div>
+      <div class="stat-card" style="border-color: #FFC107;">
+        <div class="stat-icon" style="background: #FFC107;"><span class="material-icons-round">pending</span></div>
+        <div><div class="stat-value" style="color:#FFC107;"><%= stats.pendingCuts %></div><div class="stat-label">Pending</div></div>
+      </div>
+      <div class="stat-card" style="border-color: #388E3C;">
+        <div class="stat-icon" style="background: #388E3C;"><span class="material-icons-round">check_circle</span></div>
+        <div><div class="stat-value text-success-600"><%= stats.completedCuts %></div><div class="stat-label">Done</div></div>
+      </div>
+    </div>
+
+    <!-- Orders -->
+    <div class="card">
+      <div class="flex items-center gap-2 mb-5">
+        <span class="material-icons-round" style="color:#F57C00;">carpenter</span>
+        <h2 class="text-lg font-bold text-gray-800 dark:text-white">Assigned Orders</h2>
+      </div>
+
+      <% if (orders.length === 0) { %>
+        <div class="text-center py-10">
+          <span class="material-icons-round text-gray-300 dark:text-gray-600" style="font-size:48px;">carpenter</span>
+          <p class="text-gray-400 mt-2">No orders assigned</p>
+        </div>
+      <% } else { %>
+        <!-- Desktop -->
+        <div class="hidden sm:block overflow-x-auto">
+          <table class="data-table">
+            <thead><tr><th>Order #</th><th>Customer</th><th>Garment</th><th>Cutting</th><th>Tailor</th><th>Due Date</th><th>Action</th></tr></thead>
+            <tbody>
+              <% orders.forEach((order) => { %>
+                <tr>
+                  <td class="font-mono font-bold"><%= order.orderNumber %></td>
+                  <td><%= order.customer ? order.customer.name : 'N/A' %></td>
+                  <td><%= order.garmentType %></td>
+                  <td><span class="badge <%= order.cuttingStatus === 'Done' ? 'badge-ready' : 'badge-cutting' %>"><%= order.cuttingStatus || 'Pending' %></span></td>
+                  <td><%= order.assignedTailor ? order.assignedTailor.name : 'Not assigned' %></td>
+                  <td class="text-sm"><%= order.dueDate ? new Date(order.dueDate).toLocaleDateString() : '-' %></td>
+                  <td><a href="/cutting-master/orders/<%= order._id %>" class="btn btn-ghost btn-sm" style="color:#F57C00;">View</a></td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+        <!-- Mobile -->
+        <div class="sm:hidden space-y-3">
+          <% orders.forEach((order) => { %>
+            <a href="/cutting-master/orders/<%= order._id %>" class="block bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-lg p-4">
+              <div class="flex justify-between items-start mb-2">
+                <div>
+                  <p class="font-mono font-bold text-sm text-gray-800 dark:text-white">#<%= order.orderNumber %></p>
+                  <p class="text-xs text-gray-500"><%= order.customer ? order.customer.name : 'N/A' %></p>
+                </div>
+                <span class="badge <%= order.cuttingStatus === 'Done' ? 'badge-ready' : 'badge-cutting' %>"><%= order.cuttingStatus || 'Pending' %></span>
+              </div>
+              <div class="flex justify-between text-xs text-gray-500">
+                <span><%= order.garmentType %></span>
+                <span><%= order.dueDate ? new Date(order.dueDate).toLocaleDateString() : 'No due date' %></span>
+              </div>
+            </a>
+          <% }) %>
+        </div>
+      <% } %>
+    </div>
+  </div>
+
+  <%- include('../partials/footer') %>
+</body>
+</html>

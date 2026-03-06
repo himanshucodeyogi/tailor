@@ -1,50 +1,70 @@
 <!DOCTYPE html>
 <html lang="en">
 <%- include('../partials/head') %>
-<body class="bg-gray-50">
+<body class="bg-gray-50 dark:bg-gray-950 min-h-screen">
   <%- include('../partials/nav-public') %>
 
-  <div class="max-w-7xl mx-auto px-4 py-12">
+  <div class="max-w-7xl mx-auto px-4 py-8 sm:py-12">
     <%- include('../partials/flash') %>
 
-    <div class="text-center mb-12">
-      <h1 class="text-4xl font-bold text-gray-800 mb-4">Stitching Charges</h1>
-      <p class="text-lg text-gray-600">Professional tailoring at affordable prices</p>
+    <div class="text-center mb-10">
+      <div class="inline-flex items-center justify-center w-14 h-14 bg-primary-50 dark:bg-primary-500/10 rounded-2xl mb-4">
+        <span class="material-icons-round text-primary-500" style="font-size:28px;">sell</span>
+      </div>
+      <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-900 dark:text-white mb-3">Stitching Charges</h1>
+      <p class="text-gray-500 dark:text-gray-400">Professional tailoring at affordable prices</p>
     </div>
 
-    <div class="bg-white rounded-lg shadow-lg overflow-hidden max-w-4xl mx-auto">
-      <table class="w-full">
-        <thead>
-          <tr class="bg-blue-600 text-white">
-            <th class="px-6 py-4 text-left font-semibold">Garment Type</th>
-            <th class="px-6 py-4 text-left font-semibold">Price Range</th>
-            <th class="px-6 py-4 text-left font-semibold">Details</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr class="border-b hover:bg-gray-50">
-            <td class="px-6 py-4 font-semibold text-gray-800">Suit</td>
-            <td class="px-6 py-4 text-blue-600 font-bold">₹800 - ₹1,500</td>
-            <td class="px-6 py-4 text-gray-600">Full tailoring, alterations, and fitting</td>
-          </tr>
-          <tr class="border-b hover:bg-gray-50">
-            <td class="px-6 py-4 font-semibold text-gray-800">Shirt</td>
-            <td class="px-6 py-4 text-blue-600 font-bold">₹300 - ₹600</td>
-            <td class="px-6 py-4 text-gray-600">Sleeve shortening, tapering, collar fitting</td>
-          </tr>
-          <tr class="hover:bg-gray-50">
-            <td class="px-6 py-4 font-semibold text-gray-800">Kurta</td>
-            <td class="px-6 py-4 text-blue-600 font-bold">₹400 - ₹800</td>
-            <td class="px-6 py-4 text-gray-600">Length adjustment, shoulder fitting, design customization</td>
-          </tr>
-        </tbody>
-      </table>
+    <!-- Pricing Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-4xl mx-auto mb-10">
+      <div class="card text-center hover:shadow-card-hover border-t-4 border-t-primary-500">
+        <div class="w-14 h-14 bg-primary-50 dark:bg-primary-500/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
+          <span class="material-icons-round text-primary-500" style="font-size:28px;">checkroom</span>
+        </div>
+        <h3 class="text-lg font-bold text-gray-800 dark:text-white mb-2">Suit</h3>
+        <p class="text-2xl font-extrabold text-primary-500 mb-3">&#8377;800 - &#8377;1,500</p>
+        <ul class="text-sm text-gray-500 dark:text-gray-400 space-y-2 text-left">
+          <li class="flex items-center gap-2"><span class="material-icons-round mi-sm text-success-600">check_circle</span>Full tailoring</li>
+          <li class="flex items-center gap-2"><span class="material-icons-round mi-sm text-success-600">check_circle</span>Alterations & fitting</li>
+          <li class="flex items-center gap-2"><span class="material-icons-round mi-sm text-success-600">check_circle</span>Premium finishing</li>
+        </ul>
+      </div>
+
+      <div class="card text-center hover:shadow-card-hover border-t-4 border-t-accent-400">
+        <div class="w-14 h-14 bg-accent-50 dark:bg-accent-500/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
+          <span class="material-icons-round text-accent-500" style="font-size:28px;">dry_cleaning</span>
+        </div>
+        <h3 class="text-lg font-bold text-gray-800 dark:text-white mb-2">Shirt</h3>
+        <p class="text-2xl font-extrabold text-accent-500 mb-3">&#8377;300 - &#8377;600</p>
+        <ul class="text-sm text-gray-500 dark:text-gray-400 space-y-2 text-left">
+          <li class="flex items-center gap-2"><span class="material-icons-round mi-sm text-success-600">check_circle</span>Sleeve adjustment</li>
+          <li class="flex items-center gap-2"><span class="material-icons-round mi-sm text-success-600">check_circle</span>Collar fitting</li>
+          <li class="flex items-center gap-2"><span class="material-icons-round mi-sm text-success-600">check_circle</span>Body tapering</li>
+        </ul>
+      </div>
+
+      <div class="card text-center hover:shadow-card-hover border-t-4 border-t-success-600">
+        <div class="w-14 h-14 bg-success-50 dark:bg-success-500/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
+          <span class="material-icons-round text-success-600" style="font-size:28px;">style</span>
+        </div>
+        <h3 class="text-lg font-bold text-gray-800 dark:text-white mb-2">Kurta</h3>
+        <p class="text-2xl font-extrabold text-success-600 mb-3">&#8377;400 - &#8377;800</p>
+        <ul class="text-sm text-gray-500 dark:text-gray-400 space-y-2 text-left">
+          <li class="flex items-center gap-2"><span class="material-icons-round mi-sm text-success-600">check_circle</span>Length adjustment</li>
+          <li class="flex items-center gap-2"><span class="material-icons-round mi-sm text-success-600">check_circle</span>Shoulder fitting</li>
+          <li class="flex items-center gap-2"><span class="material-icons-round mi-sm text-success-600">check_circle</span>Design customization</li>
+        </ul>
+      </div>
     </div>
 
-    <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 max-w-4xl mx-auto mt-8">
-      <p class="text-gray-700">
-        <strong>Note:</strong> Prices vary based on complexity of work and fabric type. For custom designs and special requests, please inquire directly.
-      </p>
+    <!-- Note -->
+    <div class="card max-w-4xl mx-auto border-l-4 border-l-primary-500">
+      <div class="flex items-start gap-3">
+        <span class="material-icons-round text-primary-500 mt-0.5">info</span>
+        <p class="text-sm text-gray-600 dark:text-gray-400">
+          <strong class="text-gray-800 dark:text-gray-200">Note:</strong> Prices vary based on complexity of work and fabric type. For custom designs and special requests, please inquire directly.
+        </p>
+      </div>
     </div>
   </div>
 

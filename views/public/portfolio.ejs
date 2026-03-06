@@ -1,89 +1,122 @@
 <!DOCTYPE html>
 <html lang="en">
 <%- include('../partials/head') %>
-<body class="bg-gray-50">
+<body class="bg-gray-50 dark:bg-gray-950 min-h-screen">
   <%- include('../partials/nav-public') %>
 
-  <div class="max-w-7xl mx-auto px-4 py-12">
+  <div class="max-w-7xl mx-auto px-4 py-8 sm:py-12">
     <%- include('../partials/flash') %>
 
-    <div class="text-center mb-12">
-      <h1 class="text-4xl font-bold text-gray-800 mb-4">Our Work</h1>
-      <p class="text-lg text-gray-600">Quality tailoring for every occasion</p>
+    <div class="text-center mb-10">
+      <div class="inline-flex items-center justify-center w-14 h-14 bg-primary-50 dark:bg-primary-500/10 rounded-2xl mb-4">
+        <span class="material-icons-round text-primary-500" style="font-size:28px;">photo_library</span>
+      </div>
+      <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-900 dark:text-white mb-3">Our Work</h1>
+      <p class="text-gray-500 dark:text-gray-400">Quality tailoring for every occasion</p>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto mb-10">
       <!-- Formal Suits -->
-      <div class="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition">
-        <h3 class="text-2xl font-bold text-gray-800 mb-3">👔 Formal Suits</h3>
-        <p class="text-gray-700 mb-4">
-          We specialize in custom-tailored formal suits for weddings, corporate events, and special occasions. Each suit is fitted to your exact measurements with precision stitching and premium fabrics.
+      <div class="card hover:shadow-card-hover">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-12 h-12 bg-primary-50 dark:bg-primary-500/10 rounded-xl flex items-center justify-center">
+            <span class="material-icons-round text-primary-500" style="font-size:24px;">checkroom</span>
+          </div>
+          <h3 class="text-xl font-bold text-gray-800 dark:text-white">Formal Suits</h3>
+        </div>
+        <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+          Custom-tailored formal suits for weddings, corporate events, and special occasions. Precision stitching with premium fabrics.
         </p>
-        <ul class="space-y-2 text-gray-600">
-          <li>✓ Custom fabric selection</li>
-          <li>✓ Perfect body-fit tailoring</li>
-          <li>✓ Lapel and collar styling</li>
-          <li>✓ Button placement and finishing</li>
-        </ul>
+        <div class="space-y-2">
+          <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400"><span class="material-icons-round mi-sm text-success-600">check</span>Custom fabric selection</div>
+          <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400"><span class="material-icons-round mi-sm text-success-600">check</span>Perfect body-fit tailoring</div>
+          <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400"><span class="material-icons-round mi-sm text-success-600">check</span>Lapel and collar styling</div>
+          <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400"><span class="material-icons-round mi-sm text-success-600">check</span>Button placement and finishing</div>
+        </div>
       </div>
 
       <!-- Casual Shirts -->
-      <div class="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition">
-        <h3 class="text-2xl font-bold text-gray-800 mb-3">👕 Casual Shirts</h3>
-        <p class="text-gray-700 mb-4">
-          From everyday wear to special occasions, we tailor shirts for comfort and style. Whether it's sleeve length, tapering, or collar adjustments, we ensure a perfect fit.
+      <div class="card hover:shadow-card-hover">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-12 h-12 bg-accent-50 dark:bg-accent-500/10 rounded-xl flex items-center justify-center">
+            <span class="material-icons-round text-accent-500" style="font-size:24px;">dry_cleaning</span>
+          </div>
+          <h3 class="text-xl font-bold text-gray-800 dark:text-white">Casual Shirts</h3>
+        </div>
+        <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+          From everyday wear to special occasions. Sleeve length, tapering, or collar adjustments - we ensure a perfect fit.
         </p>
-        <ul class="space-y-2 text-gray-600">
-          <li>✓ Sleeve shortening and tapering</li>
-          <li>✓ Waist fitting</li>
-          <li>✓ Collar adjustments</li>
-          <li>✓ Pocket customization</li>
-        </ul>
+        <div class="space-y-2">
+          <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400"><span class="material-icons-round mi-sm text-success-600">check</span>Sleeve shortening and tapering</div>
+          <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400"><span class="material-icons-round mi-sm text-success-600">check</span>Waist fitting</div>
+          <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400"><span class="material-icons-round mi-sm text-success-600">check</span>Collar adjustments</div>
+          <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400"><span class="material-icons-round mi-sm text-success-600">check</span>Pocket customization</div>
+        </div>
       </div>
 
       <!-- Traditional Kurtas -->
-      <div class="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition">
-        <h3 class="text-2xl font-bold text-gray-800 mb-3">🧥 Traditional Kurtas</h3>
-        <p class="text-gray-700 mb-4">
-          Specializing in traditional Indian wear, we create beautifully tailored kurtas with intricate embroidery options and modern cuts that blend tradition with contemporary style.
+      <div class="card hover:shadow-card-hover">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-12 h-12 bg-amber-50 dark:bg-amber-500/10 rounded-xl flex items-center justify-center">
+            <span class="material-icons-round text-amber-600" style="font-size:24px;">style</span>
+          </div>
+          <h3 class="text-xl font-bold text-gray-800 dark:text-white">Traditional Kurtas</h3>
+        </div>
+        <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+          Traditional Indian wear with intricate embroidery options and modern cuts that blend tradition with contemporary style.
         </p>
-        <ul class="space-y-2 text-gray-600">
-          <li>✓ Length customization</li>
-          <li>✓ Embroidery and design work</li>
-          <li>✓ Shoulder and chest fitting</li>
-          <li>✓ Button and trim selection</li>
-        </ul>
+        <div class="space-y-2">
+          <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400"><span class="material-icons-round mi-sm text-success-600">check</span>Length customization</div>
+          <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400"><span class="material-icons-round mi-sm text-success-600">check</span>Embroidery and design work</div>
+          <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400"><span class="material-icons-round mi-sm text-success-600">check</span>Shoulder and chest fitting</div>
+          <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400"><span class="material-icons-round mi-sm text-success-600">check</span>Button and trim selection</div>
+        </div>
       </div>
 
       <!-- Alterations & Repairs -->
-      <div class="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition">
-        <h3 class="text-2xl font-bold text-gray-800 mb-3">🔧 Alterations & Repairs</h3>
-        <p class="text-gray-700 mb-4">
-          Extend the life of your favorite garments with our expert alteration and repair services. From hemming to zipper replacement, we handle all types of clothing maintenance.
+      <div class="card hover:shadow-card-hover">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-12 h-12 bg-success-50 dark:bg-success-500/10 rounded-xl flex items-center justify-center">
+            <span class="material-icons-round text-success-600" style="font-size:24px;">build</span>
+          </div>
+          <h3 class="text-xl font-bold text-gray-800 dark:text-white">Alterations & Repairs</h3>
+        </div>
+        <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+          Extend the life of your favorite garments with our expert alteration and repair services.
         </p>
-        <ul class="space-y-2 text-gray-600">
-          <li>✓ Hemming and shortening</li>
-          <li>✓ Zipper and button replacement</li>
-          <li>✓ Seam repairs and reinforcement</li>
-          <li>✓ Fabric patching and darning</li>
-        </ul>
+        <div class="space-y-2">
+          <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400"><span class="material-icons-round mi-sm text-success-600">check</span>Hemming and shortening</div>
+          <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400"><span class="material-icons-round mi-sm text-success-600">check</span>Zipper and button replacement</div>
+          <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400"><span class="material-icons-round mi-sm text-success-600">check</span>Seam repairs and reinforcement</div>
+          <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400"><span class="material-icons-round mi-sm text-success-600">check</span>Fabric patching and darning</div>
+        </div>
       </div>
     </div>
 
-    <div class="bg-blue-50 border border-blue-200 rounded-lg p-8 max-w-5xl mx-auto mt-12">
-      <h3 class="text-2xl font-bold text-gray-800 mb-4">Why Choose Us?</h3>
+    <!-- Why Choose Us -->
+    <div class="card max-w-5xl mx-auto bg-primary-500 dark:bg-primary-700 text-white">
+      <h3 class="text-xl font-bold mb-6 text-center">Why Choose Us?</h3>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div>
-          <h4 class="font-bold text-gray-800 mb-2">Expert Craftsmanship</h4>
-          <p class="text-gray-700">Years of experience in creating perfectly fitted garments</p>
+        <div class="text-center">
+          <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center mx-auto mb-3">
+            <span class="material-icons-round">workspace_premium</span>
+          </div>
+          <h4 class="font-bold mb-1">Expert Craftsmanship</h4>
+          <p class="text-sm text-white/80">Years of experience in creating perfectly fitted garments</p>
         </div>
-        <div>
-          <h4 class="font-bold text-gray-800 mb-2">Precision Measurements</h4>
-          <p class="text-gray-700">We record your measurements for consistent, perfect fits</p>
+        <div class="text-center">
+          <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center mx-auto mb-3">
+            <span class="material-icons-round">straighten</span>
+          </div>
+          <h4 class="font-bold mb-1">Precision Measurements</h4>
+          <p class="text-sm text-white/80">We record your measurements for consistent, perfect fits</p>
         </div>
-        <div>
-          <h4 class="font-bold text-gray-800 mb-2">Fast Turnaround</h4>
-          <p class="text-gray-700">Quick service without compromising on quality</p>
+        <div class="text-center">
+          <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center mx-auto mb-3">
+            <span class="material-icons-round">bolt</span>
+          </div>
+          <h4 class="font-bold mb-1">Fast Turnaround</h4>
+          <p class="text-sm text-white/80">Quick service without compromising on quality</p>
         </div>
       </div>
     </div>

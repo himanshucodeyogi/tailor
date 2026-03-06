@@ -26,7 +26,8 @@ function parseMeasurement(type, body) {
 router.get('/', async (req, res) => {
   try {
     const { phone } = req.query;
-    let filter = {};
+    const shopId = req.session.shopId;
+    let filter = shopId ? { shop: shopId } : {};
 
     if (phone && phone.trim()) {
       filter.phone = { $regex: phone.replace(/\D/g, ''), $options: 'i' };
@@ -69,8 +70,10 @@ router.post('/', async (req, res) => {
       return res.redirect('/admin/customers/new');
     }
 
-    // Check if phone already exists
-    const existingCustomer = await Customer.findOne({ phone });
+    // Check if phone already exists in this shop
+    const existingFilter = { phone };
+    if (req.session.shopId) existingFilter.shop = req.session.shopId;
+    const existingCustomer = await Customer.findOne(existingFilter);
     if (existingCustomer) {
       req.flash('error', 'Customer with this phone number already exists');
       return res.redirect('/admin/customers/new');
@@ -95,6 +98,7 @@ router.post('/', async (req, res) => {
       phone,
       notes,
       measurements,
+      shop: req.session.shopId,
     });
 
     await customer.save();
@@ -115,7 +119,9 @@ router.post('/', async (req, res) => {
 // GET /admin/customers/:id - View single customer
 router.get('/:id', async (req, res) => {
   try {
-    const customer = await Customer.findById(req.params.id);
+    const findFilter = { _id: req.params.id };
+    if (req.session.shopId) findFilter.shop = req.session.shopId;
+    const customer = await Customer.findOne(findFilter);
 
     if (!customer) {
       req.flash('error', 'Customer not found');
@@ -141,7 +147,9 @@ router.get('/:id', async (req, res) => {
 // GET /admin/customers/:id/edit - Show edit form
 router.get('/:id/edit', async (req, res) => {
   try {
-    const customer = await Customer.findById(req.params.id);
+    const editFilter = { _id: req.params.id };
+    if (req.session.shopId) editFilter.shop = req.session.shopId;
+    const customer = await Customer.findOne(editFilter);
 
     if (!customer) {
       req.flash('error', 'Customer not found');
@@ -164,16 +172,20 @@ router.put('/:id', async (req, res) => {
   try {
     const { name, phone, notes, measurementTypes } = req.body;
 
-    const customer = await Customer.findById(req.params.id);
+    const putFilter = { _id: req.params.id };
+    if (req.session.shopId) putFilter.shop = req.session.shopId;
+    const customer = await Customer.findOne(putFilter);
 
     if (!customer) {
       req.flash('error', 'Customer not found');
       return res.redirect('/admin/customers');
     }
 
-    // Check if phone changed and is unique
+    // Check if phone changed and is unique within shop
     if (phone !== customer.phone) {
-      const existingPhone = await Customer.findOne({ phone });
+      const phoneFilter = { phone };
+      if (req.session.shopId) phoneFilter.shop = req.session.shopId;
+      const existingPhone = await Customer.findOne(phoneFilter);
       if (existingPhone) {
         req.flash('error', 'Phone number already in use by another customer');
         return res.redirect(`/admin/customers/${customer._id}/edit`);
@@ -212,7 +224,9 @@ router.put('/:id', async (req, res) => {
 // DELETE /admin/customers/:id - Delete customer
 router.delete('/:id', async (req, res) => {
   try {
-    const customer = await Customer.findByIdAndDelete(req.params.id);
+    const delFilter = { _id: req.params.id };
+    if (req.session.shopId) delFilter.shop = req.session.shopId;
+    const customer = await Customer.findOneAndDelete(delFilter);
 
     if (!customer) {
       req.flash('error', 'Customer not found');

@@ -1,52 +1,87 @@
-<nav class="bg-white dark:bg-gray-900 shadow-sm border-b border-gray-200 dark:border-gray-700">
-  <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-    <a href="/" class="text-xl sm:text-2xl font-bold text-blue-600 dark:text-blue-400">Tailor Shop</a>
+<nav class="bg-white dark:bg-gray-900 shadow-nav sticky top-0 z-40">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="flex items-center justify-between h-16">
+      <!-- Brand -->
+      <a href="/" class="flex items-center gap-2">
+        <div class="w-9 h-9 bg-primary-500 rounded-lg flex items-center justify-center">
+          <span class="material-icons-round text-white" style="font-size:20px;">content_cut</span>
+        </div>
+        <span class="text-lg font-bold text-gray-800 dark:text-white">Tailor Flow</span>
+      </a>
 
-    <!-- Desktop Navigation -->
-    <div class="hidden md:flex gap-3 lg:gap-6 items-center">
-      <a href="/" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium text-sm lg:text-base"><%= request.path === '/' ? '📍' : '' %> Home</a>
-      <a href="/pricing" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium text-sm lg:text-base"><%= request.path === '/pricing' ? '📍' : '' %> Pricing</a>
-      <a href="/portfolio" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium text-sm lg:text-base"><%= request.path === '/portfolio' ? '📍' : '' %> Portfolio</a>
+      <!-- Desktop Nav -->
+      <div class="hidden md:flex items-center gap-1">
+        <a href="/" class="px-4 py-2 rounded-lg text-sm font-medium <%= typeof request !== 'undefined' && request.path === '/' ? 'bg-primary-50 text-primary-600 dark:bg-primary-500/10 dark:text-primary-300' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800' %>">
+          <span class="material-icons-round mi-sm align-middle mr-1">home</span>Home
+        </a>
+        <a href="/pricing" class="px-4 py-2 rounded-lg text-sm font-medium <%= typeof request !== 'undefined' && request.path === '/pricing' ? 'bg-primary-50 text-primary-600 dark:bg-primary-500/10 dark:text-primary-300' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800' %>">
+          <span class="material-icons-round mi-sm align-middle mr-1">sell</span>Pricing
+        </a>
+        <a href="/portfolio" class="px-4 py-2 rounded-lg text-sm font-medium <%= typeof request !== 'undefined' && request.path === '/portfolio' ? 'bg-primary-50 text-primary-600 dark:bg-primary-500/10 dark:text-primary-300' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800' %>">
+          <span class="material-icons-round mi-sm align-middle mr-1">photo_library</span>Portfolio
+        </a>
 
-      <!-- Divider -->
-      <div class="w-px h-6 bg-gray-300 dark:bg-gray-600"></div>
+        <div class="w-px h-6 bg-gray-200 dark:bg-gray-700 mx-2"></div>
 
-      <!-- Quick Access Links -->
-      <a href="/tailor/login" class="text-teal-600 dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 font-medium text-sm lg:text-base">✂️ Tailor</a>
-      <a href="/admin/login" class="text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 font-medium text-sm lg:text-base">👨‍💼 Admin</a>
+        <a href="/tailor/login" class="px-4 py-2 rounded-lg text-sm font-medium text-accent-600 dark:text-accent-400 hover:bg-accent-50 dark:hover:bg-accent-500/10">
+          <span class="material-icons-round mi-sm align-middle mr-1">content_cut</span>Tailor
+        </a>
+        <a href="/cutting-master/login" class="px-4 py-2 rounded-lg text-sm font-medium text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-500/10">
+          <span class="material-icons-round mi-sm align-middle mr-1">carpenter</span>Cutting Master
+        </a>
+        <a href="/admin/login" class="px-4 py-2 rounded-lg text-sm font-medium text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-500/10">
+          <span class="material-icons-round mi-sm align-middle mr-1">admin_panel_settings</span>Admin
+        </a>
+        <a href="/register" class="btn btn-primary btn-sm ml-2">
+          <span class="material-icons-round mi-sm">app_registration</span>Register Shop
+        </a>
 
-      <button onclick="toggleTheme()" class="p-2 rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-100 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors" aria-label="Toggle theme">
-        <span class="dark:hidden">🌙</span>
-        <span class="hidden dark:inline">☀️</span>
-      </button>
-    </div>
+        <button onclick="toggleTheme()" class="ml-2 p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800" aria-label="Toggle theme">
+          <span class="material-icons-round dark:hidden">dark_mode</span>
+          <span class="material-icons-round hidden dark:inline">light_mode</span>
+        </button>
+      </div>
 
-    <!-- Mobile Menu Button -->
-    <div class="md:hidden flex items-center gap-3">
-      <button onclick="toggleTheme()" class="p-2 rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-100 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors" aria-label="Toggle theme">
-        <span class="dark:hidden">🌙</span>
-        <span class="hidden dark:inline">☀️</span>
-      </button>
-      <button onclick="toggleMobileMenu()" class="p-2 rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-100 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors" aria-label="Toggle menu">
-        <span id="hamburger-icon" class="block">☰</span>
-        <span id="close-icon" class="hidden">✕</span>
-      </button>
+      <!-- Mobile Controls -->
+      <div class="md:hidden flex items-center gap-1">
+        <button onclick="toggleTheme()" class="p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800" aria-label="Toggle theme">
+          <span class="material-icons-round dark:hidden">dark_mode</span>
+          <span class="material-icons-round hidden dark:inline">light_mode</span>
+        </button>
+        <button onclick="toggleMobileMenu()" class="p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800" aria-label="Toggle menu">
+          <span id="hamburger-icon" class="material-icons-round">menu</span>
+          <span id="close-icon" class="material-icons-round hidden">close</span>
+        </button>
+      </div>
     </div>
   </div>
 
   <!-- Mobile Menu -->
-  <div id="mobile-menu" class="hidden md:hidden bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
-    <div class="px-4 py-4 space-y-3">
-      <a href="/" class="block px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-blue-100 dark:hover:bg-gray-700 font-medium text-sm"><%= request.path === '/' ? '📍' : '' %> Home</a>
-      <a href="/pricing" class="block px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-blue-100 dark:hover:bg-gray-700 font-medium text-sm"><%= request.path === '/pricing' ? '📍' : '' %> Pricing</a>
-      <a href="/portfolio" class="block px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-blue-100 dark:hover:bg-gray-700 font-medium text-sm"><%= request.path === '/portfolio' ? '📍' : '' %> Portfolio</a>
-
-      <!-- Divider -->
-      <div class="my-2 border-t border-gray-200 dark:border-gray-700"></div>
-
-      <!-- Quick Access Links -->
-      <a href="/tailor/login" class="block px-4 py-2 rounded-lg text-teal-600 dark:text-teal-400 hover:bg-teal-100 dark:hover:bg-gray-700 font-medium text-sm">✂️ Tailor Portal</a>
-      <a href="/admin/login" class="block px-4 py-2 rounded-lg text-purple-600 dark:text-purple-400 hover:bg-purple-100 dark:hover:bg-gray-700 font-medium text-sm">👨‍💼 Admin Panel</a>
+  <div id="mobile-menu" class="hidden md:hidden border-t border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900">
+    <div class="px-3 py-3 space-y-1">
+      <a href="/" class="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium <%= typeof request !== 'undefined' && request.path === '/' ? 'bg-primary-50 text-primary-600 dark:bg-primary-500/10 dark:text-primary-300' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800' %>">
+        <span class="material-icons-round mi-sm">home</span>Home
+      </a>
+      <a href="/pricing" class="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium <%= typeof request !== 'undefined' && request.path === '/pricing' ? 'bg-primary-50 text-primary-600 dark:bg-primary-500/10 dark:text-primary-300' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800' %>">
+        <span class="material-icons-round mi-sm">sell</span>Pricing
+      </a>
+      <a href="/portfolio" class="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium <%= typeof request !== 'undefined' && request.path === '/portfolio' ? 'bg-primary-50 text-primary-600 dark:bg-primary-500/10 dark:text-primary-300' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800' %>">
+        <span class="material-icons-round mi-sm">photo_library</span>Portfolio
+      </a>
+      <div class="my-2 border-t border-gray-100 dark:border-gray-800"></div>
+      <a href="/tailor/login" class="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-accent-600 dark:text-accent-400 hover:bg-accent-50 dark:hover:bg-accent-500/10">
+        <span class="material-icons-round mi-sm">content_cut</span>Tailor Portal
+      </a>
+      <a href="/cutting-master/login" class="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-500/10">
+        <span class="material-icons-round mi-sm">carpenter</span>Cutting Master Portal
+      </a>
+      <a href="/admin/login" class="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-500/10">
+        <span class="material-icons-round mi-sm">admin_panel_settings</span>Admin Panel
+      </a>
+      <div class="my-2 border-t border-gray-100 dark:border-gray-800"></div>
+      <a href="/register" class="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold bg-primary-500 text-white">
+        <span class="material-icons-round mi-sm">app_registration</span>Register New Shop
+      </a>
     </div>
   </div>
 </nav>
@@ -56,27 +91,15 @@
     const menu = document.getElementById('mobile-menu');
     const hamburger = document.getElementById('hamburger-icon');
     const closeIcon = document.getElementById('close-icon');
-
-    if (menu.classList.contains('hidden')) {
-      menu.classList.remove('hidden');
-      hamburger.classList.add('hidden');
-      closeIcon.classList.remove('hidden');
-    } else {
-      menu.classList.add('hidden');
-      hamburger.classList.remove('hidden');
-      closeIcon.classList.add('hidden');
-    }
+    menu.classList.toggle('hidden');
+    hamburger.classList.toggle('hidden');
+    closeIcon.classList.toggle('hidden');
   }
-
-  // Close mobile menu when a link is clicked
   document.querySelectorAll('#mobile-menu a').forEach(link => {
     link.addEventListener('click', () => {
-      const menu = document.getElementById('mobile-menu');
-      const hamburger = document.getElementById('hamburger-icon');
-      const closeIcon = document.getElementById('close-icon');
-      menu.classList.add('hidden');
-      hamburger.classList.remove('hidden');
-      closeIcon.classList.add('hidden');
+      document.getElementById('mobile-menu').classList.add('hidden');
+      document.getElementById('hamburger-icon').classList.remove('hidden');
+      document.getElementById('close-icon').classList.add('hidden');
     });
   });
 </script>

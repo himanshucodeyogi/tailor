@@ -32,4 +32,21 @@ const redirectTailorIfLoggedIn = (req, res, next) => {
   next();
 };
 
-module.exports = { isAdmin, redirectIfLoggedIn, isTailor, redirectTailorIfLoggedIn };
+// Middleware to protect cutting master routes - check if cutting master is logged in
+const isCuttingMaster = (req, res, next) => {
+  if (req.session && req.session.cuttingMasterId) {
+    return next();
+  }
+  req.flash('error', 'Please login to access cutting master panel');
+  res.redirect('/cutting-master/login');
+};
+
+// Middleware to redirect already logged-in cutting masters away from login page
+const redirectCMIfLoggedIn = (req, res, next) => {
+  if (req.session && req.session.cuttingMasterId) {
+    return res.redirect('/cutting-master/dashboard');
+  }
+  next();
+};
+
+module.exports = { isAdmin, redirectIfLoggedIn, isTailor, redirectTailorIfLoggedIn, isCuttingMaster, redirectCMIfLoggedIn };

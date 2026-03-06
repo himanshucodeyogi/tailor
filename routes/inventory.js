@@ -5,7 +5,8 @@ const Inventory = require('../models/Inventory');
 // GET /admin/inventory - Show inventory list
 router.get('/', async (req, res) => {
   try {
-    const items = await Inventory.find().sort({ itemName: 1 });
+    const invFilter = req.session.shopId ? { shop: req.session.shopId } : {};
+    const items = await Inventory.find(invFilter).sort({ itemName: 1 });
 
     res.render('inventory/index', {
       title: 'Inventory',

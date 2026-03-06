@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Admin = require('../models/Admin');
+const Shop = require('../models/Shop');
 const { redirectIfLoggedIn } = require('../middleware/auth');
 
 // GET /admin/login - Show login form
@@ -11,15 +12,22 @@ router.get('/login', redirectIfLoggedIn, (req, res) => {
 // POST /admin/login - Process login
 router.post('/login', redirectIfLoggedIn, async (req, res) => {
   try {
-    const { username, password } = req.body;
+    const { username, password, shopCode } = req.body;
 
-    if (!username || !password) {
-      req.flash('error', 'Username and password are required');
+    if (!username || !password || !shopCode) {
+      req.flash('error', 'Shop code, username, and password are required');
       return res.redirect('/admin/login');
     }
 
-    // Find admin by username
-    const admin = await Admin.findOne({ username });
+    // Find shop by code
+    const shop = await Shop.findOne({ shopCode: shopCode.trim().toUpperCase() });
+    if (!shop) {
+      req.flash('error', 'Invalid shop code');
+      return res.redirect('/admin/login');
+    }
+
+    // Find admin by username within this shop
+    const admin = await Admin.findOne({ username, shop: shop._id });
 
     if (!admin) {
       req.flash('error', 'Invalid username or password');
@@ -37,6 +45,9 @@ router.post('/login', redirectIfLoggedIn, async (req, res) => {
     // Create session
     req.session.adminId = admin._id;
     req.session.adminUsername = admin.username;
+    req.session.shopId = shop._id;
+    req.session.shopName = shop.shopName;
+    req.session.shopCode = shop.shopCode;
 
     req.flash('success', `Welcome back, ${admin.username}!`);
     res.redirect('/admin/dashboard');

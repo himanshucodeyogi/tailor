@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Tailor = require('../models/Tailor');
+const Shop = require('../models/Shop');
 const { redirectTailorIfLoggedIn } = require('../middleware/auth');
 
 // GET /tailor/login - Show login form
@@ -11,15 +12,22 @@ router.get('/login', redirectTailorIfLoggedIn, (req, res) => {
 // POST /tailor/login - Process login
 router.post('/login', redirectTailorIfLoggedIn, async (req, res) => {
   try {
-    const { username, password } = req.body;
+    const { username, password, shopCode } = req.body;
 
-    if (!username || !password) {
-      req.flash('error', 'Username and password are required');
+    if (!username || !password || !shopCode) {
+      req.flash('error', 'Shop code, username, and password are required');
       return res.redirect('/tailor/login');
     }
 
-    // Find tailor by username
-    const tailor = await Tailor.findOne({ username });
+    // Find shop by code
+    const shop = await Shop.findOne({ shopCode: shopCode.trim().toUpperCase() });
+    if (!shop) {
+      req.flash('error', 'Invalid shop code');
+      return res.redirect('/tailor/login');
+    }
+
+    // Find tailor by username within this shop
+    const tailor = await Tailor.findOne({ username, shop: shop._id });
 
     if (!tailor) {
       req.flash('error', 'Invalid username or password');
@@ -37,6 +45,9 @@ router.post('/login', redirectTailorIfLoggedIn, async (req, res) => {
     // Create session
     req.session.tailorId = tailor._id;
     req.session.tailorName = tailor.name;
+    req.session.shopId = shop._id;
+    req.session.shopName = shop.shopName;
+    req.session.shopCode = shop.shopCode;
 
     req.flash('success', `Welcome, ${tailor.name}!`);
     res.redirect('/tailor/dashboard');

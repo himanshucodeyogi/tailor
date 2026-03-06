@@ -1,0 +1,62 @@
+<nav class="bg-amber-600 dark:bg-gray-900 shadow-nav sticky top-0 z-40">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="flex items-center justify-between h-16">
+      <!-- Brand -->
+      <a href="/cutting-master/dashboard" class="flex items-center gap-2">
+        <div class="w-9 h-9 bg-white/20 rounded-lg flex items-center justify-center">
+          <span class="material-icons-round text-white" style="font-size:20px;">carpenter</span>
+        </div>
+        <span class="text-lg font-bold text-white">Cutting Master</span>
+      </a>
+
+      <!-- Desktop Nav -->
+      <div class="hidden md:flex items-center gap-4">
+        <a href="/cutting-master/dashboard" class="px-4 py-2 rounded-lg text-sm font-medium <%= typeof request !== 'undefined' && request.path === '/cutting-master/dashboard' ? 'bg-white/20 text-white' : 'text-white/80 hover:bg-white/10 hover:text-white' %>">
+          <span class="material-icons-round mi-sm align-middle mr-1">dashboard</span>Dashboard
+        </a>
+        <div class="w-px h-6 bg-white/20"></div>
+        <span class="text-sm text-white/80">Welcome, <strong class="text-white"><%= cmName %></strong></span>
+        <form action="/cutting-master/logout" method="POST" class="inline">
+          <button type="submit" class="px-3 py-2 rounded-lg text-sm font-medium text-white/80 hover:bg-red-500/20 hover:text-white flex items-center gap-1">
+            <span class="material-icons-round mi-sm">logout</span>Logout
+          </button>
+        </form>
+      </div>
+
+      <!-- Mobile -->
+      <div class="md:hidden">
+        <button onclick="toggleCMMenu()" class="p-2 rounded-lg text-white/80 hover:bg-white/10" aria-label="Toggle menu">
+          <span id="cm-hamburger-icon" class="material-icons-round">menu</span>
+          <span id="cm-close-icon" class="material-icons-round hidden">close</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile Menu -->
+  <div id="cm-mobile-menu" class="hidden md:hidden bg-amber-700 dark:bg-gray-800 border-t border-white/10">
+    <div class="px-3 py-3 space-y-1">
+      <a href="/cutting-master/dashboard" class="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-white/80 hover:bg-white/10">
+        <span class="material-icons-round mi-sm">dashboard</span>Dashboard
+      </a>
+      <div class="my-2 border-t border-white/10"></div>
+      <div class="px-4 py-2 text-sm text-white/70">Welcome, <strong class="text-white"><%= cmName %></strong></div>
+      <form action="/cutting-master/logout" method="POST" class="px-4">
+        <button type="submit" class="w-full btn btn-danger btn-sm">
+          <span class="material-icons-round mi-sm">logout</span>Logout
+        </button>
+      </form>
+    </div>
+  </div>
+</nav>
+
+<script>
+  function toggleCMMenu() {
+    const menu = document.getElementById('cm-mobile-menu');
+    const hamburger = document.getElementById('cm-hamburger-icon');
+    const closeIcon = document.getElementById('cm-close-icon');
+    menu.classList.toggle('hidden');
+    hamburger.classList.toggle('hidden');
+    closeIcon.classList.toggle('hidden');
+  }
+</script>

@@ -6,6 +6,11 @@ const flashMiddleware = (req, res, next) => {
   res.locals.adminId = req.session.adminId || null;
   res.locals.tailorId = req.session.tailorId || null;
   res.locals.tailorName = req.session.tailorName || null;
+  res.locals.cuttingMasterId = req.session.cuttingMasterId || null;
+  res.locals.cmName = req.session.cuttingMasterName || null;
+  res.locals.shopId = req.session.shopId || null;
+  res.locals.shopName = req.session.shopName || null;
+  res.locals.shopCode = req.session.shopCode || null;
   next();
 };
 

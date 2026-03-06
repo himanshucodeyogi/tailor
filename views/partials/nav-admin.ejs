@@ -1,43 +1,85 @@
-<nav class="bg-gray-800 text-white shadow-lg">
-  <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-    <a href="/admin/dashboard" class="text-xl sm:text-2xl font-bold">Tailor Admin</a>
+<nav class="bg-primary-500 dark:bg-gray-900 shadow-nav sticky top-0 z-40">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="flex items-center justify-between h-16">
+      <!-- Brand -->
+      <a href="/admin/dashboard" class="flex items-center gap-2">
+        <div class="w-9 h-9 bg-white/20 rounded-lg flex items-center justify-center">
+          <span class="material-icons-round text-white" style="font-size:20px;">admin_panel_settings</span>
+        </div>
+        <div>
+          <span class="text-lg font-bold text-white">Tailor Admin</span>
+          <% if (typeof shopName !== 'undefined' && shopName) { %>
+            <p class="text-xs text-white/60 -mt-1"><%= shopName %> <% if (typeof shopCode !== 'undefined' && shopCode) { %><span class="bg-white/20 px-1.5 py-0.5 rounded text-white/80 ml-1"><%= shopCode %></span><% } %></p>
+          <% } %>
+        </div>
+      </a>
 
-    <!-- Desktop Navigation -->
-    <div class="hidden md:flex gap-4 lg:gap-8 items-center">
-      <a href="/admin/dashboard" class="hover:text-blue-300 font-medium text-sm lg:text-base <%= typeof request !== 'undefined' && request.path === '/admin/dashboard' ? 'border-b-2 border-blue-400 pb-1' : '' %>">Dashboard</a>
-      <a href="/admin/customers" class="hover:text-blue-300 font-medium text-sm lg:text-base <%= typeof request !== 'undefined' && request.path.includes('/customers') ? 'border-b-2 border-blue-400 pb-1' : '' %>">Customers</a>
-      <a href="/admin/orders" class="hover:text-blue-300 font-medium text-sm lg:text-base <%= typeof request !== 'undefined' && request.path.includes('/orders') ? 'border-b-2 border-blue-400 pb-1' : '' %>">Orders</a>
-      <a href="/admin/inventory" class="hover:text-blue-300 font-medium text-sm lg:text-base <%= typeof request !== 'undefined' && request.path.includes('/inventory') ? 'border-b-2 border-blue-400 pb-1' : '' %>">Inventory</a>
-      <a href="/admin/tailors" class="hover:text-blue-300 font-medium text-sm lg:text-base <%= typeof request !== 'undefined' && request.path.includes('/tailors') ? 'border-b-2 border-blue-400 pb-1' : '' %>">Tailors</a>
-      <form action="/admin/logout" method="POST" style="display: inline;">
-        <button type="submit" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded font-medium text-sm">Logout</button>
-      </form>
-    </div>
+      <!-- Desktop Nav -->
+      <div class="hidden md:flex items-center gap-1">
+        <a href="/admin/dashboard" class="px-3 py-2 rounded-lg text-sm font-medium <%= typeof request !== 'undefined' && request.path === '/admin/dashboard' ? 'bg-white/20 text-white' : 'text-white/80 hover:bg-white/10 hover:text-white' %>">
+          <span class="material-icons-round mi-sm align-middle mr-1">dashboard</span>Dashboard
+        </a>
+        <a href="/admin/customers" class="px-3 py-2 rounded-lg text-sm font-medium <%= typeof request !== 'undefined' && request.path.includes('/customers') ? 'bg-white/20 text-white' : 'text-white/80 hover:bg-white/10 hover:text-white' %>">
+          <span class="material-icons-round mi-sm align-middle mr-1">people</span>Customers
+        </a>
+        <a href="/admin/orders" class="px-3 py-2 rounded-lg text-sm font-medium <%= typeof request !== 'undefined' && request.path.includes('/orders') ? 'bg-white/20 text-white' : 'text-white/80 hover:bg-white/10 hover:text-white' %>">
+          <span class="material-icons-round mi-sm align-middle mr-1">receipt_long</span>Orders
+        </a>
+        <a href="/admin/inventory" class="px-3 py-2 rounded-lg text-sm font-medium <%= typeof request !== 'undefined' && request.path.includes('/inventory') ? 'bg-white/20 text-white' : 'text-white/80 hover:bg-white/10 hover:text-white' %>">
+          <span class="material-icons-round mi-sm align-middle mr-1">inventory_2</span>Inventory
+        </a>
+        <a href="/admin/tailors" class="px-3 py-2 rounded-lg text-sm font-medium <%= typeof request !== 'undefined' && request.path.includes('/tailors') ? 'bg-white/20 text-white' : 'text-white/80 hover:bg-white/10 hover:text-white' %>">
+          <span class="material-icons-round mi-sm align-middle mr-1">content_cut</span>Tailors
+        </a>
+        <a href="/admin/cutting-masters" class="px-3 py-2 rounded-lg text-sm font-medium <%= typeof request !== 'undefined' && request.path.includes('/cutting-masters') ? 'bg-white/20 text-white' : 'text-white/80 hover:bg-white/10 hover:text-white' %>">
+          <span class="material-icons-round mi-sm align-middle mr-1">carpenter</span>Cutting Masters
+        </a>
 
-    <!-- Mobile Menu Button -->
-    <div class="md:hidden">
-      <button onclick="toggleAdminMenu()" class="p-2 rounded-lg bg-gray-700 hover:bg-gray-600 transition" aria-label="Toggle menu">
-        <span id="admin-hamburger-icon" class="block text-lg">☰</span>
-        <span id="admin-close-icon" class="hidden text-lg">✕</span>
-      </button>
+        <div class="w-px h-6 bg-white/20 mx-2"></div>
+
+        <form action="/admin/logout" method="POST" class="inline">
+          <button type="submit" class="px-3 py-2 rounded-lg text-sm font-medium text-white/80 hover:bg-red-500/20 hover:text-white flex items-center gap-1">
+            <span class="material-icons-round mi-sm">logout</span>Logout
+          </button>
+        </form>
+      </div>
+
+      <!-- Mobile Menu Button -->
+      <div class="md:hidden">
+        <button onclick="toggleAdminMenu()" class="p-2 rounded-lg text-white/80 hover:bg-white/10" aria-label="Toggle menu">
+          <span id="admin-hamburger-icon" class="material-icons-round">menu</span>
+          <span id="admin-close-icon" class="material-icons-round hidden">close</span>
+        </button>
+      </div>
     </div>
   </div>
 
   <!-- Mobile Menu -->
-  <div id="admin-mobile-menu" class="hidden md:hidden bg-gray-700 border-t border-gray-600">
-    <div class="px-4 py-4 space-y-2">
-      <a href="/admin/dashboard" class="block px-4 py-2 rounded-lg text-white hover:bg-gray-600 font-medium text-sm <%= typeof request !== 'undefined' && request.path === '/admin/dashboard' ? 'bg-gray-600' : '' %>">Dashboard</a>
-      <a href="/admin/customers" class="block px-4 py-2 rounded-lg text-white hover:bg-gray-600 font-medium text-sm <%= typeof request !== 'undefined' && request.path.includes('/customers') ? 'bg-gray-600' : '' %>">Customers</a>
-      <a href="/admin/orders" class="block px-4 py-2 rounded-lg text-white hover:bg-gray-600 font-medium text-sm <%= typeof request !== 'undefined' && request.path.includes('/orders') ? 'bg-gray-600' : '' %>">Orders</a>
-      <a href="/admin/inventory" class="block px-4 py-2 rounded-lg text-white hover:bg-gray-600 font-medium text-sm <%= typeof request !== 'undefined' && request.path.includes('/inventory') ? 'bg-gray-600' : '' %>">Inventory</a>
-      <a href="/admin/tailors" class="block px-4 py-2 rounded-lg text-white hover:bg-gray-600 font-medium text-sm <%= typeof request !== 'undefined' && request.path.includes('/tailors') ? 'bg-gray-600' : '' %>">Tailors</a>
-
-      <!-- Divider -->
-      <div class="my-2 border-t border-gray-600"></div>
-
-      <!-- Logout -->
+  <div id="admin-mobile-menu" class="hidden md:hidden bg-primary-600 dark:bg-gray-800 border-t border-white/10">
+    <div class="px-3 py-3 space-y-1">
+      <a href="/admin/dashboard" class="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium <%= typeof request !== 'undefined' && request.path === '/admin/dashboard' ? 'bg-white/20 text-white' : 'text-white/80 hover:bg-white/10' %>">
+        <span class="material-icons-round mi-sm">dashboard</span>Dashboard
+      </a>
+      <a href="/admin/customers" class="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium <%= typeof request !== 'undefined' && request.path.includes('/customers') ? 'bg-white/20 text-white' : 'text-white/80 hover:bg-white/10' %>">
+        <span class="material-icons-round mi-sm">people</span>Customers
+      </a>
+      <a href="/admin/orders" class="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium <%= typeof request !== 'undefined' && request.path.includes('/orders') ? 'bg-white/20 text-white' : 'text-white/80 hover:bg-white/10' %>">
+        <span class="material-icons-round mi-sm">receipt_long</span>Orders
+      </a>
+      <a href="/admin/inventory" class="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium <%= typeof request !== 'undefined' && request.path.includes('/inventory') ? 'bg-white/20 text-white' : 'text-white/80 hover:bg-white/10' %>">
+        <span class="material-icons-round mi-sm">inventory_2</span>Inventory
+      </a>
+      <a href="/admin/tailors" class="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium <%= typeof request !== 'undefined' && request.path.includes('/tailors') ? 'bg-white/20 text-white' : 'text-white/80 hover:bg-white/10' %>">
+        <span class="material-icons-round mi-sm">content_cut</span>Tailors
+      </a>
+      <a href="/admin/cutting-masters" class="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium <%= typeof request !== 'undefined' && request.path.includes('/cutting-masters') ? 'bg-white/20 text-white' : 'text-white/80 hover:bg-white/10' %>">
+        <span class="material-icons-round mi-sm">carpenter</span>Cutting Masters
+      </a>
+      <div class="my-2 border-t border-white/10"></div>
       <form action="/admin/logout" method="POST" class="px-4">
-        <button type="submit" class="w-full bg-red-600 hover:bg-red-700 px-4 py-2 rounded font-medium text-sm">Logout</button>
+        <button type="submit" class="w-full btn btn-danger btn-sm">
+          <span class="material-icons-round mi-sm">logout</span>Logout
+        </button>
       </form>
     </div>
   </div>
@@ -48,27 +90,15 @@
     const menu = document.getElementById('admin-mobile-menu');
     const hamburger = document.getElementById('admin-hamburger-icon');
     const closeIcon = document.getElementById('admin-close-icon');
-
-    if (menu.classList.contains('hidden')) {
-      menu.classList.remove('hidden');
-      hamburger.classList.add('hidden');
-      closeIcon.classList.remove('hidden');
-    } else {
-      menu.classList.add('hidden');
-      hamburger.classList.remove('hidden');
-      closeIcon.classList.add('hidden');
-    }
+    menu.classList.toggle('hidden');
+    hamburger.classList.toggle('hidden');
+    closeIcon.classList.toggle('hidden');
   }
-
-  // Close mobile menu when a link is clicked
   document.querySelectorAll('#admin-mobile-menu a').forEach(link => {
     link.addEventListener('click', () => {
-      const menu = document.getElementById('admin-mobile-menu');
-      const hamburger = document.getElementById('admin-hamburger-icon');
-      const closeIcon = document.getElementById('admin-close-icon');
-      menu.classList.add('hidden');
-      hamburger.classList.remove('hidden');
-      closeIcon.classList.add('hidden');
+      document.getElementById('admin-mobile-menu').classList.add('hidden');
+      document.getElementById('admin-hamburger-icon').classList.remove('hidden');
+      document.getElementById('admin-close-icon').classList.add('hidden');
     });
   });
 </script>

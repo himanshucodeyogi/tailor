@@ -1,63 +1,54 @@
 <!DOCTYPE html>
 <html lang="en">
 <%- include('../partials/head') %>
-<body class="bg-gray-50">
+<body class="bg-gray-50 dark:bg-gray-950 min-h-screen">
   <%- include('../partials/nav-admin') %>
 
-  <div class="max-w-4xl mx-auto px-4 py-8">
+  <div class="max-w-4xl mx-auto px-4 py-6 sm:py-8">
     <%- include('../partials/flash') %>
 
-    <h1 class="text-3xl font-bold text-gray-800 mb-8">Edit Customer</h1>
+    <a href="/admin/customers/<%= customer._id %>" class="btn btn-ghost btn-sm mb-4">
+      <span class="material-icons-round mi-sm">arrow_back</span>Back to Customer
+    </a>
 
-    <div class="bg-white rounded-lg shadow p-8">
+    <div class="flex items-center gap-3 mb-6">
+      <span class="material-icons-round text-accent-500 mi-xl">edit</span>
+      <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-800 dark:text-white">Edit Customer</h1>
+    </div>
+
+    <div class="card">
       <form action="/admin/customers/<%= customer._id %>?_method=PUT" method="POST" class="space-y-6" onsubmit="logFormData(event)">
-        <!-- Name -->
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">Customer Name *</label>
-          <input
-            type="text"
-            name="name"
-            placeholder="Enter customer name"
-            value="<%= customer.name %>"
-            class="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          />
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+          <div>
+            <label class="form-label">Customer Name *</label>
+            <div class="relative">
+              <span class="absolute left-3 top-1/2 -translate-y-1/2 material-icons-round mi-sm text-gray-400">person</span>
+              <input type="text" name="name" value="<%= customer.name %>" class="form-input pl-10" required />
+            </div>
+          </div>
+          <div>
+            <label class="form-label">Phone Number *</label>
+            <div class="relative">
+              <span class="absolute left-3 top-1/2 -translate-y-1/2 material-icons-round mi-sm text-gray-400">phone</span>
+              <input type="text" name="phone" value="<%= customer.phone %>" class="form-input pl-10" required />
+            </div>
+          </div>
         </div>
 
-        <!-- Phone -->
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">Phone Number *</label>
-          <input
-            type="text"
-            name="phone"
-            placeholder="10-15 digits (e.g., 9876543210)"
-            value="<%= customer.phone %>"
-            class="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          />
-        </div>
-
-        <!-- Notes -->
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">Notes</label>
-          <textarea
-            name="notes"
-            placeholder="Any special notes about the customer..."
-            rows="3"
-            class="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          ><%= customer.notes %></textarea>
+          <label class="form-label">Notes</label>
+          <textarea name="notes" rows="3" class="form-input"><%= customer.notes %></textarea>
         </div>
 
         <!-- Measurements -->
-        <div class="bg-blue-50 border border-blue-200 rounded p-6">
-          <div class="flex justify-between items-center mb-4">
-            <h3 class="text-lg font-bold text-gray-800">Measurements (in inches)</h3>
-            <button
-              type="button"
-              onclick="addMeasurementType()"
-              class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm font-semibold"
-            >
-              + Add Measurement Type
+        <div class="bg-primary-50 dark:bg-primary-500/5 border border-primary-100 dark:border-primary-500/10 rounded-xl p-4 sm:p-6">
+          <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-4">
+            <div class="flex items-center gap-2">
+              <span class="material-icons-round text-primary-500">straighten</span>
+              <h3 class="font-bold text-gray-800 dark:text-white">Measurements (inches)</h3>
+            </div>
+            <button type="button" onclick="addMeasurementType()" class="btn btn-success btn-sm w-full sm:w-auto">
+              <span class="material-icons-round mi-sm">add</span>Add Measurement Type
             </button>
           </div>
           <div id="measurementsContainer">
@@ -90,9 +81,9 @@
                   const mType = measurement.type;
                   const editFields = FIELDS_FOR_TYPE[mType] || Object.keys(FIELD_LABELS);
                 %>
-                <div class="measurement-type-block bg-blue-50 border border-blue-200 rounded p-4 mb-4" id="existing-block-<%= index %>">
+                <div class="measurement-type-block bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 mb-4" id="existing-block-<%= index %>">
                   <div class="flex justify-between items-center mb-4">
-                    <select name="measurementTypes" class="measurement-type-select border border-gray-300 rounded px-3 py-2 font-semibold" required>
+                    <select name="measurementTypes" class="measurement-type-select form-input w-auto" required>
                       <option value="">Select Type</option>
                       <option value="pant" <%= mType === 'pant' ? 'selected' : '' %>>Pant</option>
                       <option value="shirt" <%= mType === 'shirt' ? 'selected' : '' %>>Shirt</option>
@@ -105,42 +96,34 @@
                       <option value="saree" <%= mType === 'saree' ? 'selected' : '' %>>Saree</option>
                       <option value="other" <%= mType === 'other' ? 'selected' : '' %>>Other</option>
                     </select>
-                    <button type="button" onclick="removeMeasurementType('existing-block-<%= index %>')" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm">
-                      Remove
+                    <button type="button" onclick="removeMeasurementType('existing-block-<%= index %>')" class="btn btn-danger btn-sm">
+                      <span class="material-icons-round mi-sm">close</span>Remove
                     </button>
                   </div>
-
                   <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
                     <% editFields.forEach((field) => { %>
                       <div>
-                        <label class="block text-xs font-medium text-gray-700 mb-1"><%= FIELD_LABELS[field] || field %></label>
-                        <input type="number" name="<%= field %>_<%= mType %>" placeholder="<%= FIELD_LABELS[field] || field %>" step="0.5" value="<%= measurement[field] || '' %>" class="w-full border border-gray-300 rounded px-2 py-1 text-sm" />
+                        <label class="form-label text-xs"><%= FIELD_LABELS[field] || field %></label>
+                        <input type="number" name="<%= field %>_<%= mType %>" step="0.5" value="<%= measurement[field] || '' %>" class="form-input text-sm" placeholder="<%= FIELD_LABELS[field] %>" />
                       </div>
                     <% }); %>
                     <div class="col-span-2 md:col-span-1">
-                      <label class="block text-xs font-medium text-gray-700 mb-1">Notes</label>
-                      <input type="text" name="notes_<%= mType %>" placeholder="Notes" value="<%= measurement.notes || '' %>" class="w-full border border-gray-300 rounded px-2 py-1 text-sm" />
+                      <label class="form-label text-xs">Notes</label>
+                      <input type="text" name="notes_<%= mType %>" value="<%= measurement.notes || '' %>" class="form-input text-sm" placeholder="Notes" />
                     </div>
                   </div>
                 </div>
               <% }); %>
             <% } %>
           </div>
-          <p class="text-sm text-gray-600 mt-2">Click "Add Measurement Type" to add measurements for different garments</p>
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">Click "Add Measurement Type" to add measurements for different garments</p>
         </div>
 
-        <!-- Buttons -->
-        <div class="flex gap-4">
-          <button
-            type="submit"
-            onclick="return validateMeasurements()"
-            class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded"
-          >
-            Update Customer
+        <div class="flex flex-col sm:flex-row gap-3 pt-4 border-t border-gray-100 dark:border-gray-800">
+          <button type="submit" onclick="return validateMeasurements()" class="btn btn-primary btn-lg flex-1 sm:flex-none">
+            <span class="material-icons-round mi-sm">save</span>Update Customer
           </button>
-          <a href="/admin/customers/<%= customer._id %>" class="bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2 px-6 rounded">
-            Cancel
-          </a>
+          <a href="/admin/customers/<%= customer._id %>" class="btn btn-outline btn-lg flex-1 sm:flex-none text-center">Cancel</a>
         </div>
       </form>
     </div>

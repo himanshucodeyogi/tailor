@@ -1,113 +1,89 @@
 <!DOCTYPE html>
 <html lang="en">
 <%- include('../../partials/head') %>
-<body class="bg-gray-50 dark:bg-gray-900">
+<body class="bg-gray-50 dark:bg-gray-950 min-h-screen">
   <%- include('../../partials/nav-admin') %>
 
-  <div class="max-w-5xl mx-auto px-3 sm:px-4 py-6 sm:py-12">
+  <div class="max-w-5xl mx-auto px-4 py-6 sm:py-8">
     <%- include('../../partials/flash') %>
 
-    <!-- Header -->
-    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
-      <h1 class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white">Manage Tailors</h1>
-      <a href="/admin/tailors/new" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 sm:px-6 rounded-lg transition text-sm sm:text-base w-full sm:w-auto text-center">
-        + Create Tailor
+    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-6">
+      <div class="flex items-center gap-3">
+        <span class="material-icons-round text-accent-500 mi-xl">content_cut</span>
+        <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-800 dark:text-white">Tailors</h1>
+      </div>
+      <a href="/admin/tailors/new" class="btn btn-primary w-full sm:w-auto">
+        <span class="material-icons-round mi-sm">person_add</span>Create Tailor
       </a>
     </div>
 
-    <!-- Tailors Table/Cards -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
-      <% if (tailors.length === 0) { %>
-        <div class="p-6 sm:p-8 text-center">
-          <p class="text-gray-500 dark:text-gray-400 text-base sm:text-lg">No tailors created yet</p>
-          <a href="/admin/tailors/new" class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium mt-3 sm:mt-4 inline-block text-sm">
-            Create your first tailor →
-          </a>
-        </div>
-      <% } else { %>
-        <!-- Desktop Table -->
-        <div class="hidden sm:block">
-          <table class="w-full text-left text-sm">
-            <thead class="bg-gray-100 dark:bg-gray-700 border-b-2 border-gray-200 dark:border-gray-600">
-              <tr>
-                <th class="px-6 py-4 font-semibold text-gray-700 dark:text-gray-300">Name</th>
-                <th class="px-6 py-4 font-semibold text-gray-700 dark:text-gray-300">Username</th>
-                <th class="px-6 py-4 font-semibold text-gray-700 dark:text-gray-300">Created</th>
-                <th class="px-6 py-4 font-semibold text-gray-700 dark:text-gray-300">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <% tailors.forEach((tailor) => { %>
-                <tr class="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
-                  <td class="px-6 py-4">
-                    <p class="font-semibold text-gray-800 dark:text-white"><%= tailor.name %></p>
-                  </td>
-                  <td class="px-6 py-4 text-gray-700 dark:text-gray-300">
-                    <code class="bg-gray-100 dark:bg-gray-600 px-2 py-1 rounded text-xs"><%= tailor.username %></code>
-                  </td>
-                  <td class="px-6 py-4 text-gray-700 dark:text-gray-300">
-                    <%= new Date(tailor.createdAt).toLocaleDateString() %>
-                  </td>
-                  <td class="px-6 py-4">
-                    <form action="/admin/tailors/<%= tailor._id %>?_method=DELETE" method="POST" class="inline">
-                      <button
-                        type="submit"
-                        onclick="return confirm('Delete this tailor? This action cannot be undone.')"
-                        class="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 font-medium transition text-sm"
-                      >
-                        Delete
-                      </button>
-                    </form>
-                  </td>
-                </tr>
-              <% }) %>
-            </tbody>
-          </table>
-        </div>
-
-        <!-- Mobile Cards -->
-        <div class="sm:hidden">
-          <div class="divide-y divide-gray-200 dark:divide-gray-700">
+    <% if (tailors.length === 0) { %>
+      <div class="card text-center py-10">
+        <span class="material-icons-round text-gray-300 dark:text-gray-600" style="font-size:48px;">content_cut</span>
+        <p class="text-gray-400 mt-2">No tailors created yet</p>
+        <a href="/admin/tailors/new" class="btn btn-primary btn-sm mt-3">Create First Tailor</a>
+      </div>
+    <% } else { %>
+      <!-- Desktop Table -->
+      <div class="hidden sm:block card p-0 overflow-hidden">
+        <table class="data-table">
+          <thead><tr><th class="pl-6">Name</th><th>Username</th><th>Created</th><th>Actions</th></tr></thead>
+          <tbody>
             <% tailors.forEach((tailor) => { %>
-              <div class="p-4 space-y-3">
-                <div class="flex justify-between items-start gap-2">
-                  <div>
-                    <p class="text-xs text-gray-500 dark:text-gray-400">Name</p>
-                    <p class="font-semibold text-gray-800 dark:text-white"><%= tailor.name %></p>
+              <tr>
+                <td class="pl-6">
+                  <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 bg-accent-50 dark:bg-accent-500/10 rounded-full flex items-center justify-center">
+                      <span class="material-icons-round mi-sm text-accent-500">content_cut</span>
+                    </div>
+                    <span class="font-semibold text-gray-800 dark:text-white"><%= tailor.name %></span>
                   </div>
-                  <form action="/admin/tailors/<%= tailor._id %>?_method=DELETE" method="POST" class="inline">
-                    <button
-                      type="submit"
-                      onclick="return confirm('Delete this tailor?')"
-                      class="text-red-600 hover:text-red-800 font-medium text-xs"
-                    >
-                      Delete
+                </td>
+                <td><code class="bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded text-xs"><%= tailor.username %></code></td>
+                <td class="text-xs text-gray-500"><%= new Date(tailor.createdAt).toLocaleDateString() %></td>
+                <td>
+                  <form action="/admin/tailors/<%= tailor._id %>?_method=DELETE" method="POST" style="display:inline;" onsubmit="return confirm('Delete this tailor?');">
+                    <button type="submit" class="btn btn-ghost btn-sm" style="color:#D32F2F;">
+                      <span class="material-icons-round mi-sm">delete</span>Delete
                     </button>
                   </form>
-                </div>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
 
-                <div class="grid grid-cols-2 gap-2 text-xs">
-                  <div>
-                    <p class="text-gray-500 dark:text-gray-400">Username</p>
-                    <p class="font-mono bg-gray-100 dark:bg-gray-600 px-2 py-1 rounded text-xs dark:text-white"><%= tailor.username %></p>
-                  </div>
-                  <div>
-                    <p class="text-gray-500 dark:text-gray-400">Created</p>
-                    <p class="dark:text-white"><%= new Date(tailor.createdAt).toLocaleDateString() %></p>
-                  </div>
+      <!-- Mobile Cards -->
+      <div class="sm:hidden space-y-3">
+        <% tailors.forEach((tailor) => { %>
+          <div class="card">
+            <div class="flex justify-between items-start mb-2">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-accent-50 dark:bg-accent-500/10 rounded-full flex items-center justify-center">
+                  <span class="material-icons-round text-accent-500">content_cut</span>
+                </div>
+                <div>
+                  <p class="font-semibold text-gray-800 dark:text-white"><%= tailor.name %></p>
+                  <code class="text-xs text-gray-500"><%= tailor.username %></code>
                 </div>
               </div>
-            <% }) %>
+              <form action="/admin/tailors/<%= tailor._id %>?_method=DELETE" method="POST" onsubmit="return confirm('Delete?');">
+                <button type="submit" class="btn btn-danger btn-sm"><span class="material-icons-round mi-sm">delete</span></button>
+              </form>
+            </div>
           </div>
-        </div>
-      <% } %>
-    </div>
+        <% }) %>
+      </div>
+    <% } %>
 
-    <!-- Info Box -->
-    <div class="bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-700 rounded-lg p-4 sm:p-6 mt-6 sm:mt-8">
-      <p class="text-blue-800 dark:text-blue-200 text-xs sm:text-base">
-        <strong>ℹ️ Tip:</strong> After creating a tailor, share the username and password with them. They can log in at <code class="bg-blue-100 dark:bg-blue-800 px-2 py-1 rounded text-xs">/tailor/login</code> to start managing orders.
-      </p>
+    <div class="card mt-6 border-l-4 border-l-primary-500">
+      <div class="flex items-start gap-3">
+        <span class="material-icons-round text-primary-500 mt-0.5">info</span>
+        <p class="text-sm text-gray-600 dark:text-gray-400">
+          After creating a tailor, share the username and password with them. They can log in at <code class="bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded text-xs">/tailor/login</code> to manage orders.
+        </p>
+      </div>
     </div>
   </div>
 

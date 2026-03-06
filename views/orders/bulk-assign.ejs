@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('../partials/head') %>
+<body class="bg-gray-50 dark:bg-gray-950 min-h-screen">
+  <%- include('../partials/nav-admin') %>
+
+  <div class="max-w-6xl mx-auto px-4 py-6 sm:py-8">
+    <%- include('../partials/flash') %>
+
+    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-6">
+      <div class="flex items-center gap-3">
+        <span class="material-icons-round mi-xl text-primary-500">assignment_ind</span>
+        <div>
+          <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-800 dark:text-white">Bulk Assign</h1>
+          <p class="text-sm text-gray-500 dark:text-gray-400">Assign cutting masters to multiple orders at once</p>
+        </div>
+      </div>
+      <a href="/admin/orders" class="btn btn-outline btn-sm">
+        <span class="material-icons-round mi-sm">arrow_back</span>Back to Orders
+      </a>
+    </div>
+
+    <!-- Cutting Master Selection -->
+    <div class="card mb-6">
+      <div class="flex items-center gap-2 mb-4">
+        <span class="material-icons-round" style="color:#F57C00;">carpenter</span>
+        <h3 class="font-bold text-gray-800 dark:text-white">Select Cutting Master</h3>
+      </div>
+      <% if (cuttingMasters.length === 0) { %>
+        <div class="text-center py-4">
+          <p class="text-gray-400">No cutting masters available. <a href="/admin/cutting-masters/new" class="text-primary-500 underline">Create one first</a>.</p>
+        </div>
+      <% } else { %>
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+          <% cuttingMasters.forEach((cm) => { %>
+            <button type="button" onclick="selectCM('<%= cm._id %>', '<%= cm.name %>')"
+              id="cm-<%= cm._id %>"
+              class="cm-btn px-4 py-3 rounded-lg border-2 border-gray-200 dark:border-gray-700 text-left font-semibold text-sm transition-all hover:border-primary-400 flex items-center gap-2">
+              <div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style="background:rgba(245,124,0,0.1);">
+                <span class="material-icons-round mi-sm" style="color:#F57C00;">carpenter</span>
+              </div>
+              <span class="text-gray-700 dark:text-gray-300 truncate"><%= cm.name %></span>
+            </button>
+          <% }) %>
+        </div>
+      <% } %>
+    </div>
+
+    <!-- Orders List -->
+    <div class="card">
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-2">
+          <span class="material-icons-round text-primary-500">receipt_long</span>
+          <h3 class="font-bold text-gray-800 dark:text-white">Unassigned Orders</h3>
+          <span class="text-xs text-gray-400">(<span id="selectedCount">0</span> selected)</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <button type="button" onclick="toggleSelectAll()" class="btn btn-ghost btn-sm" id="selectAllBtn">
+            <span class="material-icons-round mi-sm">select_all</span>Select All
+          </button>
+          <button type="button" onclick="handleBulkAssign()" class="btn btn-primary btn-sm" id="assignBtn" disabled>
+            <span class="material-icons-round mi-sm">assignment_ind</span>Assign Selected
+          </button>
+        </div>
+      </div>
+
+      <% if (orders.length === 0) { %>
+        <div class="text-center py-8">
+          <span class="material-icons-round text-gray-300 dark:text-gray-600" style="font-size:48px;">check_circle</span>
+          <p class="text-gray-400 mt-2">All orders are assigned to cutting masters</p>
+        </div>
+      <% } else { %>
+        <!-- Desktop Table -->
+        <div class="hidden sm:block overflow-x-auto">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th class="pl-4 w-10"><input type="checkbox" id="headerCheckbox" onchange="toggleSelectAll()" class="w-4 h-4 rounded" /></th>
+                <th>Order #</th>
+                <th>Customer</th>
+                <th>Garment</th>
+                <th>Status</th>
+                <th>Due Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% orders.forEach((order) => { %>
+                <tr class="order-row" data-id="<%= order._id %>">
+                  <td class="pl-4"><input type="checkbox" class="order-checkbox w-4 h-4 rounded" value="<%= order._id %>" onchange="updateSelection()" /></td>
+                  <td class="font-mono font-bold"><%= order.orderNumber %></td>
+                  <td><%= order.customer ? order.customer.name : 'N/A' %></td>
+                  <td><%= order.garmentType %></td>
+                  <td>
+                    <span class="badge
+                      <%= order.status === 'Order Placed' ? 'badge-placed' : '' %>
+                      <%= order.status === 'Cutting' ? 'badge-cutting' : '' %>
+                      <%= order.status === 'In Stitching' ? 'badge-stitching' : '' %>
+                      <%= order.status === 'Final Touches' ? 'badge-touches' : '' %>
+                      <%= order.status === 'Ready for Pickup' ? 'badge-ready' : '' %>
+                    "><%= order.status %></span>
+                  </td>
+                  <td class="text-sm"><%= order.dueDate ? new Date(order.dueDate).toLocaleDateString() : '-' %></td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Mobile Cards -->
+        <div class="sm:hidden space-y-2">
+          <% orders.forEach((order) => { %>
+            <label class="block bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-lg p-4 cursor-pointer">
+              <div class="flex items-start gap-3">
+                <input type="checkbox" class="order-checkbox w-4 h-4 rounded mt-1" value="<%= order._id %>" onchange="updateSelection()" />
+                <div class="flex-1">
+                  <div class="flex justify-between items-start">
+                    <div>
+                      <p class="font-mono font-bold text-sm text-gray-800 dark:text-white">#<%= order.orderNumber %></p>
+                      <p class="text-xs text-gray-500"><%= order.customer ? order.customer.name : 'N/A' %></p>
+                    </div>
+                    <span class="badge text-xs
+                      <%= order.status === 'Order Placed' ? 'badge-placed' : '' %>
+                      <%= order.status === 'Cutting' ? 'badge-cutting' : '' %>
+                      <%= order.status === 'In Stitching' ? 'badge-stitching' : '' %>
+                      <%= order.status === 'Final Touches' ? 'badge-touches' : '' %>
+                      <%= order.status === 'Ready for Pickup' ? 'badge-ready' : '' %>
+                    "><%= order.status %></span>
+                  </div>
+                  <div class="flex justify-between text-xs text-gray-400 mt-1">
+                    <span><%= order.garmentType %></span>
+                    <span><%= order.dueDate ? new Date(order.dueDate).toLocaleDateString() : 'No due date' %></span>
+                  </div>
+                </div>
+              </div>
+            </label>
+          <% }) %>
+        </div>
+      <% } %>
+    </div>
+  </div>
+
+  <script>
+    let selectedCMId = null;
+    let selectedCMName = '';
+
+    function selectCM(cmId, cmName) {
+      document.querySelectorAll('.cm-btn').forEach(btn => {
+        btn.classList.remove('border-primary-500', 'bg-primary-50', 'dark:bg-primary-900/20');
+        btn.classList.add('border-gray-200', 'dark:border-gray-700');
+      });
+      const btn = document.getElementById('cm-' + cmId);
+      btn.classList.remove('border-gray-200', 'dark:border-gray-700');
+      btn.classList.add('border-primary-500', 'bg-primary-50', 'dark:bg-primary-900/20');
+      selectedCMId = cmId;
+      selectedCMName = cmName;
+      updateAssignButton();
+    }
+
+    function updateSelection() {
+      const checked = document.querySelectorAll('.order-checkbox:checked');
+      document.getElementById('selectedCount').textContent = checked.length;
+      updateAssignButton();
+    }
+
+    function updateAssignButton() {
+      const checked = document.querySelectorAll('.order-checkbox:checked');
+      const btn = document.getElementById('assignBtn');
+      btn.disabled = !selectedCMId || checked.length === 0;
+    }
+
+    function toggleSelectAll() {
+      const checkboxes = document.querySelectorAll('.order-checkbox');
+      const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+      checkboxes.forEach(cb => cb.checked = !allChecked);
+      const header = document.getElementById('headerCheckbox');
+      if (header) header.checked = !allChecked;
+      updateSelection();
+    }
+
+    async function handleBulkAssign() {
+      const checked = document.querySelectorAll('.order-checkbox:checked');
+      const orderIds = Array.from(checked).map(cb => cb.value);
+
+      if (!selectedCMId || orderIds.length === 0) return;
+      if (!confirm(`Assign ${orderIds.length} order(s) to ${selectedCMName}?`)) return;
+
+      try {
+        const response = await fetch('/admin/orders/bulk-assign', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ orderIds, cuttingMasterId: selectedCMId }),
+        });
+        const result = await response.json();
+        if (result.success) {
+          location.reload();
+        } else {
+          alert('Error: ' + (result.error || 'Unknown error'));
+        }
+      } catch (error) {
+        alert('Failed to assign orders');
+      }
+    }
+  </script>
+
+  <%- include('../partials/footer') %>
+</body>
+</html>

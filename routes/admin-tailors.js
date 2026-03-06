@@ -6,7 +6,8 @@ const bcryptjs = require('bcryptjs');
 // GET /admin/tailors - List all tailors
 router.get('/', async (req, res) => {
   try {
-    const tailors = await Tailor.find().sort({ createdAt: -1 });
+    const tFilter = req.session.shopId ? { shop: req.session.shopId } : {};
+    const tailors = await Tailor.find(tFilter).sort({ createdAt: -1 });
 
     res.render('admin/tailors/index', {
       title: 'Manage Tailors',
@@ -45,8 +46,10 @@ router.post('/', async (req, res) => {
       return res.redirect('/admin/tailors/new');
     }
 
-    // Check if username already exists
-    const existingTailor = await Tailor.findOne({ username });
+    // Check if username already exists in this shop
+    const existFilter = { username };
+    if (req.session.shopId) existFilter.shop = req.session.shopId;
+    const existingTailor = await Tailor.findOne(existFilter);
     if (existingTailor) {
       req.flash('error', 'Username already exists');
       return res.redirect('/admin/tailors/new');
@@ -61,6 +64,7 @@ router.post('/', async (req, res) => {
       username,
       name,
       passwordHash: hashedPassword,
+      shop: req.session.shopId,
     });
 
     await tailor.save();
@@ -83,7 +87,9 @@ router.post('/', async (req, res) => {
 // DELETE /admin/tailors/:id - Delete a tailor
 router.delete('/:id', async (req, res) => {
   try {
-    const tailor = await Tailor.findByIdAndDelete(req.params.id);
+    const delFilter = { _id: req.params.id };
+    if (req.session.shopId) delFilter.shop = req.session.shopId;
+    const tailor = await Tailor.findOneAndDelete(delFilter);
 
     if (!tailor) {
       req.flash('error', 'Tailor not found');

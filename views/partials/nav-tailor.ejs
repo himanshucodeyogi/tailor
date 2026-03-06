@@ -1,62 +1,49 @@
-<nav class="bg-gradient-to-r from-teal-600 to-cyan-600 text-white shadow-lg">
-  <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-    <!-- Brand -->
-    <a href="/tailor/dashboard" class="text-xl sm:text-2xl font-bold">✂ Tailor</a>
-
-    <!-- Desktop Navigation -->
-    <div class="hidden md:flex space-x-8">
-      <a
-        href="/tailor/dashboard"
-        class="<%= request.path === '/tailor/dashboard' ? 'border-b-2 border-white' : 'hover:text-gray-200' %> pb-2 transition text-sm lg:text-base"
-      >
-        Dashboard
+<nav class="bg-accent-500 dark:bg-gray-900 shadow-nav sticky top-0 z-40">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="flex items-center justify-between h-16">
+      <!-- Brand -->
+      <a href="/tailor/dashboard" class="flex items-center gap-2">
+        <div class="w-9 h-9 bg-white/20 rounded-lg flex items-center justify-center">
+          <span class="material-icons-round text-white" style="font-size:20px;">content_cut</span>
+        </div>
+        <span class="text-lg font-bold text-white">Tailor Panel</span>
       </a>
-    </div>
 
-    <!-- Desktop: Right: User & Logout -->
-    <div class="hidden md:flex items-center space-x-6">
-      <span class="text-sm lg:text-base">
-        Welcome, <strong><%= tailorName %></strong>
-      </span>
-      <form action="/tailor/logout" method="POST" class="inline">
-        <button
-          type="submit"
-          class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-medium transition text-sm"
-        >
-          Logout
+      <!-- Desktop Nav -->
+      <div class="hidden md:flex items-center gap-4">
+        <a href="/tailor/dashboard" class="px-4 py-2 rounded-lg text-sm font-medium <%= typeof request !== 'undefined' && request.path === '/tailor/dashboard' ? 'bg-white/20 text-white' : 'text-white/80 hover:bg-white/10 hover:text-white' %>">
+          <span class="material-icons-round mi-sm align-middle mr-1">dashboard</span>Dashboard
+        </a>
+        <div class="w-px h-6 bg-white/20"></div>
+        <span class="text-sm text-white/80">Welcome, <strong class="text-white"><%= tailorName %></strong></span>
+        <form action="/tailor/logout" method="POST" class="inline">
+          <button type="submit" class="px-3 py-2 rounded-lg text-sm font-medium text-white/80 hover:bg-red-500/20 hover:text-white flex items-center gap-1">
+            <span class="material-icons-round mi-sm">logout</span>Logout
+          </button>
+        </form>
+      </div>
+
+      <!-- Mobile -->
+      <div class="md:hidden">
+        <button onclick="toggleTailorMenu()" class="p-2 rounded-lg text-white/80 hover:bg-white/10" aria-label="Toggle menu">
+          <span id="tailor-hamburger-icon" class="material-icons-round">menu</span>
+          <span id="tailor-close-icon" class="material-icons-round hidden">close</span>
         </button>
-      </form>
-    </div>
-
-    <!-- Mobile Menu Button -->
-    <div class="md:hidden flex items-center gap-2">
-      <button onclick="toggleTailorMenu()" class="p-2 rounded-lg bg-white bg-opacity-20 hover:bg-opacity-30 transition" aria-label="Toggle menu">
-        <span id="tailor-hamburger-icon" class="block text-lg">☰</span>
-        <span id="tailor-close-icon" class="hidden text-lg">✕</span>
-      </button>
+      </div>
     </div>
   </div>
 
   <!-- Mobile Menu -->
-  <div id="tailor-mobile-menu" class="hidden md:hidden bg-teal-700 border-t border-teal-500">
-    <div class="px-4 py-4 space-y-3">
-      <a href="/tailor/dashboard" class="block px-4 py-2 rounded-lg text-white hover:bg-teal-600 font-medium text-sm"><%= request.path === '/tailor/dashboard' ? '✓' : '' %> Dashboard</a>
-
-      <!-- Divider -->
-      <div class="my-2 border-t border-teal-500"></div>
-
-      <!-- User Info -->
-      <div class="px-4 py-2 text-sm">
-        <p class="text-teal-100">Welcome, <strong><%= tailorName %></strong></p>
-      </div>
-
-      <!-- Logout -->
+  <div id="tailor-mobile-menu" class="hidden md:hidden bg-accent-600 dark:bg-gray-800 border-t border-white/10">
+    <div class="px-3 py-3 space-y-1">
+      <a href="/tailor/dashboard" class="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-white/80 hover:bg-white/10">
+        <span class="material-icons-round mi-sm">dashboard</span>Dashboard
+      </a>
+      <div class="my-2 border-t border-white/10"></div>
+      <div class="px-4 py-2 text-sm text-white/70">Welcome, <strong class="text-white"><%= tailorName %></strong></div>
       <form action="/tailor/logout" method="POST" class="px-4">
-        <button
-          type="submit"
-          class="w-full bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-medium transition text-sm"
-        >
-          Logout
+        <button type="submit" class="w-full btn btn-danger btn-sm">
+          <span class="material-icons-round mi-sm">logout</span>Logout
         </button>
       </form>
     </div>
@@ -68,27 +55,8 @@
     const menu = document.getElementById('tailor-mobile-menu');
     const hamburger = document.getElementById('tailor-hamburger-icon');
     const closeIcon = document.getElementById('tailor-close-icon');
-
-    if (menu.classList.contains('hidden')) {
-      menu.classList.remove('hidden');
-      hamburger.classList.add('hidden');
-      closeIcon.classList.remove('hidden');
-    } else {
-      menu.classList.add('hidden');
-      hamburger.classList.remove('hidden');
-      closeIcon.classList.add('hidden');
-    }
+    menu.classList.toggle('hidden');
+    hamburger.classList.toggle('hidden');
+    closeIcon.classList.toggle('hidden');
   }
-
-  // Close mobile menu when a link is clicked
-  document.querySelectorAll('#tailor-mobile-menu a').forEach(link => {
-    link.addEventListener('click', () => {
-      const menu = document.getElementById('tailor-mobile-menu');
-      const hamburger = document.getElementById('tailor-hamburger-icon');
-      const closeIcon = document.getElementById('tailor-close-icon');
-      menu.classList.add('hidden');
-      hamburger.classList.remove('hidden');
-      closeIcon.classList.add('hidden');
-    });
-  });
 </script>
