@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('../partials/head') %>
+<body class="bg-gray-50 dark:bg-gray-950 min-h-screen">
+  <%- include('../partials/nav-cutting-master') %>
+
+  <div class="max-w-5xl mx-auto px-4 py-6 sm:py-8">
+    <%- include('../partials/flash') %>
+
+    <a href="/cutting-master/dashboard" class="btn btn-ghost btn-sm mb-4">
+      <span class="material-icons-round mi-sm">arrow_back</span>Back to Dashboard
+    </a>
+
+    <div class="flex items-center gap-3 mb-6">
+      <span class="material-icons-round mi-xl" style="color:#F57C00;">assignment_ind</span>
+      <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-800 dark:text-white">Bulk Assign Tailor</h1>
+    </div>
+
+    <!-- Tailor Selection -->
+    <div class="card mb-6">
+      <h2 class="font-bold text-gray-800 dark:text-white mb-3 flex items-center gap-2">
+        <span class="material-icons-round mi-sm text-primary-500">person_add</span>Select Tailor
+      </h2>
+      <select id="tailorSelect" class="form-input">
+        <option value="">-- Select a tailor --</option>
+        <% tailors.forEach((tailor) => { %>
+          <option value="<%= tailor._id %>"><%= tailor.name %></option>
+        <% }) %>
+      </select>
+    </div>
+
+    <!-- Orders List -->
+    <div class="card">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="font-bold text-gray-800 dark:text-white flex items-center gap-2">
+          <span class="material-icons-round mi-sm" style="color:#F57C00;">receipt_long</span>
+          Orders Ready for Assignment
+          <span id="selectedCount" class="badge badge-cutting ml-2">0 selected</span>
+        </h2>
+        <div class="flex gap-2">
+          <button onclick="toggleAll()" class="btn btn-outline btn-sm">Select All</button>
+          <button onclick="bulkAssign()" class="btn btn-primary btn-sm" id="assignBtn" disabled>
+            <span class="material-icons-round mi-sm">send</span>Assign
+          </button>
+        </div>
+      </div>
+
+      <% if (orders.length === 0) { %>
+        <div class="text-center py-10">
+          <span class="material-icons-round text-gray-300 dark:text-gray-600" style="font-size:48px;">check_circle</span>
+          <p class="text-gray-400 mt-2">No orders ready for tailor assignment</p>
+          <p class="text-xs text-gray-400 mt-1">Orders must have cutting status "Done" to appear here</p>
+        </div>
+      <% } else { %>
+        <div class="space-y-2">
+          <% orders.forEach((order) => { %>
+            <label class="flex items-center gap-3 bg-gray-50 dark:bg-gray-800 rounded-lg p-4 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition order-item">
+              <input type="checkbox" class="order-checkbox w-5 h-5 rounded accent-orange-500" value="<%= order._id %>" onchange="updateCount()">
+              <div class="flex-1 min-w-0">
+                <div class="flex justify-between items-start">
+                  <div>
+                    <p class="font-mono font-bold text-sm text-gray-800 dark:text-white">#<%= order.orderNumber %></p>
+                    <p class="text-xs text-gray-500"><%= order.customer ? order.customer.name : 'N/A' %> &middot; <%= order.garmentType %></p>
+                  </div>
+                  <div class="text-right">
+                    <% if (order.assignedTailor) { %>
+                      <span class="badge badge-stitching text-xs"><%= order.assignedTailor.name %></span>
+                    <% } else { %>
+                      <span class="badge badge-placed text-xs">Unassigned</span>
+                    <% } %>
+                  </div>
+                </div>
+              </div>
+            </label>
+          <% }) %>
+        </div>
+      <% } %>
+    </div>
+  </div>
+
+  <script>
+    function updateCount() {
+      const checked = document.querySelectorAll('.order-checkbox:checked').length;
+      document.getElementById('selectedCount').textContent = checked + ' selected';
+      document.getElementById('assignBtn').disabled = checked === 0;
+    }
+
+    function toggleAll() {
+      const boxes = document.querySelectorAll('.order-checkbox');
+      const allChecked = [...boxes].every(b => b.checked);
+      boxes.forEach(b => b.checked = !allChecked);
+      updateCount();
+    }
+
+    async function bulkAssign() {
+      const tailorId = document.getElementById('tailorSelect').value;
+      if (!tailorId) { alert('Please select a tailor first'); return; }
+
+      const orderIds = [...document.querySelectorAll('.order-checkbox:checked')].map(cb => cb.value);
+      if (orderIds.length === 0) { alert('Please select at least one order'); return; }
+
+      if (!confirm(`Assign ${orderIds.length} order(s) to selected tailor?`)) return;
+
+      try {
+        const response = await fetch('/cutting-master/bulk-assign', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ orderIds, tailorId }),
+        });
+        const result = await response.json();
+        if (result.success) {
+          alert(result.message);
+          location.reload();
+        } else {
+          alert('Error: ' + result.error);
+        }
+      } catch (error) {
+        alert('Failed to assign orders');
+      }
+    }
+  </script>
+
+  <%- include('../partials/footer') %>
+</body>
+</html>

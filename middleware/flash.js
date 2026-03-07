@@ -11,6 +11,8 @@ const flashMiddleware = (req, res, next) => {
   res.locals.shopId = req.session.shopId || null;
   res.locals.shopName = req.session.shopName || null;
   res.locals.shopCode = req.session.shopCode || null;
+  res.locals.cloudinaryCloudName = process.env.CLOUDINARY_CLOUD_NAME || '';
+  res.locals.cloudinaryUploadPreset = process.env.CLOUDINARY_UPLOAD_PRESET || '';
   next();
 };
 

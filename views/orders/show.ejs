@@ -142,6 +142,38 @@
         </div>
       <% } %>
     </div>
+
+    <!-- Customer Measurements -->
+    <% if (order.customer && order.customer.measurements && order.customer.measurements.length > 0) { %>
+    <div class="card mt-6">
+      <div class="flex items-center gap-2 mb-5">
+        <span class="material-icons-round text-primary-500">straighten</span>
+        <h2 class="text-lg font-bold text-gray-800 dark:text-white">Customer Measurements</h2>
+      </div>
+      <div class="space-y-3">
+        <% order.customer.measurements.forEach((measurement) => { %>
+          <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+            <h3 class="font-bold text-accent-500 mb-3 capitalize flex items-center gap-2">
+              <span class="material-icons-round mi-sm">checkroom</span><%= measurement.type %>
+            </h3>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <% ['length', 'chest', 'shoulder', 'waist', 'hip', 'thigh', 'neck', 'sleeveLength', 'bicep', 'collar', 'cuff', 'bottom', 'crotch', 'knee'].forEach((field) => { %>
+                <% if (measurement[field]) { %>
+                  <div>
+                    <p class="text-xs text-gray-400 uppercase"><%= field.replace(/([A-Z])/g, ' $1') %></p>
+                    <p class="font-bold text-gray-800 dark:text-white"><%= measurement[field] %></p>
+                  </div>
+                <% } %>
+              <% }) %>
+            </div>
+            <% if (measurement.notes) { %>
+              <p class="text-xs text-gray-500 mt-3 pt-2 border-t border-gray-200 dark:border-gray-700"><strong>Notes:</strong> <%= measurement.notes %></p>
+            <% } %>
+          </div>
+        <% }) %>
+      </div>
+    </div>
+    <% } %>
   </div>
 
   <input type="hidden" id="orderId" value="<%= order._id %>" />

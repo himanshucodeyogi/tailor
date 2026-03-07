@@ -39,6 +39,8 @@ router.get('/new', async (req, res) => {
     const { customerId } = req.query;
     const custFilter = req.session.shopId ? { shop: req.session.shopId } : {};
     const customers = await Customer.find(custFilter).sort({ name: 1 });
+    const cmFilter = req.session.shopId ? { shop: req.session.shopId } : {};
+    const cuttingMasters = await CuttingMaster.find(cmFilter).sort({ name: 1 });
 
     // Order statuses
     const statuses = ['Order Placed', 'Cutting', 'In Stitching', 'Final Touches', 'Ready for Pickup'];
@@ -46,6 +48,7 @@ router.get('/new', async (req, res) => {
     res.render('orders/new', {
       title: 'Create Order',
       customers,
+      cuttingMasters,
       selectedCustomerId: customerId || '',
       statuses,
     });
@@ -62,7 +65,7 @@ router.post('/', async (req, res) => {
     console.log('===== CREATE ORDER REQUEST =====');
     console.log('Raw form data:', req.body);
 
-    const { customer, garmentType, description, price, advancePaid, dueDate, status } = req.body;
+    const { customer, garmentType, description, price, advancePaid, dueDate, status, assignedCuttingMaster } = req.body;
 
     // Validate required fields
     if (!customer || customer.trim() === '') {
@@ -116,7 +119,7 @@ router.post('/', async (req, res) => {
     console.log('- Advance Paid:', parsedAdvance);
     console.log('- Status:', status || 'Order Placed');
 
-    const order = new Order({
+    const orderData = {
       orderNumber,
       customer,
       garmentType,
@@ -127,7 +130,11 @@ router.post('/', async (req, res) => {
       status: status || 'Order Placed',
       isActive: true,
       shop: req.session.shopId,
-    });
+    };
+    if (assignedCuttingMaster && assignedCuttingMaster.trim() !== '') {
+      orderData.assignedCuttingMaster = assignedCuttingMaster;
+    }
+    const order = new Order(orderData);
 
     console.log('Order instance created, saving to database...');
     await order.save();
@@ -242,7 +249,10 @@ router.post('/bulk-assign', async (req, res) => {
 // GET /admin/orders/:id - View single order
 router.get('/:id', async (req, res) => {
   try {
-    const order = await Order.findById(req.params.id).populate('customer');
+    const order = await Order.findById(req.params.id)
+      .populate('customer')
+      .populate('assignedCuttingMaster', 'name username')
+      .populate('assignedTailor', 'name username');
 
     if (!order) {
       req.flash('error', 'Order not found');
@@ -266,7 +276,9 @@ router.get('/:id', async (req, res) => {
 // GET /admin/orders/:id/edit - Show edit order form
 router.get('/:id/edit', async (req, res) => {
   try {
-    const order = await Order.findById(req.params.id).populate('customer');
+    const order = await Order.findById(req.params.id)
+      .populate('customer')
+      .populate('assignedCuttingMaster', 'name username');
 
     if (!order) {
       req.flash('error', 'Order not found');
@@ -275,12 +287,15 @@ router.get('/:id/edit', async (req, res) => {
 
     const editCustFilter = req.session.shopId ? { shop: req.session.shopId } : {};
     const customers = await Customer.find(editCustFilter).sort({ name: 1 });
+    const cmFilter = req.session.shopId ? { shop: req.session.shopId } : {};
+    const cuttingMasters = await CuttingMaster.find(cmFilter).sort({ name: 1 });
     const statuses = ['Order Placed', 'Cutting', 'In Stitching', 'Final Touches', 'Ready for Pickup'];
 
     res.render('orders/edit', {
       title: 'Edit Order',
       order,
       customers,
+      cuttingMasters,
       statuses,
     });
   } catch (error) {
@@ -293,7 +308,7 @@ router.get('/:id/edit', async (req, res) => {
 // PUT /admin/orders/:id - Update order
 router.put('/:id', async (req, res) => {
   try {
-    const { garmentType, description, price, advancePaid, dueDate, status } = req.body;
+    const { garmentType, description, price, advancePaid, dueDate, status, assignedCuttingMaster } = req.body;
 
     const order = await Order.findById(req.params.id);
 
@@ -309,6 +324,11 @@ router.put('/:id', async (req, res) => {
     order.advancePaid = advancePaid ? parseFloat(advancePaid) : order.advancePaid;
     order.dueDate = dueDate || order.dueDate;
     order.status = status || order.status;
+    if (assignedCuttingMaster && assignedCuttingMaster.trim() !== '') {
+      order.assignedCuttingMaster = assignedCuttingMaster;
+    } else {
+      order.assignedCuttingMaster = null;
+    }
 
     await order.save();
 

@@ -78,11 +78,25 @@
           </div>
         </div>
 
-        <div>
-          <label class="form-label">Due Date</label>
-          <div class="relative">
-            <span class="absolute left-3 top-1/2 -translate-y-1/2 material-icons-round mi-sm text-gray-400">event</span>
-            <input type="date" name="dueDate" class="form-input pl-10" />
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+          <div>
+            <label class="form-label">Due Date</label>
+            <div class="relative">
+              <span class="absolute left-3 top-1/2 -translate-y-1/2 material-icons-round mi-sm text-gray-400">event</span>
+              <input type="date" name="dueDate" class="form-input pl-10" />
+            </div>
+          </div>
+          <div>
+            <label class="form-label">Assign Cutting Master</label>
+            <div class="relative">
+              <span class="absolute left-3 top-1/2 -translate-y-1/2 material-icons-round mi-sm text-gray-400">carpenter</span>
+              <select name="assignedCuttingMaster" class="form-input pl-10">
+                <option value="">-- None --</option>
+                <% if (typeof cuttingMasters !== 'undefined') { cuttingMasters.forEach((cm) => { %>
+                  <option value="<%= cm._id %>"><%= cm.name %></option>
+                <% }); } %>
+              </select>
+            </div>
           </div>
         </div>
 

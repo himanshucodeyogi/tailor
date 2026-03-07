@@ -6,13 +6,21 @@
         <div class="w-9 h-9 bg-white/20 rounded-lg flex items-center justify-center">
           <span class="material-icons-round text-white" style="font-size:20px;">carpenter</span>
         </div>
-        <span class="text-lg font-bold text-white">Cutting Master</span>
+        <div>
+          <span class="text-lg font-bold text-white">Cutting Master</span>
+          <% if (typeof shopName !== 'undefined' && shopName) { %>
+            <p class="text-xs text-white/60 -mt-1"><%= shopName %></p>
+          <% } %>
+        </div>
       </a>
 
       <!-- Desktop Nav -->
       <div class="hidden md:flex items-center gap-4">
         <a href="/cutting-master/dashboard" class="px-4 py-2 rounded-lg text-sm font-medium <%= typeof request !== 'undefined' && request.path === '/cutting-master/dashboard' ? 'bg-white/20 text-white' : 'text-white/80 hover:bg-white/10 hover:text-white' %>">
           <span class="material-icons-round mi-sm align-middle mr-1">dashboard</span>Dashboard
+        </a>
+        <a href="/cutting-master/bulk-assign" class="px-4 py-2 rounded-lg text-sm font-medium <%= typeof request !== 'undefined' && request.path === '/cutting-master/bulk-assign' ? 'bg-white/20 text-white' : 'text-white/80 hover:bg-white/10 hover:text-white' %>">
+          <span class="material-icons-round mi-sm align-middle mr-1">assignment_ind</span>Bulk Assign
         </a>
         <div class="w-px h-6 bg-white/20"></div>
         <span class="text-sm text-white/80">Welcome, <strong class="text-white"><%= cmName %></strong></span>
@@ -38,6 +46,9 @@
     <div class="px-3 py-3 space-y-1">
       <a href="/cutting-master/dashboard" class="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-white/80 hover:bg-white/10">
         <span class="material-icons-round mi-sm">dashboard</span>Dashboard
+      </a>
+      <a href="/cutting-master/bulk-assign" class="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-white/80 hover:bg-white/10">
+        <span class="material-icons-round mi-sm">assignment_ind</span>Bulk Assign
       </a>
       <div class="my-2 border-t border-white/10"></div>
       <div class="px-4 py-2 text-sm text-white/70">Welcome, <strong class="text-white"><%= cmName %></strong></div>

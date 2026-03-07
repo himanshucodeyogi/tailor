@@ -68,6 +68,66 @@ router.get('/orders/:id', async (req, res) => {
   }
 });
 
+// GET /cutting-master/bulk-assign - Bulk assign tailor page
+router.get('/bulk-assign', async (req, res) => {
+  try {
+    const orderFilter = {
+      isActive: true,
+      assignedCuttingMaster: req.session.cuttingMasterId,
+      cuttingStatus: 'Done',
+    };
+    const orders = await Order.find(orderFilter)
+      .populate('customer', 'name phone')
+      .populate('assignedTailor', 'name')
+      .sort({ createdAt: -1 });
+
+    const tailorFilter = req.session.shopId ? { shop: req.session.shopId } : {};
+    const tailors = await Tailor.find(tailorFilter).sort({ name: 1 });
+
+    res.render('cutting-master/bulk-assign', {
+      title: 'Bulk Assign Tailor',
+      orders,
+      tailors,
+    });
+  } catch (error) {
+    console.error('CM Bulk assign page error:', error);
+    req.flash('error', 'Error loading bulk assign page');
+    res.redirect('/cutting-master/dashboard');
+  }
+});
+
+// POST /cutting-master/bulk-assign - Process bulk tailor assignment
+router.post('/bulk-assign', async (req, res) => {
+  try {
+    const { orderIds, tailorId } = req.body;
+
+    if (!orderIds || !Array.isArray(orderIds) || orderIds.length === 0) {
+      return res.status(400).json({ error: 'No orders selected' });
+    }
+    if (!tailorId) {
+      return res.status(400).json({ error: 'No tailor selected' });
+    }
+
+    const tailor = await Tailor.findById(tailorId);
+    if (!tailor) {
+      return res.status(404).json({ error: 'Tailor not found' });
+    }
+
+    const result = await Order.updateMany(
+      { _id: { $in: orderIds }, assignedCuttingMaster: req.session.cuttingMasterId },
+      { assignedTailor: tailorId, status: 'In Stitching' }
+    );
+
+    res.json({
+      success: true,
+      message: `${result.modifiedCount} order(s) assigned to ${tailor.name}`,
+    });
+  } catch (error) {
+    console.error('CM Bulk assign error:', error);
+    res.status(500).json({ error: 'Failed to assign orders' });
+  }
+});
+
 // PATCH /cutting-master/orders/:id/cutting-status - Update cutting status
 router.patch('/orders/:id/cutting-status', async (req, res) => {
   try {
@@ -77,9 +137,17 @@ router.patch('/orders/:id/cutting-status', async (req, res) => {
       return res.status(400).json({ error: 'Invalid cutting status' });
     }
 
+    // When cutting Done → order status "Cutting"; When Pending → "Order Placed"
+    const updateData = { cuttingStatus };
+    if (cuttingStatus === 'Done') {
+      updateData.status = 'Cutting';
+    } else {
+      updateData.status = 'Order Placed';
+    }
+
     const order = await Order.findOneAndUpdate(
       { _id: req.params.id, assignedCuttingMaster: req.session.cuttingMasterId },
-      { cuttingStatus },
+      updateData,
       { new: true, runValidators: true }
     );
 
@@ -115,7 +183,7 @@ router.patch('/orders/:id/assign-tailor', async (req, res) => {
 
     const order = await Order.findOneAndUpdate(
       { _id: req.params.id, assignedCuttingMaster: req.session.cuttingMasterId },
-      { assignedTailor: tailorId },
+      { assignedTailor: tailorId, status: 'In Stitching' },
       { new: true, runValidators: true }
     );
 

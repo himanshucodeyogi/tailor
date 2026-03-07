@@ -45,22 +45,47 @@
         <% }) %>
       </div>
 
+      <% if (order.pendingApproval) { %>
+        <div class="bg-orange-50 dark:bg-orange-900/20 border border-orange-300 dark:border-orange-700 rounded-xl p-4 mb-4">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="material-icons-round text-orange-500">hourglass_top</span>
+            <h3 class="font-bold text-orange-700 dark:text-orange-400">Awaiting Owner Verification</h3>
+          </div>
+          <p class="text-sm text-orange-600 dark:text-orange-400 mb-3">Your photo has been submitted and is waiting for the owner to verify before the status changes to Ready for Pickup.</p>
+          <% if (order.pendingReadyPhoto) { %>
+            <img src="<%= order.pendingReadyPhoto %>" alt="Submitted photo" class="w-full max-w-xs rounded-lg border border-orange-200 dark:border-orange-700">
+          <% } %>
+        </div>
+      <% } %>
+
+      <% if (order.readyPhotoUrl && order.status === 'Ready for Pickup') { %>
+        <div class="bg-green-50 dark:bg-green-900/20 border border-green-300 dark:border-green-700 rounded-xl p-4 mb-4">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="material-icons-round text-green-500">verified</span>
+            <h3 class="font-bold text-green-700 dark:text-green-400">Approved Ready Photo</h3>
+          </div>
+          <img src="<%= order.readyPhotoUrl %>" alt="Approved ready photo" class="w-full max-w-xs rounded-lg border border-green-200 dark:border-green-700">
+        </div>
+      <% } %>
+
       <div class="flex flex-col sm:flex-row gap-2 mb-4">
-        <button onclick="openStatusModal()" class="btn btn-accent">
-          <span class="material-icons-round mi-sm">bolt</span>Update Status
-        </button>
-        <a href="/tailor/customers/<%= order.customer._id %>/measurements/edit" class="btn btn-primary">
-          <span class="material-icons-round mi-sm">straighten</span>Edit Measurements
-        </a>
+        <% if (order.pendingApproval) { %>
+          <button disabled class="btn btn-accent opacity-60 cursor-not-allowed">
+            <span class="material-icons-round mi-sm">hourglass_top</span>Pending Approval
+          </button>
+        <% } else { %>
+          <button onclick="openStatusModal()" class="btn btn-accent">
+            <span class="material-icons-round mi-sm">bolt</span>Update Status
+          </button>
+        <% } %>
       </div>
     </div>
 
     <!-- Order Details -->
-    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+    <div class="grid grid-cols-3 gap-3 mb-6">
       <div class="card text-center"><p class="text-xs text-gray-400 uppercase mb-1">Garment</p><p class="font-bold text-gray-800 dark:text-white"><%= order.garmentType %></p></div>
       <div class="card text-center"><p class="text-xs text-gray-400 uppercase mb-1">Created</p><p class="font-bold text-gray-800 dark:text-white"><%= new Date(order.createdAt).toLocaleDateString() %></p></div>
       <div class="card text-center"><p class="text-xs text-gray-400 uppercase mb-1">Due Date</p><p class="font-bold text-gray-800 dark:text-white"><%= order.dueDate ? new Date(order.dueDate).toLocaleDateString() : 'Not set' %></p></div>
-      <div class="card text-center"><p class="text-xs text-gray-400 uppercase mb-1">Price</p><p class="font-bold text-primary-500">&#8377;<%= order.price %></p></div>
     </div>
 
     <% if (order.description) { %>
@@ -116,13 +141,17 @@
       <p class="text-sm text-gray-500 mb-5">Current: <strong><%= order.status %></strong></p>
       <div class="space-y-2 mb-5">
         <% statuses.forEach((status, index) => { %>
+          <% const isDisabledReady = (status === 'Ready for Pickup' && order.pendingApproval); %>
           <button type="button" onclick="handleStatusSelect('<%= status %>')"
+            <%= isDisabledReady ? 'disabled' : '' %>
             class="w-full px-4 py-3 rounded-lg border-2 text-left font-semibold text-sm transition-all flex items-center gap-3
-              <%= status === order.status ? 'bg-accent-400 text-white border-accent-400' : 'border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:border-accent-400' %>">
+              <%= status === order.status ? 'bg-accent-400 text-white border-accent-400' : '' %>
+              <%= isDisabledReady ? 'opacity-50 cursor-not-allowed border-gray-200 dark:border-gray-700 text-gray-400' : '' %>
+              <%= (status !== order.status && !isDisabledReady) ? 'border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:border-accent-400' : '' %>">
             <span class="material-icons-round mi-sm">
               <% if (index < currentIndex) { %>check_circle<% } else if (status === order.status) { %>radio_button_checked<% } else { %>radio_button_unchecked<% } %>
             </span>
-            <%= status %>
+            <%= status %><%= isDisabledReady ? ' (Pending Approval)' : '' %>
           </button>
         <% }); %>
       </div>
@@ -130,17 +159,178 @@
     </div>
   </div>
 
+  <!-- Photo Upload Modal -->
+  <div id="photoModal" class="modal-overlay">
+    <div class="modal-content">
+      <h2 class="text-xl font-bold text-gray-800 dark:text-white mb-2">Upload Ready Photo</h2>
+      <p class="text-sm text-gray-500 mb-5">Take a photo of the finished garment. It will be sent to the owner for approval before the status changes.</p>
+
+      <div id="photoError" class="hidden bg-red-50 dark:bg-red-900/20 border border-red-300 dark:border-red-700 rounded-lg p-3 mb-4">
+        <p class="text-sm text-red-600 dark:text-red-400" id="photoErrorText"></p>
+      </div>
+
+      <div id="photoPreviewContainer" class="hidden mb-4">
+        <img id="photoPreview" src="" alt="Preview" class="w-full max-w-xs mx-auto rounded-lg border border-gray-200 dark:border-gray-700">
+      </div>
+
+      <label class="block mb-4">
+        <span class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block">Select Photo</span>
+        <input type="file" id="photoInput" accept="image/*" capture="environment"
+          class="block w-full text-sm text-gray-500 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-accent-50 file:text-accent-600 hover:file:bg-accent-100 dark:file:bg-accent-900/30 dark:file:text-accent-400">
+      </label>
+
+      <div id="uploadProgress" class="hidden mb-4">
+        <div class="flex items-center gap-2 mb-1">
+          <div class="animate-spin rounded-full h-4 w-4 border-2 border-accent-500 border-t-transparent"></div>
+          <span class="text-sm text-gray-600 dark:text-gray-400">Uploading photo...</span>
+        </div>
+        <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+          <div id="uploadProgressBar" class="bg-accent-500 h-2 rounded-full transition-all" style="width: 0%"></div>
+        </div>
+      </div>
+
+      <div class="flex gap-2">
+        <button type="button" id="uploadBtn" onclick="uploadAndSubmit()" disabled class="btn btn-accent flex-1 opacity-60 cursor-not-allowed">
+          <span class="material-icons-round mi-sm">cloud_upload</span>Upload & Submit
+        </button>
+        <button type="button" onclick="closePhotoModal()" class="btn btn-outline flex-1">Cancel</button>
+      </div>
+    </div>
+  </div>
+
   <script>
+    const CLOUD_NAME = '<%= cloudinaryCloudName %>';
+    const UPLOAD_PRESET = '<%= cloudinaryUploadPreset %>';
+    const ORDER_ID = '<%= order._id %>';
+
     function openStatusModal() { document.getElementById('statusModal').classList.add('active'); }
     function closeStatusModal() { document.getElementById('statusModal').classList.remove('active'); }
+    function openPhotoModal() { document.getElementById('photoModal').classList.add('active'); }
+    function closePhotoModal() {
+      document.getElementById('photoModal').classList.remove('active');
+      document.getElementById('photoInput').value = '';
+      document.getElementById('photoPreviewContainer').classList.add('hidden');
+      document.getElementById('photoError').classList.add('hidden');
+      document.getElementById('uploadProgress').classList.add('hidden');
+      const btn = document.getElementById('uploadBtn');
+      btn.disabled = true;
+      btn.classList.add('opacity-60', 'cursor-not-allowed');
+    }
+
+    // Photo preview on file select
+    document.getElementById('photoInput').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      const previewContainer = document.getElementById('photoPreviewContainer');
+      const preview = document.getElementById('photoPreview');
+      const btn = document.getElementById('uploadBtn');
+      const errorEl = document.getElementById('photoError');
+      errorEl.classList.add('hidden');
+
+      if (file) {
+        if (!file.type.startsWith('image/')) {
+          errorEl.querySelector('#photoErrorText').textContent = 'Please select an image file.';
+          errorEl.classList.remove('hidden');
+          return;
+        }
+        if (file.size > 10 * 1024 * 1024) {
+          errorEl.querySelector('#photoErrorText').textContent = 'Image must be under 10MB.';
+          errorEl.classList.remove('hidden');
+          return;
+        }
+        const reader = new FileReader();
+        reader.onload = function(ev) {
+          preview.src = ev.target.result;
+          previewContainer.classList.remove('hidden');
+          btn.disabled = false;
+          btn.classList.remove('opacity-60', 'cursor-not-allowed');
+        };
+        reader.readAsDataURL(file);
+      } else {
+        previewContainer.classList.add('hidden');
+        btn.disabled = true;
+        btn.classList.add('opacity-60', 'cursor-not-allowed');
+      }
+    });
+
     async function handleStatusSelect(status) {
+      if (status === 'Ready for Pickup') {
+        closeStatusModal();
+        if (!CLOUD_NAME || !UPLOAD_PRESET) {
+          alert('Photo upload is not configured. Please contact the administrator to set up Cloudinary.');
+          return;
+        }
+        openPhotoModal();
+        return;
+      }
       try {
-        const response = await fetch('/tailor/orders/<%= order._id %>/status', {
+        const response = await fetch('/tailor/orders/' + ORDER_ID + '/status', {
           method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status }),
         });
         const result = await response.json();
-        if (result.success) { location.reload(); } else { alert('Error: ' + result.error); }
+        if (result.success) { location.reload(); } else { alert('Error: ' + (result.error || 'Unknown error')); }
       } catch (error) { alert('Failed to update status'); }
+    }
+
+    async function uploadAndSubmit() {
+      const file = document.getElementById('photoInput').files[0];
+      if (!file) return;
+
+      const btn = document.getElementById('uploadBtn');
+      const errorEl = document.getElementById('photoError');
+      const progressEl = document.getElementById('uploadProgress');
+      const progressBar = document.getElementById('uploadProgressBar');
+
+      btn.disabled = true;
+      btn.classList.add('opacity-60', 'cursor-not-allowed');
+      errorEl.classList.add('hidden');
+      progressEl.classList.remove('hidden');
+      progressBar.style.width = '0%';
+
+      try {
+        // Upload to Cloudinary
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('upload_preset', UPLOAD_PRESET);
+
+        const xhr = new XMLHttpRequest();
+        const cloudinaryUrl = await new Promise((resolve, reject) => {
+          xhr.open('POST', 'https://api.cloudinary.com/v1_1/' + CLOUD_NAME + '/image/upload');
+          xhr.upload.onprogress = function(e) {
+            if (e.lengthComputable) {
+              progressBar.style.width = Math.round((e.loaded / e.total) * 100) + '%';
+            }
+          };
+          xhr.onload = function() {
+            if (xhr.status >= 200 && xhr.status < 300) {
+              const data = JSON.parse(xhr.responseText);
+              resolve(data.secure_url);
+            } else {
+              reject(new Error('Upload failed'));
+            }
+          };
+          xhr.onerror = function() { reject(new Error('Upload failed')); };
+          xhr.send(formData);
+        });
+
+        // Send URL to server
+        const response = await fetch('/tailor/orders/' + ORDER_ID + '/status', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: 'Ready for Pickup', readyPhotoUrl: cloudinaryUrl }),
+        });
+        const result = await response.json();
+        if (result.success) {
+          location.reload();
+        } else {
+          throw new Error(result.error || 'Server error');
+        }
+      } catch (error) {
+        progressEl.classList.add('hidden');
+        errorEl.querySelector('#photoErrorText').textContent = error.message || 'Failed to upload photo. Please try again.';
+        errorEl.classList.remove('hidden');
+        btn.disabled = false;
+        btn.classList.remove('opacity-60', 'cursor-not-allowed');
+      }
     }
   </script>
 

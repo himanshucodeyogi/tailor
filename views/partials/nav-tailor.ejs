@@ -6,7 +6,12 @@
         <div class="w-9 h-9 bg-white/20 rounded-lg flex items-center justify-center">
           <span class="material-icons-round text-white" style="font-size:20px;">content_cut</span>
         </div>
-        <span class="text-lg font-bold text-white">Tailor Panel</span>
+        <div>
+          <span class="text-lg font-bold text-white">Tailor Panel</span>
+          <% if (typeof shopName !== 'undefined' && shopName) { %>
+            <p class="text-xs text-white/60 -mt-1"><%= shopName %></p>
+          <% } %>
+        </div>
       </a>
 
       <!-- Desktop Nav -->
